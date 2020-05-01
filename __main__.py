@@ -13,11 +13,13 @@ from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 import __eci__ as eci
-
+""" 
 # version 5.2.1
 # build hand writen mathematical was optimized
-# the possibility to input and delete directly from First Text Display by making cursor everywhere was optimized
+# the possibility to input and delete directly from First Text Display by making cursor everywhere was optimized and 
+make it for all modes
 # stop working ENG instantly
+"""
 
 sys.setrecursionlimit(10 ** 6)
 # the setrecursionlimit function is 
@@ -207,9 +209,20 @@ class Calculator:
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
+        self.TextLabelVariable = StringVar()
         # Self Display ROW 0============================================================================================
-        self.FirstTextDisplay = Entry(self.win, width=43, **ent_prm, textvariable=self.TextVariable)
-        self.FirstTextDisplay.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        self.canvas = Canvas(self.win)
+        self.canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.columnconfigure(0, weight=1)
+        self.canvas.columnconfigure(1, weight=1)
+        # Label Text Display
+        self.label = Label(self.canvas, **ent_prm, textvariable=self.TextLabelVariable)
+        self.label.grid(row=0, column=0, sticky=NSEW)
+        self.label.configure(font=('Segoe UI Symbol', 32))
+        # First Text Display
+        self.FirstTextDisplay = Entry(self.canvas, width=40, **ent_prm, textvariable=self.TextVariable)
+        self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
         self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32))
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
@@ -308,8 +321,8 @@ class Calculator:
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', self.x, "4", "5", "6", "*", "**2", self.y,
-               "1", "2", "3", "/", "**", self.z, "0", '', '.', "=", "Fact(", 'e']
+        btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
+               "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", "Fact(", 'e']
 
         btn_txt = ['π', 'E', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "*",
                    u'n\u00B2', 'y', "1", "2", "3", "/", "nˣ", 'z', "0", '', '.', "=", "!n", "10ˣ"]
@@ -762,36 +775,39 @@ class Calculator:
         self.Figure.clear()
         self.CanvasFigure.draw()
 
-        if self.mode == 'Function':
-            self.TextVariable.set(f'From : ')
+        if self.mode == 'Operation':
+            self.VariableTXT('op >')
+
+        elif self.mode == 'Function':
+            self.VariableTXT(f'From :')
             self.FastTextVariable.set(f'From : A --> To : B')
 
         elif self.mode == 'Equation':
-            self.TextVariable.set(f'a = ')
+            self.VariableTXT(f'a =')
             self.FastTextVariable.set('ax² + bx + c = 0')
 
         elif self.mode == 'Solve':
-            self.TextVariable.set(f'eq > ')
+            self.VariableTXT(f'eq >')
             self.FastTextVariable.set('eq > ')
 
         elif self.mode == 'Matrices':
-            self.TextVariable.set(f'eq₁ > ')
+            self.VariableTXT(f'eq₁ >')
             self.FastTextVariable.set('eq₁ > ')
 
         elif self.mode == 'Plot':
-            self.TextVariable.set(f'f(x) = ')
+            self.VariableTXT(f'f(x) =')
             self.FastTextVariable.set(f'f(x) = ')
 
         elif self.mode == "Plot Prm" or self.mode == "P3DPL":
-            self.TextVariable.set(f'f(x)₁ = ')
+            self.VariableTXT(f'f(x)₁ =')
             self.FastTextVariable.set(f'f(x)₁ = ')
 
         elif self.mode == 'Plot3D':
-            self.TextVariable.set(f'f(x,y) = ')
+            self.VariableTXT(f'f(x,y) =')
             self.FastTextVariable.set(f'f(x,y) = ')
 
         elif self.mode == "P3DPS":
-            self.TextVariable.set(f'f(x,y)₁ = ')
+            self.VariableTXT(f'f(x,y)₁ =')
             self.FastTextVariable.set(f'f(x,y)₁ = ')
 
         self.equal = False
@@ -1002,27 +1018,21 @@ class Calculator:
         if self.clear:
             self.Delete()
 
-        if self.mode == 'Operation':
-            self.expression = self.InsertString(self.expression, keyword, self.IndexCursor, self.store_expression)
-            if self.permit is None:
-                print('insert self.permit is None')
-                pass
-            else:
-                if self.IndexCursor == 0:
-                    self.store_expression.insert(0, str(keyword))
-                    self.store_order.insert(0, len(str(keyword)))
-                    self.IndexCursor += int(len(str(keyword)))
-
-                else:
-                    self.store_expression.insert(int(self.n) + 1, str(keyword))
-                    self.store_order.insert(int(self.n) + 1, len(str(keyword)))
-                    self.IndexCursor += int(len(str(keyword)))
-            print('cursor', self.IndexCursor)
-
+        self.expression = self.InsertString(self.expression, keyword, self.IndexCursor, self.store_expression)
+        if self.permit is None:
+            print('insert self.permit is None')
+            pass
         else:
-            self.store_expression.append(str(keyword))
-            self.store_order.append(len(str(keyword)))
-            self.expression += str(keyword)
+            if self.IndexCursor == 0:
+                self.store_expression.insert(0, str(keyword))
+                self.store_order.insert(0, len(str(keyword)))
+                self.IndexCursor += int(len(str(keyword)))
+
+            else:
+                self.store_expression.insert(int(self.n) + 1, str(keyword))
+                self.store_order.insert(int(self.n) + 1, len(str(keyword)))
+                self.IndexCursor += int(len(str(keyword)))
+        print('cursor', self.IndexCursor)
 
         self.ShowDirectText()
 
@@ -1037,7 +1047,7 @@ class Calculator:
         except Exception:
             pass
 
-    def TkTexDraw(self, text):
+    def DrawTexTk(self, text):
         try:
             self.Figure.clear()
             self.Figure.text(0.01, 0.5, text, fontsize=30)
@@ -1045,117 +1055,122 @@ class Calculator:
         except Exception:
             pass
 
+    def VariableTXT(self, first):
+        self.TextLabelVariable.set(first)
+        self.TextVariable.set(self.expression)
+
     def ShowDirectText(self):
         try:
             if self.mode == 'Operation':
                 self.TextVariable.set(self.expression)
                 self.FastTextVariable.set(sympify(self.expression))
-                self.TkTexDraw(self.HandWrite(self.expression))
+                self.DrawTexTk(self.HandWrite(self.expression))
 
             elif self.mode == 'Function':
                 if self.full is None:
-                    self.TextVariable.set(f'From : {self.expression}')
+                    self.VariableTXT('From :')
                     self.FastTextVariable.set(f'From : {self.expression} --> To : B')
-                    self.TkTexDraw(f'From : {self.HandWrite(self.expression)} --> To : B')
+                    self.DrawTexTk(f'From : {self.HandWrite(self.expression)} --> To : B')
 
                 elif not self.full:
-                    self.TextVariable.set(f'To : {self.expression}')
+                    self.VariableTXT('To :')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {self.expression}')
-                    self.TkTexDraw(f'From : {self.HandWrite(self.v)} --> To : {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'From : {self.HandWrite(self.v)} --> To : {self.HandWrite(self.expression)}')
 
                 elif self.full:
-                    self.TextVariable.set(f'f(x) = {self.expression}')
+                    self.VariableTXT('f(x) =')
                     self.FastTextVariable.set(f'f(x) = {self.expression}')
-                    self.TkTexDraw(f'f(x) = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'f(x) = {self.HandWrite(self.expression)}')
 
             elif self.mode == 'Equation':
                 if self.full is None:
-                    self.TextVariable.set(f'a = {self.expression}')
+                    self.VariableTXT('a =')
                     self.FastTextVariable.set(f'{self.expression}x² + bx + c = 0')
-                    self.TkTexDraw(f'{self.HandWrite(self.expression)}x² + bx + c = 0')
+                    self.DrawTexTk(f'{self.HandWrite(self.expression)}x² + bx + c = 0')
 
                 elif not self.full:
-                    self.TextVariable.set(f'b = {self.expression}')
+                    self.VariableTXT('b =')
                     self.FastTextVariable.set(f'{self.a}x² + ({self.expression})x + c = 0')
-                    self.TkTexDraw(f'{self.HandWrite(self.a)}x² + ({self.HandWrite(self.expression)})x + c = 0')
+                    self.DrawTexTk(f'{self.HandWrite(self.a)}x² + ({self.HandWrite(self.expression)})x + c = 0')
 
                 elif self.full:
-                    self.TextVariable.set(f'c = {self.expression}')
+                    self.VariableTXT('c =')
                     self.FastTextVariable.set(f'{self.a}x² + ({self.b})x + ({self.expression}) = 0')
-                    self.TkTexDraw(
+                    self.DrawTexTk(
                         f'{self.HandWrite(self.a)}x² + ({self.HandWrite(self.b)})x + ({self.HandWrite(self.expression)}'
                         f') = 0')
 
             elif self.mode == 'Solve':
                 if self.full is None:
-                    self.TextVariable.set(f'eq > {self.expression}')
+                    self.VariableTXT('eq >')
                     self.FastTextVariable.set(f'eq > {self.expression}')
-                    self.TkTexDraw(f'eq > {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'eq > {self.HandWrite(self.expression)}')
                 elif self.full:
-                    self.TextVariable.set(f'eq > {self.q} = {self.expression}')
+                    self.VariableTXT(f'eq > {self.q} =')
                     self.FastTextVariable.set(f'eq > {self.q} = {self.expression}')
-                    self.TkTexDraw(f'eq > {self.HandWrite(self.q)} = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'eq > {self.HandWrite(self.q)} = {self.HandWrite(self.expression)}')
 
             elif self.mode == 'Matrices':
                 if self.full is None:
-                    self.TextVariable.set(f'eq₁ > {self.expression}')
+                    self.VariableTXT(f'eq₁ >')
                     self.FastTextVariable.set(f'eq₁ > {self.expression}')
-                    self.TkTexDraw(f'eq₁ > {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'eq₁ > {self.HandWrite(self.expression)}')
                 elif not self.full:
-                    self.TextVariable.set(f'eq₁ > {self.q} = {self.expression}')
+                    self.VariableTXT(f'eq₁ > {self.q} = ')
                     self.FastTextVariable.set(f'eq₁ > {self.q} = {self.expression}')
-                    self.TkTexDraw(f'eq₁ > {self.HandWrite(self.q)} = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'eq₁ > {self.HandWrite(self.q)} = {self.HandWrite(self.expression)}')
 
                 elif self.full:
                     if self.clear is None:
-                        self.TextVariable.set(f'eq₂ > {self.expression}')
+                        self.VariableTXT(f'eq₂ >')
                         self.FastTextVariable.set(f'eq₂ > {self.expression}')
-                        self.TkTexDraw(f'eq₂ > {self.HandWrite(self.expression)}')
+                        self.DrawTexTk(f'eq₂ > {self.HandWrite(self.expression)}')
                     elif not self.clear and self.equal is None:
-                        self.TextVariable.set(f'eq₂ > {self.j} = {self.expression}')
+                        self.VariableTXT(f'eq₂ > {self.j} =')
                         self.FastTextVariable.set(f'eq₂ > {self.j} = {self.expression}')
-                        self.TkTexDraw(f'eq₂ > {self.HandWrite(self.j)} = {self.HandWrite(self.expression)}')
+                        self.DrawTexTk(f'eq₂ > {self.HandWrite(self.j)} = {self.HandWrite(self.expression)}')
 
                     elif not self.clear and not self.equal:
-                        self.TextVariable.set(f'eq₃ > {self.expression}')
+                        self.VariableTXT(f'eq₃ >')
                         self.FastTextVariable.set(f'eq₃ > {self.expression}')
-                        self.TkTexDraw(f'eq₃ > {self.HandWrite(self.expression)}')
+                        self.DrawTexTk(f'eq₃ > {self.HandWrite(self.expression)}')
                     elif not self.clear and self.equal:
-                        self.TextVariable.set(f'eq₃ > {self.m} = {self.expression}')
+                        self.VariableTXT(f'eq₃ > {self.m} =')
                         self.FastTextVariable.set(f'eq₃ > {self.m} = {self.expression}')
-                        self.TkTexDraw(f'eq₃ > {self.HandWrite(self.m)} = {self.HandWrite(self.expression)}')
+                        self.DrawTexTk(f'eq₃ > {self.HandWrite(self.m)} = {self.HandWrite(self.expression)}')
 
             elif self.mode == 'Plot':
-                self.TextVariable.set(f'f(x) = {self.expression}')
+                self.VariableTXT(f'f(x) =')
                 self.FastTextVariable.set(f'f(x) = {self.expression}')
-                self.TkTexDraw(f'f(x) = {self.HandWrite(self.expression)}')
+                self.DrawTexTk(f'f(x) = {self.HandWrite(self.expression)}')
 
             elif self.mode == "Plot Prm" or self.mode == "P3DPL":
                 if self.full is None:
-                    self.TextVariable.set(f'f(x)₁ = {self.expression}')
+                    self.VariableTXT(f'f(x)₁ =')
                     self.FastTextVariable.set(f'f(x)₁ = {self.expression}')
-                    self.TkTexDraw(f'f(x)₁ = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'f(x)₁ = {self.HandWrite(self.expression)}')
 
                 elif self.full:
-                    self.TextVariable.set(f'f(x)₂ = {self.expression}')
+                    self.VariableTXT(f'f(x)₂ =')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
-                    self.TkTexDraw(f'f(x)₁ = {self.HandWrite(self.fctx1)} | f(x)₂ = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'f(x)₁ = {self.HandWrite(self.fctx1)} | f(x)₂ = {self.HandWrite(self.expression)}')
 
             elif self.mode == "Plot3D":
-                self.TextVariable.set(f'f(x,y) = {self.expression}')
+                self.VariableTXT(f'f(x,y) =')
                 self.FastTextVariable.set(f'f(x,y) = {self.expression}')
-                self.TkTexDraw(f'f(x,y) = {self.HandWrite(self.expression)}')
+                self.DrawTexTk(f'f(x,y) = {self.HandWrite(self.expression)}')
 
             elif self.mode == "P3DPS":
                 if self.full is None:
-                    self.TextVariable.set(f'f(x,y)₁ = {self.expression}')
+                    self.VariableTXT(f'f(x,y)₁ =')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.expression}')
-                    self.TkTexDraw(f'f(x,y)₁ = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(f'f(x,y)₁ = {self.HandWrite(self.expression)}')
 
                 elif self.full:
-                    self.TextVariable.set(f'f(x,y)₂ = {self.expression}')
+                    self.VariableTXT(f'f(x,y)₂ =')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctx1} | f(x,y)₂ = {self.expression}')
-                    self.TkTexDraw(f'f(x,y)₁ = {self.HandWrite(self.fctx1)} | f(x,y)₂ = {self.HandWrite(self.expression)}')
+                    self.DrawTexTk(
+                        f'f(x,y)₁ = {self.HandWrite(self.fctx1)} | f(x,y)₂ = {self.HandWrite(self.expression)}')
 
         except ZeroDivisionError:
             self.FastTextVariable.set(oo)
@@ -1173,7 +1188,7 @@ class Calculator:
                         self.answer = eval(self.expression)
                         self.FastTextVariable.set('')
                         self.TextVariable.set(f'{self.expression} = {self.answer}')
-                        self.TkTexDraw(self.HandWrite(self.answer))
+                        self.DrawTexTk(self.HandWrite(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
                         self.equal = True
@@ -1192,7 +1207,7 @@ class Calculator:
                                 self.answer = eval(self.expression)
                                 self.TextVariable.set(f'{self.expression} = {self.answer}')
                                 self.FastTextVariable.set(self.answer)
-                                self.TkTexDraw(self.HandWrite(self.answer))
+                                self.DrawTexTk(self.HandWrite(self.answer))
                                 self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                                 break
                             self.v -= 1
@@ -1202,7 +1217,7 @@ class Calculator:
                         self.answer = eval(self.expression)
                         self.TextVariable.set(f'{self.expression} = {self.answer}')
                         self.FastTextVariable.set(self.answer)
-                        self.TkTexDraw(self.HandWrite(self.answer))
+                        self.DrawTexTk(self.HandWrite(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                     except Exception:
                         self.FastTextVariable.set(f'ValueError or IndexError or SyntaxError')
@@ -1214,15 +1229,16 @@ class Calculator:
                     self.v = int(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'from : {self.expression}')
                     self.expression = ""
-                    self.TextVariable.set('To : ')
+                    self.VariableTXT(f'To :')
                     self.full = False
 
                 elif not self.full:
                     self.w = int(eval(self.expression)) + 1
                     self.FullTextDisplay.insert(END, f'To : {self.expression}')
                     self.expression = ""
-                    self.TextVariable.set('f(x) = ')
+                    self.VariableTXT(f'f(x) =')
                     self.FastTextVariable.set(f'f(x) = ')
+                    self.DrawTexTk(f'f(x) = ')
                     self.full = True
 
                 elif self.full:
@@ -1236,7 +1252,7 @@ class Calculator:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
                         self.P3d = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
                         self.expression = ""
-                        self.TextVariable.set(f'f(x) = ')
+                        self.VariableTXT(f'f(x) =')
                         self.equal = True
 
                     elif self.equal:
@@ -1247,21 +1263,21 @@ class Calculator:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
                             else:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
-                        self.TextVariable.set(f'f(x) = ')
                         self.PA = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
                         self.ColorGraphOneF()
+                        self.VariableTXT(f'f(x) =')
 
             elif self.mode == 'Equation':
                 if self.full is None:
                     self.a = float(eval(self.expression))
                     self.expression = ""
-                    self.TextVariable.set(f'b = ')
+                    self.VariableTXT(f'b =')
                     self.full = False
 
                 elif not self.full:
                     self.b = float(eval(self.expression))
                     self.expression = ""
-                    self.TextVariable.set(f'c = ')
+                    self.VariableTXT(f'c =')
                     self.full = True
 
                 elif self.full:
@@ -1269,8 +1285,10 @@ class Calculator:
                     d = float((self.b ** 2) - 4 * self.a * c)
                     nd = neg(d)
                     nb = neg(self.b)
-                    self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
+                    self.expression = ''
+                    self.VariableTXT(f'a = {self.a} | b = {self.b} | c = {c}')
                     self.FastTextVariable.set(f'{self.a}x² + ({self.b})x + ({c}) = 0')
+                    self.DrawTexTk(f'{self.HandWrite(self.a)}x² + ({self.HandWrite(self.b)})x + ({self.HandWrite(c)}) = 0')
                     if self.a > 0 or self.a < 0:
                         self.FullTextDisplay.insert(END,
                                                     f'The Equation Have Two Solutions For x :',
@@ -1324,19 +1342,22 @@ class Calculator:
             elif self.mode == 'Solve':
                 if self.full is None:
                     self.q = str(eval(self.expression))
-                    self.TextVariable.set(f'eq > {self.q} = ')
-                    self.FastTextVariable.set(f'eq > {self.q} = ')
                     self.expression = ""
+                    self.VariableTXT(f'eq > {self.q} =')
+                    self.FastTextVariable.set(f'eq > {self.q} = ')
+                    self.DrawTexTk(f'eq > {self.HandWrite(self.q)} = ')
                     self.full = True
 
                 elif self.full:
                     self.p = str(eval(self.expression))
-                    self.TextVariable.set(f'eq > {self.q} = {self.p}')
+                    self.expression = ''
+                    self.VariableTXT(f'eq > {self.q} = {self.p}')
                     self.FullTextDisplay.insert(END, f'eq > {self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.FastTextVariable.set(sol)
+                    self.DrawTexTk(self.HandWrite(sol))
                     for l in range(len(sol)):
                         self.FullTextDisplay.insert(END, f'> x{self.nb[int(l) + 1]} = {sol[l]}')
 
@@ -1346,30 +1367,32 @@ class Calculator:
             elif self.mode == 'Matrices':
                 if self.full is None:
                     self.q = str(sympify(self.expression))
-                    self.TextVariable.set(f'eq₁ > {self.q} = ')
                     self.expression = ""
+                    self.VariableTXT(f'eq₁ > {self.q} =')
                     self.full = False
 
                 elif not self.full:
                     self.p = str(sympify(self.expression))
-                    self.TextVariable.set('eq₂ > ')
-                    self.FastTextVariable.set('eq₂ > ')
-                    self.FullTextDisplay.insert(END, 'New System :', f' eq₁ | {self.q} = {self.p}')
                     self.expression = ""
+                    self.VariableTXT('eq₂ >')
+                    self.FastTextVariable.set('eq₂ > ')
+                    self.DrawTexTk('eq₂ > ')
+                    self.FullTextDisplay.insert(END, 'New System :', f' eq₁ | {self.q} = {self.p}')
                     self.full = True
                     self.clear = None
 
                 elif self.full:
                     if self.clear is None:
                         self.j = str(sympify(self.expression))
-                        self.TextVariable.set(f'eq₂ > {self.j} = ')
                         self.expression = ""
+                        self.VariableTXT(f'eq₂ > {self.j} =')
                         self.equal = None
                         self.clear = False
 
                     elif not self.clear:
                         if self.equal is None:
                             self.k = str(sympify(self.expression))
+                            self.expression = ""
                             self.FullTextDisplay.insert(END, f' eq₂ | {self.j} = {self.k}')
                             try:
                                 self.lslv = linsolve(
@@ -1386,15 +1409,16 @@ class Calculator:
                             while self.v < self.w:
                                 self.exist = False
                                 if self.lslv[self.v] == 'z' or self.lslv == 'EmptySet':
-                                    self.TextVariable.set('eq₃ > ')
+                                    self.VariableTXT('eq₃ >')
                                     self.FastTextVariable.set('eq₃ > ')
-                                    self.expression = ""
+                                    self.DrawTexTk('eq₃ > ')
                                     self.equal = False
                                     self.exist = True
                                     break
                                 self.v += 1
 
                             if not self.exist:
+                                self.DrawTexTk(self.HandWrite(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
                                 self.FastTextVariable.set('System of Two Equations : {eq₁,eq₂}_[x,y]')
 
@@ -1409,7 +1433,7 @@ class Calculator:
                                             self.v += 1
 
                                 self.yexp = str(self.yexp).replace(', ', '')
-                                self.TextVariable.set(f'{self.sb[0]} = {self.xexp} | {self.sb[1]} = {self.yexp}')
+                                self.VariableTXT(f'{self.sb[0]} = {self.xexp} | {self.sb[1]} = {self.yexp}')
                                 self.FullTextDisplay.insert(END, f'> {self.sb[0]} = {self.xexp}',
                                                             f'> {self.sb[1]} = {self.yexp}')
                                 self.clear = True
@@ -1417,12 +1441,13 @@ class Calculator:
 
                         elif not self.equal:
                             self.m = str(sympify(self.expression))
-                            self.TextVariable.set(f'eq₃ > {self.m} = ')
                             self.expression = ""
+                            self.VariableTXT(f'eq₃ > {self.m} =')
                             self.equal = True
 
                         elif self.equal:
                             self.n = str(sympify(self.expression))
+                            self.expression = ''
                             self.FullTextDisplay.insert(END, f' eq₃ | {self.m} = {self.n}')
                             try:
                                 self.lslv = linsolve(
@@ -1436,10 +1461,12 @@ class Calculator:
                             self.lslv = str(self.lslv)
 
                             if self.lslv == 'EmptySet':
-                                self.TextVariable.set(self.lslv)
+                                self.VariableTXT(self.lslv)
                                 self.FastTextVariable.set(self.lslv)
+                                self.DrawTexTk(self.HandWrite(self.lslv))
 
                             else:
+                                self.DrawTexTk(self.HandWrite(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
                                 self.FastTextVariable.set('System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
 
@@ -1459,8 +1486,8 @@ class Calculator:
 
                                 self.yexp = str(self.yexp).replace(', ', '')
                                 self.zexp = str(self.zexp).replace(', ', '')
-                                self.TextVariable.set(f'{self.sb[0]} = {self.xexp} | {self.sb[1]} = {self.yexp} | '
-                                                      f'{self.sb[2]} = {self.zexp}')
+                                self.VariableTXT(f'{self.sb[0]} = {self.xexp} | {self.sb[1]} = {self.yexp} | '
+                                                 f'{self.sb[2]} = {self.zexp}')
                                 self.FullTextDisplay.insert(END, f'> {self.sb[0]} = {self.xexp}',
                                                             f'> {self.sb[1]} = {self.yexp}',
                                                             f'> {self.sb[2]} = {self.zexp}')
@@ -1473,35 +1500,36 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.P3d = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10))
                     self.expression = ""
-                    self.TextVariable.set(f'f(x) = ')
+                    self.VariableTXT(f'f(x) =')
                     self.full = True
 
                 elif self.full:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PA = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
-
                     self.ColorGraphOneF()
-                    self.TextVariable.set(f'f(x) = ')
+                    self.VariableTXT(f'f(x) =')
 
             elif self.mode == 'Plot Prm':
                 if self.full is None:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
-                    self.TextVariable.set(f'f(x)₂ =')
+                    self.DrawTexTk(f'f(x)₁ = {self.HandWrite(self.fctx1)} | f(x)₂ =')
                     self.expression = ""
+                    self.VariableTXT(f'f(x)₂ =')
                     self.full = True
 
                 elif self.full:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
+                    self.DrawTexTk(f'f(x)₁ = {self.HandWrite(self.fctx1)} | f(x)₂ = {self.HandWrite(self.fctx2)}')
                     if not self.equal:
                         self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                    xlim=(-10, 10))
                         self.expression = ""
-                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.VariableTXT(f'f(x)₁ =')
                         self.equal = True
                         self.full = None
 
@@ -1509,7 +1537,7 @@ class Calculator:
                         self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                   xlim=(-10, 10), show=False)
                         self.ColorGraphTwoF()
-                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
             elif self.mode == 'P3DPL':
@@ -1517,19 +1545,21 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
-                    self.TextVariable.set(f'f(x)₂ =')
+                    self.DrawTexTk(f'f(x)₁ = {self.HandWrite(self.fctx1)} | f(x)₂ = ')
                     self.expression = ""
+                    self.VariableTXT(f'f(x)₂ =')
                     self.full = True
 
                 elif self.full:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
+                    self.DrawTexTk(f'f(x)₁ = {self.HandWrite(self.fctx1)} | f(x)₂ = {self.HandWrite(self.fctx2)}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                           ylim=(-10, 10), xlim=(-10, 10))
                         self.expression = ""
-                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.VariableTXT(f'f(x)₁ =')
                         self.equal = True
                         self.full = None
 
@@ -1537,7 +1567,7 @@ class Calculator:
                         self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                          ylim=(-10, 10), xlim=(-10, 10), show=False)
                         self.ColorGraphTwoF()
-                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
             elif self.mode == 'Plot3D':
@@ -1546,7 +1576,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.P3d = plot3d(sympify(self.fctxy))
                     self.expression = ""
-                    self.TextVariable.set(f'f(x,y) = ')
+                    self.VariableTXT(f'f(x,y) =')
                     self.full = True
 
                 elif self.full:
@@ -1555,26 +1585,28 @@ class Calculator:
                     self.PA = plot3d(sympify(self.fctxy), show=False)
 
                     self.ColorGraphOneF()
-                    self.TextVariable.set(f'f(x,y) = ')
+                    self.VariableTXT(f'f(x,y) =')
 
             elif self.mode == 'P3DPS':
                 if self.full is None:
                     self.fctxy1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = ')
+                    self.DrawTexTk(f'f(x,y)₁ = {self.HandWrite(self.fctxy1)} | f(x,y)₂ = ')
                     self.expression = ""
-                    self.TextVariable.set(f'f(x,y)₂ = ')
+                    self.VariableTXT(f'f(x,y)₂ = ')
                     self.full = True
 
                 elif self.full:
                     self.fctxy2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₂ = {self.fctxy2}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
+                    self.DrawTexTk(f'f(x,y)₁ = {self.HandWrite(self.fctxy1)} | f(x,y)₂ = {self.HandWrite(self.fctxy2)}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
                                                              self.x - self.y)
                         self.expression = ""
-                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.VariableTXT(f'f(x)₁ =')
                         self.equal = True
                         self.full = None
 
@@ -1582,7 +1614,7 @@ class Calculator:
                         self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y,
                                                             show=False)
                         self.ColorGraphTwoF()
-                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
         except ZeroDivisionError:
@@ -1601,6 +1633,9 @@ class Calculator:
             self.FastTextVariable.set('OverflowMathRangeError')
         except IndexError:
             self.FastTextVariable.set('IndexError')
+
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        self.FirstTextDisplay.icursor(self.IndexCursor)
 
         self.FullTextDisplay.see(END)
 
