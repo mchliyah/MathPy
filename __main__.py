@@ -5,12 +5,12 @@ from operator import *
 from tkinter import *
 from sympy import *
 from sympy.abc import x, y, z
-from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
+from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 
-# version 5.1.2
-# optimize import
-# optimize plotting: *colors *improvements
+# version 5.1.3
+# add possibility to show two plot in one page
+# optimize set solution of system equation
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -62,7 +62,7 @@ inverse_convert_constant = 1
 class Calculator(Canvas):
     def __init__(self, master):
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
-        self.sb = ['x', 'y', 'z']
+
         self.ENG = 16
         self.btn_u = []
         self.btn_a = []
@@ -79,7 +79,13 @@ class Calculator(Canvas):
         self.a = ''
         self.b = ''
         self.c = ''
-        # equation solver parametre
+        # equation solver parameter
+        self.sb = ['x', 'y', 'z']
+        self.x = x
+        self.y = y
+        self.z = z
+        self.R = S.Reals
+        self.C = S.Complexes
         self.q = ''
         self.p = ''
         self.j = ''
@@ -87,11 +93,9 @@ class Calculator(Canvas):
         self.m = ''
         self.n = ''
         self.lslv = ''
-        self.x = x
-        self.y = y
-        self.z = z
-        self.R = S.Reals
-        self.C = S.Complexes
+        self.xexp = ''
+        self.yexp = ''
+        self.zexp = ''
         # int range numbers of function
         self.v = ''
         self.w = ''
@@ -615,6 +619,9 @@ class Calculator(Canvas):
         self.m = ''
         self.n = ''
         self.lslv = ''
+        self.xexp = ''
+        self.yexp = ''
+        self.zexp = ''
         self.fctx = ''
         self.fctx1 = ''
         self.fctx2 = ''
@@ -699,7 +706,7 @@ class Calculator(Canvas):
                 else:
                     self.Delete()
 
-            if not self.clear:
+            else:
                 if keyword.keysym == 'BackSpace':
                     self.Remove()
 
@@ -713,16 +720,13 @@ class Calculator(Canvas):
                     self.Input('E')
 
                 elif keyword.keysym == 'e':
-                    self.Input('e')
+                    self.Input('Exp(')
 
                 elif put == 'v':
                     self.SwitchButtons("1st")
 
                 elif put == 'b':
                     self.SwitchButtons("2nd")
-
-                elif put == 'b':
-                    self.SwitchButtons("3rd")
 
                 elif put == 'r':
                     self.SwitchDegRad('Radians')
@@ -754,20 +758,32 @@ class Calculator(Canvas):
                 elif put == 'parenright':
                     self.Input(')')
 
-                elif put == 'backslash':
+                elif put == 'bar':
                     self.Input('Sq(')
 
-                elif put == 's':
-                    self.Input('Sin')
+                elif put == 'backslash':
+                    self.Input('sqrt(')
 
-                elif put == 'c':
-                    self.Input('Cos')
+                elif keyword.keysym == 's':
+                    self.Input('Sin(')
 
-                elif put == 't':
-                    self.Input('Tan')
+                elif keyword.keysym == 'c':
+                    self.Input('Cos(')
 
-                elif put == 'l':
-                    self.Input('Ln')
+                elif keyword.keysym == 't':
+                    self.Input('Tan(')
+
+                elif keyword.keysym == 'S':
+                    self.Input('Sinh(')
+
+                elif keyword.keysym == 'C':
+                    self.Input('Cosh(')
+
+                elif keyword.keysym == 'T':
+                    self.Input('Tanh(')
+
+                elif keyword.keysym == 'l':
+                    self.Input('Ln(')
 
                 elif put == 'i':
                     self.Input('oo')
@@ -778,11 +794,8 @@ class Calculator(Canvas):
                 elif put == 'exclam' or put == 'f':
                     self.Input('factorial(')
 
-                elif put == 'g':
+                elif keyword.keysym == 'L':
                     self.Input('Log')
-
-                elif put == 'h':
-                    self.Input('h(')
 
                 elif put == 'p':
                     self.Input('π')
@@ -1097,7 +1110,7 @@ class Calculator(Canvas):
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.FastTextVariable.set(sol)
                     for l in range(len(sol)):
-                        self.FullTextDisplay.insert(END, f'x{self.nb[int(l) + 1]} = {sol[l]}')
+                        self.FullTextDisplay.insert(END, f'> x{self.nb[int(l) + 1]} = {sol[l]}')
 
                     self.clear = True
                     self.full = None
@@ -1153,10 +1166,37 @@ class Calculator(Canvas):
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
-                            self.TextVariable.set(self.lslv)
-                            self.FastTextVariable.set(self.lslv)
-                            self.FullTextDisplay.insert(END, self.lslv)
+                                self.lslv = str(self.lslv)
 
+                            if self.lslv == 'EmptySet':
+                                self.TextVariable.set(self.lslv)
+                                self.FastTextVariable.set(self.lslv)
+
+                            else:
+                                self.lslv = str(self.lslv[11:-2])
+                                self.FastTextVariable.set(self.lslv)
+
+                                self.w = int(len(self.lslv))
+                                self.v = 0
+                                while self.v < self.w:
+                                    self.xexp = str(self.xexp) + str(self.lslv[self.v])
+                                    self.v += 1
+                                    if self.lslv[self.v] == ',':
+                                        while self.v < self.w:
+                                            self.yexp = str(self.yexp) + str(self.lslv[self.v])
+                                            self.v += 1
+                                            if self.lslv[self.v] == ',':
+                                                while self.v < self.w:
+                                                    self.zexp = str(self.zexp) + str(self.lslv[self.v])
+                                                    self.v += 1
+
+                                self.yexp = str(self.yexp).replace(', ', '')
+                                self.zexp = str(self.zexp).replace(', ', '')
+                                self.TextVariable.set(f'{self.sb[0]} = {self.xexp} | {self.sb[1]} = {self.yexp} | '
+                                                      f'{self.sb[2]} = {self.zexp}')
+                                self.FullTextDisplay.insert(END, f'> {self.sb[0]} = {self.xexp}',
+                                                            f'> {self.sb[1]} = {self.yexp}',
+                                                            f'> {self.sb[2]} = {self.zexp}')
                             self.clear = True
                             self.full = None
 
@@ -1177,10 +1217,10 @@ class Calculator(Canvas):
 
                     s = int(len(self.callback_function) - 1)
                     RD = randint(1048576, 16777000)
-                    TV = hex(RD)
-                    TV = TV[2:8].upper()
-                    self.P3d[s].line_color = str('#') + str(TV)
-                    self.P3d.show()
+                    HX = hex(RD)
+                    HX = HX[2:8].upper()
+                    self.P3d[s].line_color = str('#') + str(HX)
+                    PlotGrid(1, 2, self.P3d, self.PA)
                     self.expression = ""
                     self.TextVariable.set(f'f(x) = ')
 
@@ -1211,10 +1251,10 @@ class Calculator(Canvas):
                         self.P3d.append(self.PA[0])
                         s = int((len(self.callback_function) / 2) - 1)
                         RD = randint(1048576, 16777000)
-                        TV = hex(RD)
-                        TV = TV[2:8].upper()
-                        self.P3d[s].line_color = str('#') + str(TV)
-                        self.P3d.show()
+                        HX = hex(RD)
+                        HX = HX[2:8].upper()
+                        self.P3d[s].line_color = str('#') + str(HX)
+                        PlotGrid(1, 2, self.P3d, self.PA)
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.full = None
@@ -1246,10 +1286,10 @@ class Calculator(Canvas):
                         self.P3d.append(self.PA[0])
                         s = int((len(self.callback_function) / 2) - 1)
                         RD = randint(1048576, 16777000)
-                        TV = hex(RD)
-                        TV = TV[2:8].upper()
-                        self.P3d[s].line_color = str('#') + str(TV)
-                        self.P3d.show()
+                        HX = hex(RD)
+                        HX = HX[2:8].upper()
+                        self.P3d[s].line_color = str('#') + str(HX)
+                        PlotGrid(1, 2, self.P3d, self.PA)
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.full = None
@@ -1268,7 +1308,13 @@ class Calculator(Canvas):
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PA = plot3d(sympify(self.fctxy), show=False)
                     self.P3d.append(self.PA[0])
-                    self.P3d.show()
+
+                    s = int(len(self.callback_function) - 1)
+                    RD = randint(1048576, 16777000)
+                    HX = hex(RD)
+                    HX = HX[2:8].upper()
+                    self.P3d[s].surface_color = str('#') + str(HX)
+                    PlotGrid(1, 2, self.P3d, self.PA)
                     self.expression = ""
                     self.TextVariable.set(f'f(x,y) = ')
 
@@ -1297,7 +1343,12 @@ class Calculator(Canvas):
                         self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y,
                                                             show=False)
                         self.P3d.append(self.PA[0])
-                        self.P3d.show()
+                        s = int((len(self.callback_function) / 2) - 1)
+                        RD = randint(1048576, 16777000)
+                        HX = hex(RD)
+                        HX = HX[2:8].upper()
+                        self.P3d[s].surface_color = str('#') + str(HX)
+                        PlotGrid(1, 2, self.P3d, self.PA)
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.full = None
@@ -1413,5 +1464,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#4d4d4d')
     win.geometry("1100x580")
     win.minsize(width=1100, height=580)
-    win.title("PyMathon v5.1.2")
+    win.title("PyMathon v5.1.3")
     win.mainloop()
