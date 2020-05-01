@@ -3,8 +3,9 @@ from operator import *
 from tkinter import *
 from tkinter import _cnfmerge as cnfmerge
 
-# version 2.5.1
-# Add Function Re-Click Equal Button, still Don't work in Keyboard Bind
+# version 3.0.0
+# Fix IndexError And SyntaxError in mode Operation, And Delete mode Complex
+# Add Function Switch Between Degree And Radians in Button and Bare Menu
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -46,6 +47,54 @@ class EntryBox(Entry, Widget, XView):
 
 def Exit():
     return win.destroy()
+
+
+def Sin(arg):
+    return sin(arg * convert_constant)
+
+
+def Cos(arg):
+    return cos(arg * convert_constant)
+
+
+def Tan(arg):
+    return tan(arg * convert_constant)
+
+
+def aSin(arg):
+    return inverse_convert_constant * (asin(arg))
+
+
+def aCos(arg):
+    return inverse_convert_constant * (acos(arg))
+
+
+def aTan(arg):
+    return inverse_convert_constant * (atan(arg))
+
+
+def Sinh(arg):
+    return sinh(arg * convert_constant)
+
+
+def Cosh(arg):
+    return cosh(arg * convert_constant)
+
+
+def Tanh(arg):
+    return tanh(arg * convert_constant)
+
+
+def aSinh(arg):
+    return inverse_convert_constant * (asinh(arg))
+
+
+def aCosh(arg):
+    return inverse_convert_constant * (acosh(arg))
+
+
+def aTanh(arg):
+    return inverse_convert_constant * (atanh(arg))
 
 
 class Calculator:
@@ -94,8 +143,8 @@ class Calculator:
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
-        top_frame = Frame(master, relief='flat', bg='slate gray')
-        top_frame.grid(row=1, column=0)
+        self.top_frame = Frame(master, relief='flat', bg='slate gray')
+        self.top_frame.grid(row=1, column=0)
         # ROW 2 set frame showing middle buttons
         self.middle_frame = Frame(master, relief='flat', bg='#666666')
         self.middle_frame.grid(row=2, column=0)
@@ -104,18 +153,17 @@ class Calculator:
         bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0=============================================================
         # Operation
-        self.Operation = Button(top_frame, **big_prm, text="Operation",
+        self.Operation = Button(self.top_frame, **big_prm, text="Operation",
                                 command=lambda: self.SwitchFunction("Operation"))
-        self.Operation.grid(row=0, column=0, columnspan=2)
+        self.Operation.grid(row=0, column=2, columnspan=2)
         # Equation
-        self.Equation = Button(top_frame, **big_prm, text="Equation", command=lambda: self.SwitchFunction("Equation"))
-        self.Equation.grid(row=0, column=2, columnspan=2)
+        self.Equation = Button(self.top_frame, **big_prm, text="Equation",
+                               command=lambda: self.SwitchFunction("Equation"))
+        self.Equation.grid(row=0, column=4, columnspan=2)
         # Function
-        self.Function = Button(top_frame, **big_prm, text="Function", command=lambda: self.SwitchFunction("Function"))
-        self.Function.grid(row=0, column=4, columnspan=2)
-        # COMPLEX
-        self.Complex = Button(top_frame, **big_prm, text='Complex', command=lambda: self.SwitchFunction("Complex"))
-        self.Complex.grid(row=0, column=6, columnspan=2)
+        self.Function = Button(self.top_frame, **big_prm, text="Function",
+                               command=lambda: self.SwitchFunction("Function"))
+        self.Function.grid(row=0, column=6, columnspan=2)
 
         # buttons that will be displayed on middle frame ROW 0==========================================================
         pad = ['(', ')', "", '', '', ""]
@@ -165,12 +213,14 @@ class Calculator:
         self.btn[20].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
 
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation')
+        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
         # Switch Menu In Bare Display=================================================================================
         filemenu.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Equation', command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
-        filemenu.add_command(label='Complex', command=lambda: self.SwitchFunction('Complex'))
+        filemenu.add_separator()
+        filemenu.add_command(label='Radians', command=lambda: self.SwitchDegRad('Radians'))
+        filemenu.add_command(label='Degree', command=lambda: self.SwitchDegRad('Degree'))
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=Exit)
 
@@ -182,11 +232,11 @@ class Calculator:
             # 2nd
             secend = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
             secend.grid(row=1, column=2)
-            secend.configure(foreground='orange', activeforeground='indian red')
+            secend.configure(fg='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
-            Trigonometry_pad = ['cos(', 'sin(', "tan(", 'cosh(', 'sinh(', "tanh("]
-            Trigonometry_txt = ['cos', 'sin', "tan", 'cosh', 'sinh', "tanh"]
+            Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
+            Trigonometry_txt = ['Cos', 'Sin', "Tan", 'Cosh', 'Sinh', "Tanh"]
             btn = []
             i = 0
             for k in range(6):
@@ -200,11 +250,11 @@ class Calculator:
             # 1st
             first = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("1st"))
             first.grid(row=1, column=2)
-            first.configure(foreground='orange', activeforeground='indian red')
+            first.configure(fg='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
-            Trigonometry_pad = ['acos(', 'asin(', "atan(", 'acosh(', 'asinh(', "atanh("]
-            Trigonometry_txt = ['acos', 'asin', "atan", 'acosh', 'asinh', "atanh"]
+            Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
+            Trigonometry_txt = ['aCos', 'aSin', "aTan", 'aCosh', 'aSinh', "aTanh"]
             btn = []
             i = 0
             for k in range(6):
@@ -222,9 +272,8 @@ class Calculator:
             self.Operation['bg'] = 'indian red'
             self.Equation['bg'] = 'slate gray'
             self.Function['bg'] = 'slate gray'
-            self.Complex['bg'] = 'slate gray'
             self.btn[5]['state'] = ['disabled']
-            self.btn[11]['state'] = ['disabled']
+            self.btn[11].config(state=NORMAL)
 
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
@@ -232,7 +281,6 @@ class Calculator:
             self.Equation['bg'] = 'indian red'
             self.Function['bg'] = 'slate gray'
             self.Operation['bg'] = 'slate gray'
-            self.Complex['bg'] = 'slate gray'
             self.btn[5].config(state=DISABLED)
             self.btn[11].config(state=DISABLED)
 
@@ -242,21 +290,31 @@ class Calculator:
             self.Function['bg'] = 'indian red'
             self.Equation['bg'] = 'slate gray'
             self.Operation['bg'] = 'slate gray'
-            self.Complex['bg'] = 'slate gray'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['disabled']
 
-        elif self.mode == 'Complex':
-            self.FullTextDisplay.insert(INSERT, 'Mode Complex :')
-            self.FastTextVariable.set('')
-            self.Function['bg'] = 'slate gray'
-            self.Equation['bg'] = 'slate gray'
-            self.Operation['bg'] = 'slate gray'
-            self.Complex['bg'] = 'indian red'
-            self.btn[5].config(state=DISABLED)
-            self.btn[11].config(state=NORMAL)
-
         self.Clear()
+
+    def SwitchDegRad(self, convert):
+        switch = convert
+        if switch == 'Degree':
+            global convert_constant, inverse_convert_constant
+            convert_constant = pi / 180
+            inverse_convert_constant = 180 / pi
+            # Degree -> Radians
+            Deg_Rad = Button(self.top_frame, **big_prm, text='Degree',
+                             command=lambda: self.SwitchDegRad('Radians'))
+            Deg_Rad.grid(row=0, column=0, columnspan=2)
+            Deg_Rad.configure(fg='orange', activeforeground='indian red')
+
+        elif switch == 'Radians':
+            convert_constant = 1
+            inverse_convert_constant = 1
+            # Radians -> Degree
+            Rad_Deg = Button(self.top_frame, **big_prm, text='Radians',
+                             command=lambda: self.SwitchDegRad('Degree'))
+            Rad_Deg.grid(row=0, column=0, columnspan=2)
+            Rad_Deg.configure(fg='orange', activeforeground='indian red')
 
     def Clear(self):
         self.store = []
@@ -338,6 +396,18 @@ class Calculator:
                 self.store.append((str(')')))
                 self.expression += str(')')
 
+            elif keyword.keysym == 'S' or keyword.keysym == 's':
+                self.store.append((str('Sin')))
+                self.expression += str('Sin')
+
+            elif keyword.keysym == 'C' or keyword.keysym == 'c':
+                self.store.append((str('Cos')))
+                self.expression += str('Cos')
+
+            elif keyword.keysym == 'T' or keyword.keysym == 't':
+                self.store.append((str('Tan')))
+                self.expression += str('Tan')
+
             elif keyword.keysym == 'Return' or keyword.keysym == 'equal':
                 return self.InputEquals()
 
@@ -386,11 +456,6 @@ class Calculator:
                     self.TextVariable.set(f'f(x) = {self.expression}')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
 
-            elif self.mode == 'Complex':
-                self.FastTextVariable.set('')
-                self.TextVariable.set(self.expression)
-                self.FastTextVariable.set(eval(self.expression))
-
         except ZeroDivisionError:
             pass
         except ValueError:
@@ -414,7 +479,7 @@ class Calculator:
                     self.equal = True
 
                 elif self.equal:
-                    self.expression = str(self.storeans[-1])+str(self.store[-2])+str(self.store[-1])
+                    self.expression = str(self.storeans[-1]) + str(self.store[-2]) + str(self.store[-1])
                     self.ans = eval(self.expression)
                     self.FastTextVariable.set(self.ans)
                     self.TextVariable.set(f'{self.expression} = {self.ans}')
@@ -538,32 +603,36 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.full = False
                     self.half = False
 
-            elif self.mode == 'Complex':
-                if not self.equal:
-                    self.ans = eval(self.expression)
-                    self.FastTextVariable.set('')
-                    self.TextVariable.set(f'{self.expression} = {self.ans}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
-                    self.clear = True
-                    self.equal = True
-
-                elif self.equal:
-                    self.expression = str(self.storeans[-1]) + str(self.store[-2]) + str(self.store[-1])
-                    self.ans = eval(self.expression)
-                    self.FastTextVariable.set(self.ans)
-                    self.TextVariable.set(f'{self.expression} = {self.ans}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
-
         except ZeroDivisionError:
             self.FastTextVariable.set('ZeroDivisionError')
         except ValueError:
             self.FastTextVariable.set('ValueError')
         except SyntaxError:
             self.FastTextVariable.set('SyntaxError')
+            try:
+                if self.mode == 'Operation' and self.equal:
+                    self.expression = str(self.storeans[-1])
+                    self.ans = eval(self.expression)
+                    self.FastTextVariable.set(self.ans)
+                    self.TextVariable.set(f'{self.expression} = {self.ans}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+            except SyntaxError:
+                self.FastTextVariable.set('SyntaxError')
         except NameError:
             self.FastTextVariable.set('NameError')
         except TypeError:
             self.FastTextVariable.set('TypeError')
+        except IndexError:
+            self.FastTextVariable.set('IndexError')
+            try:
+                if self.mode == 'Operation' and self.equal:
+                    self.expression = str(self.storeans[-1])
+                    self.ans = eval(self.expression)
+                    self.FastTextVariable.set(self.ans)
+                    self.TextVariable.set(f'{self.expression} = {self.ans}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+            except IndexError:
+                self.FastTextVariable.set('IndexError')
 
         self.storeans.append(str(self.ans))
 
@@ -579,5 +648,5 @@ if __name__ == "__main__":
     # win.configure(menu=menubare, bg='#666666')
     win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v2.5.1")
+    win.title("Scientific Calculator v3.0.0")
     win.mainloop()
