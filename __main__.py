@@ -1,6 +1,7 @@
 __author__ = 'Achraf'
 
 from io import BytesIO
+from math import log2, log10
 from operator import neg
 from random import randint
 from tkinter import *
@@ -11,14 +12,14 @@ from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 
-from __bibi__ import *
+import __eci__ as eci
 
 # version 5.2.0  "this is beta version, it's need more optimization"
 # make possibility to input and delete directly from First Text Display by making cursor everywhere, now just for Operation mode
 # optimize code and make self as Tk without Canvas
 # optimize bind : * add control keys for cursor
 # try to build mathematical hand writen
-# change 'remove' to 'pop'
+# change 'remove' to 'pop' improve removing
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -89,6 +90,50 @@ def aCos(arg):
 
 def aTan(arg):
     return inverse_convert_constant * (atan(arg))
+
+
+def Sinh(arg):
+    return sinh(arg)
+
+
+def Cosh(arg):
+    return cosh(arg)
+
+
+def Tanh(arg):
+    return tanh(arg)
+
+
+def aSinh(arg):
+    return asinh(arg)
+
+
+def aCosh(arg):
+    return acosh(arg)
+
+
+def aTanh(arg):
+    return atanh(arg)
+
+
+def Ln(arg):
+    return log(arg)
+
+
+def Log(arg):
+    return log10(arg)
+
+
+def Log2(arg):
+    return log2(arg)
+
+
+def Exp(arg):
+    return exp(arg)
+
+
+def Fact(arg):
+    return factorial(arg)
 
 
 class Calculator:
@@ -170,7 +215,7 @@ class Calculator:
         SecondTextDisplay.grid(row=1, column=1, sticky=NSEW)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
         # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=13, **ent_prm)
+        self.FullTextDisplay = eci.ScrolledListbox(self.win, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2, sticky=NSEW)
         self.FullTextDisplay.rowconfigure(0, weight=1)
         self.FullTextDisplay.columnconfigure(0, weight=1)
@@ -219,12 +264,12 @@ class Calculator:
         big_txt = ['', '', '', '', '']
         self.btn_b = []
         for k in range(5):
-            self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
+            self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
         txt = ['RAD', '1ST', 'ENG', 'ANS', 'r', 'Õ']
         self.btn_m = []
         for i in range(6):
-            self.btn_m.append(HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
+            self.btn_m.append(eci.HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
             self.btn_m[i].grid(row=0, column=i, sticky=NSEW)
         # Answer Stored
         self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
@@ -245,7 +290,7 @@ class Calculator:
         # ========================Trigonometry======================================================================
         self.btn_u = []
         for i in range(6):
-            self.btn_u.append(HoverButton(self.middle_frame, **btn_prm))
+            self.btn_u.append(eci.HoverButton(self.middle_frame, **btn_prm))
             self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
         # ROW 2
         # ========================Logarithm=============================================================================
@@ -253,7 +298,7 @@ class Calculator:
         Logarithm_txt = ['Ln', 'Log⏨', "Log₂", 'Exp', '√n', "∞"]
         self.btn_d = []
         for i in range(6):
-            self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
+            self.btn_d.append(eci.HoverButton(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
             self.btn_d[i].grid(row=2, column=i, sticky=NSEW)
             self.btn_d[i].configure(command=lambda n=Logarithm_pad[i]: self.Input(n))
 
@@ -268,7 +313,7 @@ class Calculator:
         i = 0
         for j in range(5):
             for k in range(6):
-                self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
+                self.btn.append(eci.HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
                 self.btn[i].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
@@ -384,7 +429,7 @@ class Calculator:
             big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrices']
             self.btn_a = []
             for i in range(5):
-                self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
+                self.btn_a.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
@@ -412,7 +457,7 @@ class Calculator:
             big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             self.btn_b = []
             for i in range(5):
-                self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
+                self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
@@ -750,37 +795,32 @@ class Calculator:
         self.exist = None
         self.permit = None
 
-    def remove_str(self, str_to_remove, index, order, str_order):
-        end = len(str(str_to_remove))
+    def real_str(self, str_now, index, str_order):
         how = len(str_order)
-        now = str(str_to_remove[:index])
-        reel = ''
+        now = str(str_now[:index])
+        real = ''
         self.n = 0
         while self.n < how:
-            reel += str(str_order[self.n])
-            print(self.n, '<', how)
-            print(now, '=', reel)
+            real += str(str_order[self.n])
             self.permit = False
-            if now == reel:
+            if now == real:
                 self.permit = True
                 break
             self.n += 1
-        print('tol =', reel)
+
+    def remove_str(self, str_to_remove, index, order, str_order):
+        end = len(str(str_to_remove))
+        self.real_str(str_to_remove, index, str_order)
         pro = index - order[self.n]
-        print('n =', self.n)
-        print('pro =', pro)
         if index == 0:
             pass
         else:
             if end == index and self.permit:
-                print('end[', end, '=?', index, ']index')
-                print('p1 =', str_to_remove[:-order[self.n]])
                 return str_to_remove[:-order[self.n]]
             elif pro == 0 and self.permit:
                 return str_to_remove[order[self.n]:]
             else:
                 if self.permit:
-                    print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
                     return str_to_remove[:pro] + str_to_remove[index:]
                 else:
                     return str_to_remove
@@ -948,20 +988,7 @@ class Calculator:
 
     def insert_str(self, string, str_to_insert, index, str_order):
         end = len(str(string))
-        how = len(str_order)
-        now = str(string[:index])
-        reel = ''
-        self.n = 0
-        while self.n < how:
-            reel += str(str_order[self.n])
-            print(self.n, '<', how)
-            print(now, '=', reel)
-            self.permit = None
-            if now == reel:
-                self.permit = True
-                break
-            self.n += 1
-        print('end[', end, '=?', index, ']index')
+        self.real_str(string, index, str_order)
         if index == end or index == 0 or self.permit:
             self.permit = True
             return string[:index] + str_to_insert + string[index:]
@@ -1428,15 +1455,8 @@ class Calculator:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PA = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
-                    self.P3d.append(self.PA[0])
 
-                    s = int(len(self.callback_function) - 1)
-                    RD = randint(1048576, 16777000)
-                    HX = hex(RD)
-                    HX = HX[2:8].upper()
-                    self.P3d[s].line_color = str('#') + str(HX)
-                    PlotGrid(1, 2, self.P3d, self.PA)
-                    self.expression = ""
+                    self.ColorGraphOneF()
                     self.TextVariable.set(f'f(x) = ')
 
             elif self.mode == 'Plot Prm':
@@ -1463,14 +1483,7 @@ class Calculator:
                     elif self.equal:
                         self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                   xlim=(-10, 10), show=False)
-                        self.P3d.append(self.PA[0])
-                        s = int((len(self.callback_function) / 2) - 1)
-                        RD = randint(1048576, 16777000)
-                        HX = hex(RD)
-                        HX = HX[2:8].upper()
-                        self.P3d[s].line_color = str('#') + str(HX)
-                        PlotGrid(1, 2, self.P3d, self.PA)
-                        self.expression = ""
+                        self.ColorGraphTwoF()
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.full = None
 
@@ -1498,14 +1511,7 @@ class Calculator:
                     elif self.equal:
                         self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                          ylim=(-10, 10), xlim=(-10, 10), show=False)
-                        self.P3d.append(self.PA[0])
-                        s = int((len(self.callback_function) / 2) - 1)
-                        RD = randint(1048576, 16777000)
-                        HX = hex(RD)
-                        HX = HX[2:8].upper()
-                        self.P3d[s].line_color = str('#') + str(HX)
-                        PlotGrid(1, 2, self.P3d, self.PA)
-                        self.expression = ""
+                        self.ColorGraphTwoF()
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.full = None
 
@@ -1522,15 +1528,8 @@ class Calculator:
                     self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PA = plot3d(sympify(self.fctxy), show=False)
-                    self.P3d.append(self.PA[0])
 
-                    s = int(len(self.callback_function) - 1)
-                    RD = randint(1048576, 16777000)
-                    HX = hex(RD)
-                    HX = HX[2:8].upper()
-                    self.P3d[s].surface_color = str('#') + str(HX)
-                    PlotGrid(1, 2, self.P3d, self.PA)
-                    self.expression = ""
+                    self.ColorGraphOneF()
                     self.TextVariable.set(f'f(x,y) = ')
 
             elif self.mode == 'P3DPS':
@@ -1557,14 +1556,7 @@ class Calculator:
                     elif self.equal:
                         self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y,
                                                             show=False)
-                        self.P3d.append(self.PA[0])
-                        s = int((len(self.callback_function) / 2) - 1)
-                        RD = randint(1048576, 16777000)
-                        HX = hex(RD)
-                        HX = HX[2:8].upper()
-                        self.P3d[s].surface_color = str('#') + str(HX)
-                        PlotGrid(1, 2, self.P3d, self.PA)
-                        self.expression = ""
+                        self.ColorGraphTwoF()
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.full = None
 
@@ -1586,6 +1578,26 @@ class Calculator:
             self.FastTextVariable.set('IndexError')
 
         self.FullTextDisplay.see(END)
+
+    def ColorGraphTwoF(self):
+        self.P3d.append(self.PA[0])
+        s = int((len(self.callback_function) / 2) - 1)
+        RD = randint(1048576, 16777000)
+        HX = hex(RD)
+        HX = HX[2:8].upper()
+        self.P3d[s].line_color = str('#') + str(HX)
+        PlotGrid(1, 2, self.P3d, self.PA)
+        self.expression = ""
+
+    def ColorGraphOneF(self):
+        self.P3d.append(self.PA[0])
+        s = int(len(self.callback_function) - 1)
+        RD = randint(1048576, 16777000)
+        HX = hex(RD)
+        HX = HX[2:8].upper()
+        self.P3d[s].line_color = str('#') + str(HX)
+        PlotGrid(1, 2, self.P3d, self.PA)
+        self.expression = ""
 
     def Exit(self):
         return self.win.destroy()
