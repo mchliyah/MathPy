@@ -1,12 +1,58 @@
-from tkinter import *
-from tkinter import _cnfmerge as cnfmerge
+from math import log2, log10
+from tkinter import _cnfmerge, Button, Listbox, Canvas, Scrollbar, Grid, Pack, Place, HORIZONTAL, VERTICAL, NSEW, NS, EW
+
+from sympy import sinh, cosh, tanh, asinh, acosh, atanh, log, exp, factorial
+
+
+def Sinh(arg):
+    return sinh(arg)
+
+
+def Cosh(arg):
+    return cosh(arg)
+
+
+def Tanh(arg):
+    return tanh(arg)
+
+
+def aSinh(arg):
+    return asinh(arg)
+
+
+def aCosh(arg):
+    return acosh(arg)
+
+
+def aTanh(arg):
+    return atanh(arg)
+
+
+def Ln(arg):
+    return log(arg)
+
+
+def Log(arg):
+    return log10(arg)
+
+
+def Log2(arg):
+    return log2(arg)
+
+
+def Exp(arg):
+    return exp(arg)
+
+
+def Fact(arg):
+    return factorial(arg)
 
 
 class HoverButton(Button):
     def __init__(self, master=None, cnf=None, *args, **kwargs):
         if cnf is None:
             cnf = {}
-        kw = cnfmerge((kwargs, cnf))
+        kw = _cnfmerge((kwargs, cnf))
         self.DefaultBackGround = kw['background']
         self.ActiveBack = kw['activeback']
         super(HoverButton, self).__init__(master=master, *args, **kwargs)
@@ -23,7 +69,6 @@ class HoverButton(Button):
 class ScrolledListbox(Listbox):
     def __init__(self, master, *args, **kwargs):
         self.canvas = Canvas(master)
-        self.canvas['bg'] = kwargs['bg']
 
         Listbox.__init__(self, self.canvas, *args, **kwargs)
         self.grid(row=0, column=0, sticky=NSEW)
