@@ -1,19 +1,24 @@
-from math import log2, log10
+__author__ = 'Achraf'
+
+from io import BytesIO
 from operator import neg
 from random import randint
 from tkinter import *
 
+from PIL import Image, ImageTk
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 
-from __bibi__ import HoverButton, ScrolledListbox
+from __bibi__ import *
 
-# version 5.2.0  "this is beta version need more optimization"
+# version 5.2.0  "this is beta version, it's need more optimization"
 # make possibility to input and delete directly from First Text Display by making cursor everywhere, now just for Operation mode
 # optimize code and make self as Tk without Canvas
 # optimize bind : * add control keys for cursor
+# try to build mathematical hand writen
+# change 'remove' to 'pop'
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -58,7 +63,6 @@ ent_prm = {'fg': 'white',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = pi
-n = 0
 convert_constant = 1
 inverse_convert_constant = 1
 
@@ -85,50 +89,6 @@ def aCos(arg):
 
 def aTan(arg):
     return inverse_convert_constant * (atan(arg))
-
-
-def Sinh(arg):
-    return sinh(arg)
-
-
-def Cosh(arg):
-    return cosh(arg)
-
-
-def Tanh(arg):
-    return tanh(arg)
-
-
-def aSinh(arg):
-    return asinh(arg)
-
-
-def aCosh(arg):
-    return acosh(arg)
-
-
-def aTanh(arg):
-    return atanh(arg)
-
-
-def Ln(arg):
-    return log(arg)
-
-
-def Log(arg):
-    return log10(arg)
-
-
-def Log2(arg):
-    return log2(arg)
-
-
-def Exp(arg):
-    return exp(arg)
-
-
-def Fact(arg):
-    return factorial(arg)
 
 
 class Calculator(Tk):
@@ -197,12 +157,11 @@ class Calculator(Tk):
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
+        self.FastVariable = StringVar()
         # Self Display ROW 0============================================================================================
-        # First Text Display, readonlybackground='#4d4d4d'# , state='readonly'
         self.FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable)
         self.FirstTextDisplay.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32))
-        # self.FirstTextDisplay.bind("<Button-1>", self.move_move))
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
         self.IndexCursor = int(self.FirstTextDisplay.index(0))
@@ -215,6 +174,12 @@ class Calculator(Tk):
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2, sticky=NSEW)
         self.FullTextDisplay.rowconfigure(0, weight=1)
         self.FullTextDisplay.columnconfigure(0, weight=1)
+
+        self.LabelDisplay = Label(self, width=1, height=1, **ent_prm, textvariable=self.FastVariable)
+        self.LabelDisplay.grid(row=4, column=0, columnspan=3, sticky=NSEW)
+        self.LabelDisplay.configure(font=('Segoe UI Symbol', 30), bg='white', fg='black')
+        self.LabelDisplay.rowconfigure(0, weight=1)
+        self.LabelDisplay.columnconfigure(0, weight=1)
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(self, relief='flat', bg='#212121')
         self.top_frame.grid(row=1, column=0, sticky=NSEW)
@@ -389,6 +354,7 @@ class Calculator(Tk):
         self.rowconfigure(1, weight=1)
         self.rowconfigure(2, weight=1)
         self.rowconfigure(3, weight=1)
+        self.rowconfigure(4, weight=1)
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
 
@@ -402,14 +368,9 @@ class Calculator(Tk):
 
     def Info(self, event):
         self.FirstTextDisplay.icursor("@%d" % event.x)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        self.IndexCursor = int(self.FirstTextDisplay.index("@%d" % event.x))
         self.FirstTextDisplay.icursor(self.IndexCursor)
-        i = 0
-        while i <= 5:
-            self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
-            self.FirstTextDisplay.icursor(self.IndexCursor)
-            i += 1
-        print(self.IndexCursor)
+        print('cursor =', self.IndexCursor)
 
     def SwitchButtons(self, side):
         page = side
@@ -438,7 +399,8 @@ class Calculator(Tk):
             for i in range(6):
                 self.btn_u[i].configure(text=Trigonometry_txt[i], command=lambda n=Trigonometry_pad[i]: self.Input(n))
 
-            if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve':
+            if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve' \
+                    or self.mode == 'Matrices':
                 self.SwitchFunction(self.mode, False)
 
         elif page == '2nd':
@@ -789,8 +751,9 @@ class Calculator(Tk):
         self.permit = None
 
     def remove_str(self, str_to_remove, index, order, str_order):
-        now = str(str_to_remove[:index])
+        end = len(str(str_to_remove))
         how = len(str_order)
+        now = str(str_to_remove[:index])
         reel = ''
         self.n = 0
         while self.n < how:
@@ -809,9 +772,8 @@ class Calculator(Tk):
         if index == 0:
             pass
         else:
-            end = len(str(str_to_remove))
-            print('end =? ind', end, index)
             if end == index and self.permit:
+                print('end[', end, '=?', index, ']index')
                 print('p1 =', str_to_remove[:-order[self.n]])
                 return str_to_remove[:-order[self.n]]
             elif pro == 0 and self.permit:
@@ -829,20 +791,16 @@ class Calculator(Tk):
 
         try:
             if self.mode == 'Operation':
-                if self.IndexCursor == 0:
-                    print('Remove pass self.IndexCursor == 0')
-                    pass
+                self.expression = self.remove_str(self.expression, self.IndexCursor, self.store_order,
+                                                  self.store_expression)
+                if self.permit:
+                    print('Remove self.permit')
+                    self.IndexCursor -= self.store_order[int(self.n)]
+                    self.store_expression.pop(int(self.n))
+                    self.store_order.pop(int(self.n))
                 else:
-                    self.expression = self.remove_str(self.expression, self.IndexCursor, self.store_order,
-                                                      self.store_expression)
-                    if self.permit:
-                        print('Remove self.permit')
-                        self.store_order.remove(self.store_order[int(self.n)])
-                        self.store_expression.remove(self.store_expression[int(self.n)])
-                        self.IndexCursor -= self.store_order[int(self.n)]
-                    else:
-                        print('Remove pass else:')
-                        pass
+                    print('Remove pass else:')
+                    pass
 
             else:
                 k = self.store_order[-1]
@@ -850,8 +808,8 @@ class Calculator(Tk):
                     self.expression = self.expression[:-1]
                     k -= 1
 
-                self.store_order.remove(self.store_order[-1])
-                self.store_expression.remove(self.store_expression[-1])
+                self.store_order.pop(-1)
+                self.store_expression.pop(-1)
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -991,7 +949,6 @@ class Calculator(Tk):
     def insert_str(self, string, str_to_insert, index, str_order):
         end = len(str(string))
         how = len(str_order)
-        print(end, '=?', index)
         now = str(string[:index])
         reel = ''
         self.n = 0
@@ -1004,6 +961,7 @@ class Calculator(Tk):
                 self.permit = True
                 break
             self.n += 1
+        print('end[', end, '=?', index, ']index')
         if index == end or index == 0 or self.permit:
             self.permit = True
             return string[:index] + str_to_insert + string[index:]
@@ -1019,14 +977,16 @@ class Calculator(Tk):
             if self.permit is None:
                 print('insert self.permit is None')
                 pass
-            elif self.IndexCursor == 0:
-                self.store_expression.insert(0, str(keyword))
-                self.store_order.insert(0, len(str(keyword)))
-                self.IndexCursor += int(len(str(keyword)))
             else:
-                self.store_expression.insert(int(self.n) + 1, str(keyword))
-                self.store_order.insert(int(self.n) + 1, len(str(keyword)))
-                self.IndexCursor += int(len(str(keyword)))
+                if self.IndexCursor == 0:
+                    self.store_expression.insert(0, str(keyword))
+                    self.store_order.insert(0, len(str(keyword)))
+                    self.IndexCursor += int(len(str(keyword)))
+
+                else:
+                    self.store_expression.insert(int(self.n) + 1, str(keyword))
+                    self.store_order.insert(int(self.n) + 1, len(str(keyword)))
+                    self.IndexCursor += int(len(str(keyword)))
             print('cursor', self.IndexCursor)
 
         else:
@@ -1042,8 +1002,15 @@ class Calculator(Tk):
                 self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
                 if self.ENG == 16:
-                    self.FastTextVariable.set(eval(self.expression))
+                    self.answer = eval(self.expression)
+                    self.FastTextVariable.set(self.answer)
+                    obj = BytesIO()
+                    preview(self.answer, viewer='BytesIO', outputbuffer=obj)
+                    obj.seek(0)
+                    self.LabelDisplay.img = ImageTk.PhotoImage(image=Image.open(obj))
+                    self.LabelDisplay.config(image=self.LabelDisplay.img)
 
+                    # preview(eval(self.expression), output='png', viewer='BytesIO', outputbuffer=obj)
                 else:
                     self.FastTextVariable.set(N(sympify(self.expression), self.ENG))
 
@@ -1089,19 +1056,20 @@ class Calculator(Tk):
                     self.TextVariable.set(f'eq₁ > {self.q} = {self.expression}')
                     self.FastTextVariable.set(f'eq₁ > {self.q} = {self.expression}')
 
-                elif self.full and self.clear is None:
-                    self.TextVariable.set(f'eq₂ > {self.expression}')
-                    self.FastTextVariable.set(f'eq₂ > {self.expression}')
-                elif self.full and not self.clear and self.equal is None:
-                    self.TextVariable.set(f'eq₂ > {self.j} = {self.expression}')
-                    self.FastTextVariable.set(f'eq₂ > {self.j} = {self.expression}')
+                elif self.full:
+                    if self.clear is None:
+                        self.TextVariable.set(f'eq₂ > {self.expression}')
+                        self.FastTextVariable.set(f'eq₂ > {self.expression}')
+                    elif not self.clear and self.equal is None:
+                        self.TextVariable.set(f'eq₂ > {self.j} = {self.expression}')
+                        self.FastTextVariable.set(f'eq₂ > {self.j} = {self.expression}')
 
-                elif self.full and not self.clear and not self.equal:
-                    self.TextVariable.set(f'eq₃ > {self.expression}')
-                    self.FastTextVariable.set(f'eq₃ > {self.expression}')
-                elif self.full and not self.clear and self.equal:
-                    self.TextVariable.set(f'eq₃ > {self.m} = {self.expression}')
-                    self.FastTextVariable.set(f'eq₃ > {self.m} = {self.expression}')
+                    elif not self.clear and not self.equal:
+                        self.TextVariable.set(f'eq₃ > {self.expression}')
+                        self.FastTextVariable.set(f'eq₃ > {self.expression}')
+                    elif not self.clear and self.equal:
+                        self.TextVariable.set(f'eq₃ > {self.m} = {self.expression}')
+                        self.FastTextVariable.set(f'eq₃ > {self.m} = {self.expression}')
 
             elif self.mode == 'Plot':
                 self.TextVariable.set(f'f(x) = {self.expression}')
@@ -1131,15 +1099,7 @@ class Calculator(Tk):
 
         except ZeroDivisionError:
             self.FastTextVariable.set(oo)
-        except ValueError:
-            pass
-        except SyntaxError:
-            pass
-        except NameError:
-            pass
-        except IndexError:
-            pass
-        except TypeError:
+        except Exception:
             pass
         self.FirstTextDisplay.icursor(self.IndexCursor)
         self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
@@ -1180,7 +1140,7 @@ class Calculator(Tk):
                                 self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                                 break
                             self.v -= 1
-                except ValueError or IndexError or SyntaxError:
+                except Exception:
                     try:
                         self.expression = str(self.callback[-1])
                         if self.ENG == 16:
@@ -1190,8 +1150,8 @@ class Calculator(Tk):
                         self.FastTextVariable.set(self.answer)
                         self.TextVariable.set(f'{self.expression} = {self.answer}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
-                    except ValueError or IndexError or SyntaxError:
-                        self.FastTextVariable.set('ValueError or IndexError or SyntaxError')
+                    except Exception:
+                        self.FastTextVariable.set(f'ValueError or IndexError or SyntaxError')
 
                 self.callback.append(str(self.answer))
 
@@ -1363,7 +1323,7 @@ class Calculator(Tk):
                                 self.lslv = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
                                     [self.x, self.y])
-                            except ValueError or TypeError:
+                            except Exception:
                                 self.lslv = nonlinsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
                                     [self.x, self.y])
@@ -1416,7 +1376,7 @@ class Calculator(Tk):
                                 self.lslv = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
-                            except ValueError or TypeError:
+                            except Exception:
                                 self.lslv = nonlinsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
