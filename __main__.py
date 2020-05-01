@@ -2,9 +2,8 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 1.0
-# Add New More Buttons
-# New Style And New Version of class Writing
+# version 1.1
+# Fix Some Bug
 btn_prm = {
     'padx': 16,
     'pady': 1,
@@ -44,7 +43,7 @@ big_prm = {
 ent_prm = {
     'bd': 4,
     'fg': 'white',
-    'bg': '#666666',
+    'bg': '#4d4d4d',
     'font': ('Segoe UI Symbol', 18),
     'relief': 'flat'
 }
@@ -84,15 +83,14 @@ class Calculator:
         # FullTextDisplay
         self.FullTextDisplay = Text(master, width=50, height=15, **ent_prm)
         self.FullTextDisplay.grid(row=1, column=1, rowspan=3)
-        self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
-        self.frame = Frame(master, width=200, height=50, relief='flat', bg='dark slate gray')
+        self.frame = Frame(master, relief='flat', bg='dark slate gray')
         self.frame.grid(row=1, column=0)
         # ROW 2 set frame showing top buttons
-        self.top_frame = Frame(master, width=200, height=150, relief='flat', bg='#666666')
+        self.top_frame = Frame(master, relief='flat', bg='#666666')
         self.top_frame.grid(row=2, column=0)
         # ROW 3 set frame showing bottom buttons
-        self.bottom_frame = Frame(master, width=200, height=200, relief='flat', bg='#666666')
+        self.bottom_frame = Frame(master, relief='flat', bg='#666666')
         self.bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0
         # Operation
@@ -459,7 +457,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
 
 win = Tk()
-win.title("Scientific Calculator v1.0")
+win.title("Scientific Calculator v1.1")
 # win.configure(bg='#666666')
 win.configure(bg='#4d4d4d')
 win.resizable(False, False)
