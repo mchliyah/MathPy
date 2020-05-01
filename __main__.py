@@ -21,7 +21,7 @@ make it for all modes, and add reset for
 # stop working ENG instantly
 # make equation as function "def"
 # @staticmethod : 1*StandardWrite 2*ReBuild 3*RealStringInsertion 4*DrawTexTk 5*InsertIntoString 6*RemoveFromString
-7*TwoPlotColorOneFunc 8*TwoPlotColorTwoFunc
+7*TwoPlotColorOneFunc 8*TwoPlotColorTwoFunc 9*EQT
 """
 
 btn_prm = {'padx': 18,
@@ -72,6 +72,7 @@ convert_constant = 1
 inverse_convert_constant = 1
 text = ''
 permit = None
+delf = ()
 n = int
 v = int
 w = int
@@ -245,6 +246,63 @@ def TwoPlotColorOneFunc(PlotFirstFunc, PlotAddFunc, callback_function):
     HX = HX[2:8].upper()
     PlotFirstFunc[s].line_color = str('#') + str(HX)
     PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
+
+
+def EQT(nbr_a, nbr_b, nbr_c):
+    global delf
+    a = float(eval(nbr_a))
+    b = float(eval(nbr_b))
+    c = float(eval(nbr_c))
+    d = float((b ** 2) - 4 * a * c)
+    nd = neg(d)
+    nb = neg(b)
+    if a > 0 or a < 0:
+        delf = (
+            f'The Equation Have Two Solutions For x :',
+            f'  ∆ =  b² - 4ac',
+            f'  ∆ = {b}² - (4 ⨯ {a} ⨯ {c})',
+            f'      = {b ** 2} - ({4 * a * c})',
+            f'      = {d}')
+        if d == 0:
+            delf += (
+                f'∆=0 : x = -b / 2a',
+                f' x₁ = x₂ = ({N(neg(b), 3)}) / (2 ⨯ {a})',
+                f' x₁ = x₂ = {N(neg(b) / (2 * a), 3)}')
+        elif d >= 0:
+            delf += (
+                f'∆>0 : x = (-b ± √∆) / 2a',
+                f' x₁ = ({nb} + √{d}) / (2 ⨯ {a})',
+                f'     = {N((nb + sqrt(d)) / (2 * a), 3)}',
+                f' x₂ = ({nb} - √{d}) / (2 ⨯ {a})',
+                f'     = {N((nb - sqrt(d)) / (2 * a), 3)}')
+        elif d <= 0:
+            delf += (
+                f'      = {nd}i²',
+                f'∆<0 : x = (-b ± i√∆) / 2a',
+                f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {a})',
+                f'     = {N((nb + sqrt(nd) * 1j) / (2 * a), 3)}',
+                f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {a})',
+                f'     = {N((nb - sqrt(nd) * 1j) / (2 * a), 3)}',
+                f'  z = a ± ib',
+                f'  a = {N(nb / (2 * a), 3)}',
+                f'  b = ± {N(sqrt(nd) / (2 * a), 3)}')
+    elif a == 0:
+        if b == 0 and c == 0:
+            delf += Display.insert(f"Empty Solution {{∅}}")
+        elif b == 0:
+            delf += Display.insert(f"Empty Solution {{∅}}")
+        elif c == 0:
+            delf += (
+                f'The Equation Have One Solution For x :',
+                f'  {b}x = 0',
+                f'  x = 0',)
+        else:
+            delf += (
+                f'The Equation Have One Solution For x :',
+                f'  {b}x = {neg(c)}',
+                f'  x = {neg(c)} / {b}',
+                f'  x = {neg(c) / b}')
+    return delf
 
 
 class Calculator:
@@ -1263,65 +1321,6 @@ class Calculator:
             self.store_order = []
             self.IndexCursor = 0
 
-    def EQ(self, nbr_a, nbr_b, nbr_c):
-        a = float(eval(nbr_a))
-        b = float(eval(nbr_b))
-        c = float(eval(nbr_c))
-        d = float((b ** 2) - 4 * a * c)
-        nd = neg(d)
-        nb = neg(b)
-        self.VariableTXT(f'a = {a} | b = {b} | c = {c}')
-        self.SecondStrVar.set(f'{a}x² + ({b})x + ({c}) = 0')
-        self.DrawTexTk(self.Figure, self.CanvasFigure,
-                       f'{self.StandardWriteEqual(a)}x² + ({self.StandardWriteEqual(b)})x + ('
-                       f'{self.StandardWriteEqual(c)}) = 0')
-        if a > 0 or a < 0:
-            self.FullTextDisplay.insert(END,
-                                        f'The Equation Have Two Solutions For x :',
-                                        f'  ∆ =  b² - 4ac',
-                                        f'  ∆ = {b}² - (4 ⨯ {a} ⨯ {c})',
-                                        f'      = {b ** 2} - ({4 * a * c})',
-                                        f'      = {d}')
-            if d == 0:
-                self.FullTextDisplay.insert(END,
-                                            f'∆=0 : x = -b / 2a',
-                                            f' x₁ = x₂ = ({N(neg(b), 3)}) / (2 ⨯ {a})',
-                                            f' x₁ = x₂ = {N(neg(b) / (2 * a), 3)}')
-            elif d >= 0:
-                self.FullTextDisplay.insert(END,
-                                            f'∆>0 : x = (-b ± √∆) / 2a',
-                                            f' x₁ = ({nb} + √{d}) / (2 ⨯ {a})',
-                                            f'     = {N((nb + sqrt(d)) / (2 * a), 3)}',
-                                            f' x₂ = ({nb} - √{d}) / (2 ⨯ {a})',
-                                            f'     = {N((nb - sqrt(d)) / (2 * a), 3)}')
-            elif d <= 0:
-                self.FullTextDisplay.insert(END,
-                                            f'      = {nd}i²',
-                                            f'∆<0 : x = (-b ± i√∆) / 2a',
-                                            f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {a})',
-                                            f'     = {N((nb + sqrt(nd) * 1j) / (2 * a), 3)}',
-                                            f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {a})',
-                                            f'     = {N((nb - sqrt(nd) * 1j) / (2 * a), 3)}',
-                                            f'  z = a ± ib',
-                                            f'  a = {N(nb / (2 * a), 3)}',
-                                            f'  b = ± {N(sqrt(nd) / (2 * a), 3)}')
-        elif a == 0:
-            if b == 0 and c == 0:
-                self.VariableTXT(f"Empty Solution {{∅}}")
-            elif b == 0:
-                self.VariableTXT(f"Empty Solution {{∅}}")
-            elif c == 0:
-                self.FullTextDisplay.insert(END,
-                                            f'The Equation Have One Solution For x :',
-                                            f'  {b}x = 0',
-                                            f'  x = 0', )
-            else:
-                self.FullTextDisplay.insert(END,
-                                            f'The Equation Have One Solution For x :',
-                                            f'  {b}x = {neg(c)}',
-                                            f'  x = {neg(c)} / {b}',
-                                            f'  x = {neg(c) / b}')
-
     def ShowEqualText(self):
         self.callback_function.append(str(self.expression))
         try:
@@ -1420,7 +1419,14 @@ class Calculator:
                 elif self.full:
                     self.c = self.expression
                     self.expression = ''
-                    self.EQ(self.a, self.b, self.c)
+                    self.VariableTXT(f'a = {self.a} | b = {self.b} | c = {self.c}')
+                    self.SecondStrVar.set(f'{self.a}x² + ({self.b})x + ({self.c}) = 0')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.b)})x + ('
+                                   f'{self.StandardWriteEqual(self.c)}) = 0')
+                    qe = int(len(EQT(self.a, self.b, self.c)))
+                    for eq in range(qe):
+                        self.FullTextDisplay.insert(END, EQT(self.a, self.b, self.c)[eq])
 
                     self.clear = True
                     self.full = None
