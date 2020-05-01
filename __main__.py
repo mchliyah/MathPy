@@ -30,6 +30,17 @@ big_prm = {'padx': 8,
            'relief': 'raised',
            'activebackground': '#80000B',
            'activeforeground': "white"}
+big2_prm = {'padx': 14,
+            'pady': 13,
+            'bd': 1,
+            'fg': 'white',
+            'bg': '#292929',
+            'font': ('Segoe UI Symbol', 12),
+            'width': 5,
+            'height': 1,
+            'relief': 'raised',
+            'activebackground': '#80000B',
+            'activeforeground': "white"}
 ent_prm = {'bd': 1,
            'fg': 'white',
            'bg': '#4d4d4d',
@@ -189,12 +200,12 @@ class Calculator:
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0=============================================================
-        big_txt = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
-        big_pad = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+        big_txt = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+        big_pad = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
         self.btn_b = []
         i = 0
-        for k in range(4):
-            self.btn_b.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
+        for k in range(5):
+            self.btn_b.append(Button(self.top_frame, **big2_prm, text=big_txt[i]))
             self.btn_b[i].grid(row=0, column=k)
             self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
             i += 1
@@ -256,7 +267,7 @@ class Calculator:
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
-        filemenu.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot'))
+        filemenu.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
         filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
         filemenu.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm'))
@@ -277,10 +288,10 @@ class Calculator:
         # buttons to switch between buttons those will be displayed on middle frame
         if page == '1st':
             # buttons that will be displayed on top frame ROW 0=============================================================
-            for k in range(4):
+            for k in range(5):
                 self.btn_b[k].destroy()
-            big_txt = ['Operation', 'Plot', "Equation", 'Solve']
-            big_pad = ['Operation', 'Plot', 'Equation', 'Solve']
+            big_txt = ['Operation', 'Function', "Equation", 'Solve']
+            big_pad = ['Operation', 'Function', 'Equation', 'Solve']
             self.btn_a = []
             i = 0
             for k in range(4):
@@ -303,18 +314,18 @@ class Calculator:
                 self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
-            if self.mode == 'Operation' or self.mode == 'Plot' or self.mode == 'Equation' or self.mode == 'Solve':
+            if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve':
                 self.SwitchFunction(self.mode)
         elif page == '2nd':
             # buttons that will be displayed on top frame ROW 0=============================================================
             for k in range(4):
                 self.btn_a[k].destroy()
-            big_txt = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
-            big_pad = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+            big_txt = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+            big_pad = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
             self.btn_b = []
             i = 0
-            for k in range(4):
-                self.btn_b.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
+            for k in range(5):
+                self.btn_b.append(Button(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=k)
                 self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
                 i += 1
@@ -333,12 +344,14 @@ class Calculator:
                 self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
-            if self.mode == 'Plot Prm' or self.mode == "Plot3D" or self.mode == 'P3DPL' or self.mode == 'P3DPS':
+            if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == "Plot3D" or self.mode == 'P3DPL' or \
+                    self.mode == 'P3DPS':
                 self.SwitchFunction(self.mode)
 
     def SwitchFunction(self, passmode):
         self.mode = passmode
         self.FullTextDisplay.delete(1.0, END)
+
         if self.mode == 'Operation':
             self.FullTextDisplay.insert(END, 'Mode Operation :')
             self.FastTextVariable.set('')
@@ -351,7 +364,7 @@ class Calculator:
             self.btn_d[1].config(state=NORMAL)
             self.btn_d[2].config(state=NORMAL)
 
-        elif self.mode == 'Plot':
+        elif self.mode == 'Function':
             self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.btn_a[0]['bg'] = '#292929'
@@ -391,11 +404,25 @@ class Calculator:
             self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        elif self.mode == 'Plot Prm':
+        elif self.mode == 'Plot':
             self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
             self.FastTextVariable.set(f'f(x)₁ = ')
             self.btn_b[0]['bg'] = 'indian red'
-            for i in range(1, 4):
+            for i in range(1, 5):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['disabled']
+            self.btn[2]['state'] = ['disabled']
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
+
+        elif self.mode == 'Plot Prm':
+            self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
+            self.FastTextVariable.set(f'f(x)₁ = ')
+            self.btn_b[0]['bg'] = '#292929'
+            self.btn_b[1]['bg'] = 'indian red'
+            for i in range(2, 5):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['disabled']
@@ -407,9 +434,10 @@ class Calculator:
         elif self.mode == 'Plot3D':
             self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
             self.FastTextVariable.set(f'f(x,y)')
-            self.btn_b[0]['bg'] = '#292929'
-            self.btn_b[1]['bg'] = 'indian red'
-            for i in range(2, 4):
+            for i in range(2):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn_b[2]['bg'] = 'indian red'
+            for i in range(3, 5):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['normal']
@@ -421,10 +449,10 @@ class Calculator:
         elif self.mode == 'P3DPL':
             self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
             self.FastTextVariable.set('f(x)₁ = ')
-            for i in range(2):
+            for i in range(3):
                 self.btn_b[i]['bg'] = '#292929'
-            self.btn_b[2]['bg'] = 'indian red'
-            self.btn_b[3]['bg'] = '#292929'
+            self.btn_b[3]['bg'] = 'indian red'
+            self.btn_b[4]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
@@ -434,9 +462,9 @@ class Calculator:
 
         elif self.mode == 'P3DPS':
             self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
-            for i in range(3):
+            for i in range(4):
                 self.btn_b[i]['bg'] = '#292929'
-            self.btn_b[3]['bg'] = 'indian red'
+            self.btn_b[4]['bg'] = 'indian red'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
@@ -515,13 +543,17 @@ class Calculator:
         self.TextVariable.set('')
         self.FastTextVariable.set('')
 
-        if self.mode == 'Plot':
+        if self.mode == 'Function':
             self.TextVariable.set(f'From : ')
             self.FastTextVariable.set(f'From : A --> To : B')
 
         elif self.mode == 'Equation':
             self.TextVariable.set(f'a = ')
             self.FastTextVariable.set('aX² + bX + c = 0')
+
+        elif self.mode == 'Plot':
+            self.TextVariable.set(f'f(x) = ')
+            self.FastTextVariable.set(f'f(x) = ')
 
         elif self.mode == "Plot Prm" or self.mode == "P3DPL":
             self.TextVariable.set(f'f(x)₁ = ')
@@ -690,7 +722,7 @@ class Calculator:
                 else:
                     self.FastTextVariable.set(N(eval(self.expression), self.ENG))
 
-            elif self.mode == 'Plot':
+            elif self.mode == 'Function':
                 if self.full is None:
                     self.TextVariable.set(f'From : {self.expression}')
                     self.FastTextVariable.set(f'From : {self.expression} --> To : B')
@@ -723,6 +755,10 @@ class Calculator:
                 elif self.full:
                     self.TextVariable.set(f'{self.q} = {self.expression}')
                     self.FastTextVariable.set(f'{self.q} = {self.expression}')
+
+            elif self.mode == "Plot":
+                self.TextVariable.set(f'f(x) = {self.expression}')
+                self.FastTextVariable.set(f'f(x) = {self.expression}')
 
             elif self.mode == "Plot Prm" or self.mode == "P3DPL":
                 if self.full is None:
@@ -808,7 +844,7 @@ class Calculator:
                     except IndexError or SyntaxError:
                         self.FastTextVariable.set('IndexError or SyntaxError')
 
-            elif self.mode == 'Plot':
+            elif self.mode == 'Function':
                 if self.full is None:
                     self.v = int(self.expression)
                     self.FullTextDisplay.insert(END, f'\nfrom : {self.expression}')
@@ -962,6 +998,24 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
                     self.clear = True
                     self.full = None
+
+            elif self.mode == 'Plot3D':
+                if self.full is None:
+                    self.fctx = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
+                    self.P3d = plot(sympify(self.fctx))
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x) = ')
+                    self.full = True
+
+                elif self.full:
+                    self.fctx = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
+                    self.PA = plot(sympify(self.fctx))
+                    self.P3d.append(self.PA[0])
+                    self.P3d.show()
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x) = ')
 
             elif self.mode == 'Plot Prm':
                 if self.full is None:
