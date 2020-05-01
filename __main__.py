@@ -3,8 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import ttk, _cnfmerge as cnfmerge
 
-# version 3.0.4
-# Improve Shortcut Keyboard Listening
+# version 3.1.0
+# Improve Re-Click Equal Button, still Don't work in Keyboard Bind
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -416,7 +416,7 @@ class Calculator:
             elif put == 'h':
                 self.Input('h(')
 
-            elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3'\
+            elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
                     or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
                 self.Input(put)
 
@@ -476,8 +476,10 @@ class Calculator:
             pass
 
     def InputEquals(self):
+        global z
         try:
             if self.mode == 'Operation':
+
                 if not self.equal:
                     self.ans = eval(self.expression)
                     self.FastTextVariable.set('')
@@ -487,11 +489,22 @@ class Calculator:
                     self.equal = True
 
                 elif self.equal:
-                    self.expression = str(self.storeans[-1]) + str(self.store[-2]) + str(self.store[-1])
-                    self.ans = eval(self.expression)
-                    self.FastTextVariable.set(self.ans)
-                    self.TextVariable.set(f'{self.expression} = {self.ans}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                    self.expression = ''
+                    z = int(len(self.store)) - 1
+                    g = int(len(self.store)) - 1
+                    while True:
+                        trs = str(self.store[z])
+                        if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**':
+                            while z <= g:
+                                self.expression += str(self.store[z])
+                                z += 1
+                            self.expression = str(self.storeans[-1]) + str(self.expression)
+                            self.ans = eval(self.expression)
+                            self.FastTextVariable.set(self.ans)
+                            self.TextVariable.set(f'{self.expression} = {self.ans}')
+                            self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                            break
+                        z -= 1
 
             elif self.mode == 'Equation':
                 if not self.full:
@@ -617,30 +630,12 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             self.FastTextVariable.set('ValueError')
         except SyntaxError:
             self.FastTextVariable.set('SyntaxError')
-            try:
-                if self.mode == 'Operation' and self.equal:
-                    self.expression = str(self.storeans[-1])
-                    self.ans = eval(self.expression)
-                    self.FastTextVariable.set(self.ans)
-                    self.TextVariable.set(f'{self.expression} = {self.ans}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
-            except SyntaxError:
-                self.FastTextVariable.set('SyntaxError')
         except NameError:
             self.FastTextVariable.set('NameError')
         except TypeError:
             self.FastTextVariable.set('TypeError')
         except IndexError:
             self.FastTextVariable.set('IndexError')
-            try:
-                if self.mode == 'Operation' and self.equal:
-                    self.expression = str(self.storeans[-1])
-                    self.ans = eval(self.expression)
-                    self.FastTextVariable.set(self.ans)
-                    self.TextVariable.set(f'{self.expression} = {self.ans}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
-            except IndexError:
-                self.FastTextVariable.set('IndexError')
 
         self.storeans.append(str(self.ans))
 
@@ -658,5 +653,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.0.3")
+    win.title("Scientific Calculator v3.1.0")
     win.mainloop()
