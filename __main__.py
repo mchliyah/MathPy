@@ -73,12 +73,14 @@ big_prm = {'padx': 8,
 big2_prm = {'padx': 14,
             'pady': 13,
             'bd': 1,
+            'background': '#292929',
             'fg': 'white',
             'bg': '#292929',
             'font': ('Segoe UI Symbol', 12),
             'width': 5,
             'height': 1,
             'relief': 'raised',
+            'activeback': '#80000B',
             'activebackground': '#80000B',
             'activeforeground': "white"}
 ent_prm = {'bd': 1,
@@ -179,10 +181,10 @@ class Calculator:
             self.btn_m.append(HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
             self.btn_m[i].grid(row=0, column=i)
         # Answer Stored
-        self.btn_m[3].configure(bg='#5BB65E', activebackground='#20B645',
+        self.btn_m[3].configure(bg='#20B645', activebackground='#009C27',
                                 command=lambda: self.Input(str(self.callback[-1])))
-        self.btn_m[3].defaultActiveBack = '#20B645'
-        self.btn_m[3].defaultBackGround = '#5BB65E'
+        self.btn_m[3].defaultActiveBack = '#009C27'
+        self.btn_m[3].defaultBackGround = '#20B645'
         # Clear
         self.btn_m[4].configure(width=1, bg='IndianRed', activebackground='firebrick3', font=('Marlett', 23),
                                 command=lambda: self.Delete())
@@ -337,8 +339,10 @@ class Calculator:
             self.FullTextDisplay.insert(END, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.btn_a[0].config(bg='indian red', relief='sunken')
+            self.btn_a[0].defaultBackGround = 'indian red'
             for i in range(1, 4):
                 self.btn_a[i].config(bg='#292929', relief='raised')
+                self.btn_a[i].defaultBackGround = '#292929'
             self.btn[5]['state'] = ['disabled']
             self.btn[11]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
@@ -349,9 +353,12 @@ class Calculator:
             self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.btn_a[0].config(bg='#292929', relief='raised')
+            self.btn_a[0].defaultBackGround = '#292929'
             self.btn_a[1].config(bg='indian red', relief='sunken')
+            self.btn_a[1].defaultBackGround = 'indian red'
             for i in range(2, 4):
                 self.btn_a[i].config(bg='#292929', relief='raised')
+                self.btn_a[i].defaultBackGround = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
             self.btn[11]['state'] = ['disabled']
@@ -364,8 +371,11 @@ class Calculator:
             self.FastTextVariable.set('aX² + bX + c = 0')
             for i in range(2):
                 self.btn_a[i].config(bg='#292929', relief='raised')
+                self.btn_a[i].defaultBackGround = '#292929'
             self.btn_a[2].config(bg='indian red', relief='sunken')
+            self.btn_a[2].defaultBackGround = 'indian red'
             self.btn_a[3].config(bg='#292929', relief='raised')
+            self.btn_a[3].defaultBackGround = '#292929'
             self.btn[5].config(state=DISABLED)
             self.btn[11].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
@@ -377,7 +387,9 @@ class Calculator:
             self.FullTextDisplay.insert(END, 'Mode Equation :')
             for i in range(3):
                 self.btn_a[i].config(bg='#292929', relief='raised')
+                self.btn_a[i].defaultBackGround = '#292929'
             self.btn_a[3].config(bg='indian red', relief='sunken')
+            self.btn_a[3].defaultBackGround = 'indian red'
             self.btn[5].config(state=NORMAL)
             self.btn[11].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
@@ -389,8 +401,10 @@ class Calculator:
             self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
             self.FastTextVariable.set(f'f(x)₁ = ')
             self.btn_b[0].config(bg='indian red', relief='sunken')
+            self.btn_b[0].defaultBackGround = 'indian red'
             for i in range(1, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
+                self.btn_b[i].defaultBackGround = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['disabled']
             self.btn[2]['state'] = ['disabled']
@@ -402,9 +416,12 @@ class Calculator:
             self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
             self.FastTextVariable.set(f'f(x)₁ = ')
             self.btn_b[0].config(bg='#292929', relief='raised')
+            self.btn_b[0].defaultBackGround = '#292929'
             self.btn_b[1].config(bg='indian red', relief='sunken')
+            self.btn_b[1].defaultBackGround = 'indian red'
             for i in range(2, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
+                self.btn_b[i].defaultBackGround = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['disabled']
             self.btn[2]['state'] = ['disabled']
@@ -417,9 +434,12 @@ class Calculator:
             self.FastTextVariable.set('f(x)₁ = ')
             for i in range(2):
                 self.btn_b[i].config(bg='#292929', relief='raised')
+                self.btn_b[i].defaultBackGround = '#292929'
             self.btn_b[2].config(bg='indian red', relief='sunken')
+            self.btn_b[2].defaultBackGround = 'indian red'
             for i in range(3, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
+                self.btn_b[i].defaultBackGround = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['disabled']
             self.btn[2]['state'] = ['disabled']
@@ -432,8 +452,11 @@ class Calculator:
             self.FastTextVariable.set(f'f(x,y)')
             for i in range(3):
                 self.btn_b[i].config(bg='#292929', relief='raised')
+                self.btn_b[i].defaultBackGround = '#292929'
             self.btn_b[3].config(bg='indian red', relief='sunken')
+            self.btn_b[3].defaultBackGround = 'indian red'
             self.btn_b[4].config(bg='#292929', relief='raised')
+            self.btn_b[4].defaultBackGround = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
@@ -445,7 +468,9 @@ class Calculator:
             self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
             for i in range(4):
                 self.btn_b[i].config(bg='#292929', relief='raised')
+                self.btn_b[i].defaultBackGround = '#292929'
             self.btn_b[4].config(bg='indian red', relief='sunken')
+            self.btn_b[4].defaultBackGround = 'indian red'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
