@@ -2,14 +2,12 @@ from math import log2, log10
 from operator import *
 from __init__old import *
 from sympy import *
-from sympy.abc import x, y
+from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-
-# version 5.0.4
-# change text display to list box, it optimized by vertical scroll bar axe y
-# optimize equation insertion on list box
+# version 5.1.0
+# add new function: system solver {Matrix}
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -36,19 +34,6 @@ btnb_prm = {'padx': 18,
             'activeback': '#3E3E3E',
             'activebackground': '#313131',
             'activeforeground': "white"}
-big_prm = {'padx': 8,
-           'pady': 7,
-           'bd': 1,
-           'background': '#292929',
-           'fg': 'white',
-           'bg': '#292929',
-           'font': ('Segoe UI Symbol', 15),
-           'width': 7,
-           'height': 1,
-           'relief': 'raised',
-           'activeback': '#49000A',
-           'activebackground': '#80000B',
-           'activeforeground': "white"}
 big2_prm = {'padx': 14,
             'pady': 13,
             'bd': 1,
@@ -65,17 +50,17 @@ big2_prm = {'padx': 14,
 ent_prm = {'fg': 'white',
            'bg': '#4d4d4d',
            'font': ('Segoe UI Symbol', 17),
-           'relief': 'flat',}
+           'relief': 'flat', }
 π = pi
 convert_constant = 1
 inverse_convert_constant = 1
-z = ''
 
 
 class Calculator:
     def __init__(self, master):
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎', '∞']
         self.color = ['', "r", "g", "o", "y", "b"]
+        self.sb = ['x', 'y', 'z']
         self.ENG = 16
         self.btn_u = []
         self.btn_a = []
@@ -95,8 +80,10 @@ class Calculator:
         # equation solver parametre
         self.q = ''
         self.p = ''
+        self.d = ''
         self.x = x
         self.y = y
+        self.z = z
         self.R = S.Reals
         self.C = S.Complexes
         # int range numbers of function
@@ -194,11 +181,12 @@ class Calculator:
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', self.y, "4", "5", "6", "-", "**2", 'e', "1",
-               "2", "3", "*", "**", "Sq(", '.', "0", "=", "/", "Fact(", '/100']
+        btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', self.y, "4", "5", "6", "-", "**2", self.z,
+               "1",
+               "2", "3", "*", "**", "e", '.', "0", "=", "/", "Fact(", '/100']
 
         btn_txt = ['π', 'E', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', 'y', "4", "5", "6", "-",
-                   u'n\u00B2', '10ˣ', "1", "2", "3", "*", "nˣ", '√n', '.', "0", "=", "/", "!n", "n%"]
+                   u'n\u00B2', 'z', "1", "2", "3", "*", "nˣ", '10ˣ', '.', "0", "=", "/", "!n", "n%"]
         self.btn = []
         i = 0
         for j in range(5):
@@ -244,6 +232,7 @@ class Calculator:
         Mode.add_command(label="Equation",
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Equation', True)])
         Mode.add_command(label='Solve', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
+        Mode.add_command(label='Matrix', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Matrix', True)])
         Mode.add_separator()
         Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot', True)])
         Mode.add_command(label='Plot Prm',
@@ -268,11 +257,11 @@ class Calculator:
             # buttons that will be displayed on top frame ROW 0=========================================================
             for i in range(5):
                 self.btn_b[i].destroy()
-            big_txt = ['Operation', 'Function', "Equation", 'Solve']
-            big_pad = ['Operation', 'Function', 'Equation', 'Solve']
+            big_txt = ['Operation', 'Function', "Equation", 'Solve', 'Matrix']
+            big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrix']
             self.btn_a = []
-            for i in range(4):
-                self.btn_a.append(HoverButton(self.top_frame, **big_prm, text=big_txt[i]))
+            for i in range(5):
+                self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i)
                 self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
@@ -292,7 +281,7 @@ class Calculator:
 
         elif page == '2nd':
             # buttons that will be displayed on top frame ROW 0=========================================================
-            for i in range(4):
+            for i in range(5):
                 self.btn_a[i].destroy()
             big_txt = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
@@ -329,13 +318,14 @@ class Calculator:
                 self.FastTextVariable.set('')
                 self.btn[5]['state'] = ['disabled']
                 self.btn[11]['state'] = ['disabled']
+                self.btn[17].config(state=DISABLED)
                 self.btn[2].config(state=NORMAL)
                 self.btn_d[1].config(state=NORMAL)
                 self.btn_d[2].config(state=NORMAL)
 
             self.btn_a[0].config(bg='#80000B', relief='sunken')
             self.btn_a[0].DefaultBackGround = '#80000B'
-            for i in range(1, 4):
+            for i in range(1, 5):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].DefaultBackGround = '#292929'
 
@@ -346,6 +336,7 @@ class Calculator:
                 self.btn[5]['state'] = ['normal']
                 self.btn[2]['state'] = ['disabled']
                 self.btn[11]['state'] = ['disabled']
+                self.btn[17].config(state=DISABLED)
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
                 self.SwitchDegRad('Radians')
@@ -354,7 +345,7 @@ class Calculator:
             self.btn_a[0].DefaultBackGround = '#292929'
             self.btn_a[1].config(bg='#80000B', relief='sunken')
             self.btn_a[1].DefaultBackGround = '#80000B'
-            for i in range(2, 4):
+            for i in range(2, 5):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].DefaultBackGround = '#292929'
 
@@ -364,6 +355,7 @@ class Calculator:
                 self.FastTextVariable.set('ax² + bx + c = 0')
                 self.btn[5].config(state=DISABLED)
                 self.btn[11].config(state=DISABLED)
+                self.btn[17].config(state=DISABLED)
                 self.btn[2].config(state=DISABLED)
                 self.btn_d[1].config(state=NORMAL)
                 self.btn_d[2].config(state=NORMAL)
@@ -374,14 +366,16 @@ class Calculator:
                 self.btn_a[i].DefaultBackGround = '#292929'
             self.btn_a[2].config(bg='#80000B', relief='sunken')
             self.btn_a[2].DefaultBackGround = '#80000B'
-            self.btn_a[3].config(bg='#292929', relief='raised')
-            self.btn_a[3].DefaultBackGround = '#292929'
+            for i in range(3, 5):
+                self.btn_a[i].config(bg='#292929', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#292929'
 
         elif self.mode == 'Solve':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Equation :')
                 self.btn[5].config(state=NORMAL)
                 self.btn[11].config(state=DISABLED)
+                self.btn[17].config(state=DISABLED)
                 self.btn[2].config(state=DISABLED)
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -392,6 +386,25 @@ class Calculator:
                 self.btn_a[i].DefaultBackGround = '#292929'
             self.btn_a[3].config(bg='#80000B', relief='sunken')
             self.btn_a[3].DefaultBackGround = '#80000B'
+            self.btn_a[4].config(bg='#292929', relief='raised')
+            self.btn_a[4].DefaultBackGround = '#292929'
+
+        elif self.mode == 'Matrix':
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode System Equation :')
+                self.btn[5].config(state=NORMAL)
+                self.btn[11].config(state=NORMAL)
+                self.btn[17].config(state=NORMAL)
+                self.btn[2].config(state=DISABLED)
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
+            for i in range(4):
+                self.btn_a[i].config(bg='#292929', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#292929'
+            self.btn_a[4].config(bg='#80000B', relief='sunken')
+            self.btn_a[4].DefaultBackGround = '#80000B'
 
         elif self.mode == 'Plot':
             if self.switched:
@@ -399,6 +412,7 @@ class Calculator:
                 self.FastTextVariable.set(f'f(x)₁ = ')
                 self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['disabled']
+                self.btn[17].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -416,6 +430,7 @@ class Calculator:
                 self.FastTextVariable.set(f'f(x)₁ = ')
                 self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['disabled']
+                self.btn[17].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -435,6 +450,7 @@ class Calculator:
                 self.FastTextVariable.set('f(x)₁ = ')
                 self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['disabled']
+                self.btn[17].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -455,6 +471,7 @@ class Calculator:
                 self.FastTextVariable.set(f'f(x,y)')
                 self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['normal']
+                self.btn[17].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -474,6 +491,7 @@ class Calculator:
                 self.FastTextVariable.set(f'f(x,y)₁ = ')
                 self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['normal']
+                self.btn[17].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -543,6 +561,7 @@ class Calculator:
         self.c = ''
         self.q = ''
         self.p = ''
+        self.d = ''
         self.fctx = ''
         self.fctx1 = ''
         self.fctx2 = ''
@@ -707,7 +726,7 @@ class Calculator:
                 elif put == 'p':
                     self.Input('π')
 
-                elif put == 'x' or put == '0' or put == '1' or put == '2' or put == '3' or put == 'y' \
+                elif put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or put == '3' \
                         or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
                     self.Input(put)
 
@@ -774,6 +793,28 @@ class Calculator:
                     self.TextVariable.set(f'{self.q} = {self.expression}')
                     self.FastTextVariable.set(f'{self.q} = {self.expression}')
 
+            elif self.mode == 'Matrix':
+                if self.full is None:
+                    self.TextVariable.set(self.expression)
+                    self.FastTextVariable.set(self.expression)
+                elif not self.full:
+                    self.TextVariable.set(f'{self.q} = {self.expression}')
+                    self.FastTextVariable.set(f'{self.q} = {self.expression}')
+
+                elif self.full and self.clear is None:
+                    self.TextVariable.set(self.expression)
+                    self.FastTextVariable.set(self.expression)
+                elif self.full and not self.clear and self.equal is None:
+                    self.TextVariable.set(f'{self.d} = {self.expression}')
+                    self.FastTextVariable.set(f'{self.d} = {self.expression}')
+
+                elif self.full and not self.clear and not self.equal:
+                    self.TextVariable.set(self.expression)
+                    self.FastTextVariable.set(self.expression)
+                elif self.full and not self.clear and self.equal:
+                    self.TextVariable.set(f'{self.v} = {self.expression}')
+                    self.FastTextVariable.set(f'{self.v} = {self.expression}')
+
             elif self.mode == 'Plot':
                 self.TextVariable.set(f'f(x) = {self.expression}')
                 self.FastTextVariable.set(f'f(x) = {self.expression}')
@@ -814,7 +855,6 @@ class Calculator:
             pass
 
     def InputEquals(self):
-        global z
         self.callback_function.append(str(self.expression))
         try:
             if self.mode == 'Operation':
@@ -832,14 +872,14 @@ class Calculator:
 
                     elif self.equal:
                         self.expression = ''
-                        z = int(len(self.store_expression)) - 1
-                        g = int(len(self.store_expression)) - 1
+                        self.v = int(len(self.store_expression)) - 1
+                        self.w = int(len(self.store_expression)) - 1
                         while True:
-                            trs = str(self.store_expression[z])
+                            trs = str(self.store_expression[self.v])
                             if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**' or trs == '^':
-                                while z <= g:
-                                    self.expression += str(self.store_expression[z])
-                                    z += 1
+                                while self.v <= self.w:
+                                    self.expression += str(self.store_expression[self.v])
+                                    self.v += 1
                                 self.expression = str(self.callback[-1]) + str(self.expression)
                                 if self.ENG == 16:
                                     self.answer = eval(self.expression)
@@ -849,7 +889,7 @@ class Calculator:
                                 self.TextVariable.set(f'{self.expression} = {self.answer}')
                                 self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
                                 break
-                            z -= 1
+                            self.v -= 1
                 except IndexError or SyntaxError:
                     try:
                         self.expression = str(self.callback[-1])
@@ -929,34 +969,34 @@ class Calculator:
                     self.FastTextVariable.set(f'{self.a}x² + ({self.b})x + ({c}) = 0')
                     if self.a > 0 or self.a < 0:
                         self.FullTextDisplay.insert(END,
-f'The Equation Have Two Solutions For x :',
-f'  ∆ =  b² - 4ac',
-f'  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c}))',
-f'      = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)})',
-f'      = {d}')
+                                                    f'The Equation Have Two Solutions For x :',
+                                                    f'  ∆ =  b² - 4ac',
+                                                    f'  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c}))',
+                                                    f'      = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)})',
+                                                    f'      = {d}')
                         if d == 0:
                             self.FullTextDisplay.insert(END,
-f'∆=0 : x = -b / 2a',
-f' x₁ = x₂ = ({N(neg(self.b), 3)}) / (2 ⨯ {self.a})',
-f' x₁ = x₂ = {N(neg(self.b) / (2 * self.a), 3)}')
+                                                        f'∆=0 : x = -b / 2a',
+                                                        f' x₁ = x₂ = ({N(neg(self.b), 3)}) / (2 ⨯ {self.a})',
+                                                        f' x₁ = x₂ = {N(neg(self.b) / (2 * self.a), 3)}')
                         elif d >= 0:
                             self.FullTextDisplay.insert(END,
-f'∆>0 : x = (-b ± √∆) / 2a',
-f' x₁ = ({nb} + √{d}) / (2 ⨯ {self.a})',
-f'     = {N((nb + sqrt(d)) / (2 * self.a), 3)}',
-f' x₂ = ({nb} - √{d}) / (2 ⨯ {self.a})',
-f'     = {N((nb - sqrt(d)) / (2 * self.a), 3)}')
+                                                        f'∆>0 : x = (-b ± √∆) / 2a',
+                                                        f' x₁ = ({nb} + √{d}) / (2 ⨯ {self.a})',
+                                                        f'     = {N((nb + sqrt(d)) / (2 * self.a), 3)}',
+                                                        f' x₂ = ({nb} - √{d}) / (2 ⨯ {self.a})',
+                                                        f'     = {N((nb - sqrt(d)) / (2 * self.a), 3)}')
                         elif d <= 0:
                             self.FullTextDisplay.insert(END,
-f'      = {nd}i²',
-f'∆<0 : x = (-b ± i√∆) / 2a',
-f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {self.a})',
-f'     = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}',
-f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {self.a})',
-f'     = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}',
-f'  z = a ± ib',
-f'  a = {N(nb / (2 * self.a), 3)}',
-f'  b = ± {N(sqrt(nd) / (2 * self.a), 3)}')
+                                                        f'      = {nd}i²',
+                                                        f'∆<0 : x = (-b ± i√∆) / 2a',
+                                                        f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {self.a})',
+                                                        f'     = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}',
+                                                        f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {self.a})',
+                                                        f'     = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}',
+                                                        f'  z = a ± ib',
+                                                        f'  a = {N(nb / (2 * self.a), 3)}',
+                                                        f'  b = ± {N(sqrt(nd) / (2 * self.a), 3)}')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
@@ -964,15 +1004,15 @@ f'  b = ± {N(sqrt(nd) / (2 * self.a), 3)}')
                             self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif c == 0:
                             self.FullTextDisplay.insert(END,
-f'The Equation Have One Solution For x :',
-f'  {self.b}x = 0',
-f'  x = 0',)
+                                                        f'The Equation Have One Solution For x :',
+                                                        f'  {self.b}x = 0',
+                                                        f'  x = 0', )
                         else:
                             self.FullTextDisplay.insert(END,
-f'The Equation Have One Solution For x :',
-f'  {self.b}x = {neg(c)}',
-f'  x = {neg(c)} / {self.b}',
-f'  x = {neg(c) / self.b}')
+                                                        f'The Equation Have One Solution For x :',
+                                                        f'  {self.b}x = {neg(c)}',
+                                                        f'  x = {neg(c)} / {self.b}',
+                                                        f'  x = {neg(c) / self.b}')
 
                     self.clear = True
                     self.full = None
@@ -997,6 +1037,80 @@ f'  x = {neg(c) / self.b}')
 
                     self.clear = True
                     self.full = None
+
+            elif self.mode == 'Matrix':
+                if self.full is None:
+                    self.q = str(eval(self.expression))
+                    self.TextVariable.set(f'{self.q} = ')
+                    self.expression = ""
+                    self.full = False
+
+                elif not self.full:
+                    self.p = str(eval(self.expression))
+                    self.TextVariable.set(f'\n{self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, f'\n{self.q} = {self.p}')
+                    self.expression = ""
+                    self.full = True
+                    self.clear = None
+
+                elif self.full:
+                    if self.clear is None:
+                        self.d = str(eval(self.expression))
+                        self.TextVariable.set(f'{self.d} = ')
+                        self.expression = ""
+                        self.equal = None
+                        self.clear = False
+
+                    elif not self.clear:
+                        if self.equal is None:
+                            self.b = str(eval(self.expression))
+                            self.TextVariable.set(f'\n{self.d} = {self.b}')
+                            self.FullTextDisplay.insert(END, f'\n{self.d} = {self.b}')
+                            self.expression = ""
+                            self.equal = False
+
+                        elif not self.equal:
+                            self.v = str(eval(self.expression))
+                            self.TextVariable.set(f'{self.v} = ')
+                            self.expression = ""
+                            self.equal = True
+
+                        elif self.equal:
+                            self.w = str(eval(self.expression))
+                            self.TextVariable.set(f'\n{self.v} = {self.w}')
+                            self.FullTextDisplay.insert(END, f'\n{self.v} = {self.w}')
+                            print(0)
+                            try:
+                                lsv = linsolve(
+                                    [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.d), sympify(self.b)),
+                                     Eq(sympify(self.v), sympify(self.w))], [self.x, self.y, self.z])
+                                print(1)
+                                # if lsv is Emptyset or lsv is None:
+                                #    lsv = linsolve(
+                                #        [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.d), sympify(self.b)),
+                                #         Eq(sympify(self.v), sympify(self.w))], [self.x, self.y, self.z], [self.R])
+                                #    print(2)
+                            except SyntaxError or TypeError or ValueError or NameError:
+                                try:
+                                    print(3)
+                                    lsv = nonlinsolve(
+                                        [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.d), sympify(self.b)),
+                                         Eq(sympify(self.v), sympify(self.w))], [self.x, self.y, self.z])
+                                except SyntaxError or TypeError or ValueError or NameError:
+                                    self.FastTextVariable.set('Cannot Solve This Matrix')
+
+                                # if lsv is Emptyset or sol is None:
+                                #     lsv = nonlinsolve(
+                                #         [Eq(sympify(self.q), sympify(self.p)), Eq(self.d, sympify(self.b)),
+                                #          Eq(sympify(self.v), sympify(self.w))], [self.x, self.y, self.z], [self.R])
+                                #     print(4)
+
+                            self.FastTextVariable.set(lsv)
+                            # for l in range(len(lsv)):
+                            # self.FullTextDisplay.insert(END, f'\nx{self.sb[int(l)]} = {lsv[l]}')
+
+                            self.clear = True
+                            self.full = None
 
             elif self.mode == 'Plot':
                 if self.full is None:
@@ -1237,5 +1351,5 @@ if __name__ == "__main__":
     # Window configuration
     win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v5.0.4")
+    win.title("PyMathon v5.1.0")
     win.mainloop()
