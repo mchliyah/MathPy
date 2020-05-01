@@ -1,8 +1,6 @@
 from math import log2, log10
 from operator import *
-from tkinter import *
-from tkinter.scrolledtext import *
-from tkinter import _cnfmerge as cnfmerge
+from __init__old import *
 from sympy import *
 from sympy.abc import x, y
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
@@ -11,47 +9,7 @@ from sympy.solvers.solveset import solvify
 
 # version 5.0.4
 # change text display to list box, it optimized by vertical scroll bar axe y
-class HoverButton(Button):
-    def __init__(self, master=None, cnf=None, **kw):
-        if cnf is None:
-            cnf = {}
-        kw = cnfmerge((kw, cnf))
-        self.DefaultBackGround = kw['background']
-        self.ActiveBack = kw['activeback']
-        super(HoverButton, self).__init__(master=master, **kw)
-        self.bind_class(self, "<Enter>", self.Enter)
-        self.bind_class(self, "<Leave>", self.Leave)
-
-    def Enter(self, event):
-        self['bg'] = self.ActiveBack
-
-    def Leave(self, event):
-        self['bg'] = self.DefaultBackGround
-class ScrolledListbox(Listbox):
-    def __init__(self, master=None, **kw):
-        self.frame = Frame(master)
-        self.vbar = Scrollbar(self.frame)
-        self.vbar.pack(side=RIGHT, fill=Y)
-
-        kw.update({'yscrollcommand': self.vbar.set})
-        Listbox.__init__(self, self.frame, **kw)
-        self.pack(side=LEFT, fill=BOTH, expand=True)
-        self.vbar['command'] = self.yview
-
-        # Copy geometry methods of self.frame without overriding Listbox
-        # methods -- hack!
-        text_meths = vars(Listbox).keys()
-        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
-        methods = methods.difference(text_meths)
-
-        for m in methods:
-            if m[0] != '_' and m != 'config' and m != 'configure':
-                setattr(self, m, getattr(self.frame, m))
-
-    def __str__(self):
-        return str(self.frame)
-
-
+# optimize equation insertion on list box
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -951,82 +909,70 @@ class Calculator:
 
             elif self.mode == 'Equation':
                 if self.full is None:
-                    self.a = N(eval(self.expression), 3)
+                    self.a = float(eval(self.expression))
                     self.expression = ""
                     self.TextVariable.set(f'b = ')
                     self.full = False
 
                 elif not self.full:
-                    self.b = N(eval(self.expression), 3)
+                    self.b = float(eval(self.expression))
                     self.expression = ""
                     self.TextVariable.set(f'c = ')
                     self.full = True
 
                 elif self.full:
-                    c = N(eval(self.expression), 3)
+                    c = float(eval(self.expression))
                     d = N((self.b ** 2) - 4 * self.a * c, 3)
                     nd = neg(d)
                     nb = neg(self.b)
                     self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
                     self.FastTextVariable.set(f'{self.a}x² + ({self.b})x + ({c}) = 0')
                     if self.a > 0 or self.a < 0:
-                        self.FullTextDisplay.insert(END, f'''\n
-The Equation Have Two Solutions For x :
-
-  ∆ =  b² - 4ac
-
-  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c})) 
-      = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)}) 
-      = {d}''')
+                        self.FullTextDisplay.insert(END,
+f'The Equation Have Two Solutions For x :',
+f'  ∆ =  b² - 4ac',
+f'  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c}))',
+f'      = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)})',
+f'      = {d}')
                         if d == 0:
-                            self.FullTextDisplay.insert(END, f'''\n 
-∆=0 : x = -b / 2a
-
-    x₁ = x₂ = ({N(neg(self.b), 3)}) / (2 ⨯ {self.a})
-    x₁ = x₂ = {N(neg(self.b) / (2 * self.a), 3)}''')
+                            self.FullTextDisplay.insert(END,
+f'∆=0 : x = -b / 2a',
+f' x₁ = x₂ = ({N(neg(self.b), 3)}) / (2 ⨯ {self.a})',
+f' x₁ = x₂ = {N(neg(self.b) / (2 * self.a), 3)}')
                         elif d >= 0:
-                            self.FullTextDisplay.insert(END, f'''\n
-∆>0 : x = (-b ± √∆) / 2a
-
- x₁ = ({nb} + √{d}) / (2 ⨯ {self.a})
-       = {N((nb + sqrt(d)) / (2 * self.a), 3)}
-
- x₂ = ({nb} - √{d}) / (2 ⨯ {self.a})
-       = {N((nb - sqrt(d)) / (2 * self.a), 3)}''')
+                            self.FullTextDisplay.insert(END,
+f'∆>0 : x = (-b ± √∆) / 2a',
+f' x₁ = ({nb} + √{d}) / (2 ⨯ {self.a})',
+f'     = {N((nb + sqrt(d)) / (2 * self.a), 3)}',
+f' x₂ = ({nb} - √{d}) / (2 ⨯ {self.a})',
+f'     = {N((nb - sqrt(d)) / (2 * self.a), 3)}')
                         elif d <= 0:
-                            self.FullTextDisplay.insert(END, f'''\n      = {nd}i²
-
-∆<0 : x = (-b ± i√∆) / 2a
-
- x₁ = ({nb} + i√({nd})) / (2 ⨯ {self.a})
-       = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}
-
- x₂ = ({nb} - i√({nd})) / (2 ⨯ {self.a})
-       = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}
-
-  z = a ± ib
-
-   a = {N(nb / (2 * self.a), 3)}
-   b = ± {N(sqrt(nd) / (2 * self.a), 3)}''')
+                            self.FullTextDisplay.insert(END,
+f'      = {nd}i²',
+f'∆<0 : x = (-b ± i√∆) / 2a',
+f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {self.a})',
+f'     = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}',
+f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {self.a})',
+f'     = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}',
+f'  z = a ± ib',
+f'  a = {N(nb / (2 * self.a), 3)}',
+f'  b = ± {N(sqrt(nd) / (2 * self.a), 3)}')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif self.b == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif c == 0:
-                            self.FastTextVariable.set(f'{self.a}X² + ({self.b})x + ({c}) = 0')
-                            self.FullTextDisplay.insert(END, f'''\n
-The Equation Have One Solution For x :
-
-  {self.b}x = 0
-  x = 0''')
+                            self.FullTextDisplay.insert(END,
+f'The Equation Have One Solution For x :',
+f'  {self.b}x = 0',
+f'  x = 0',)
                         else:
-                            self.FullTextDisplay.insert(END, f'''\n
-The Equation Have One Solution For x :  
-
-  {self.b}x = {neg(c)}    
-  x = {neg(c)} / {self.b}
-  x = {N(eval(neg(c) / self.b), 3)}''')
+                            self.FullTextDisplay.insert(END,
+f'The Equation Have One Solution For x :',
+f'  {self.b}x = {neg(c)}',
+f'  x = {neg(c)} / {self.b}',
+f'  x = {neg(c) / self.b}')
 
                     self.clear = True
                     self.full = None
