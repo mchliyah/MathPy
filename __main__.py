@@ -18,6 +18,8 @@ import __eci__ as eci
 # stop working ENG function and delete it
 # stop working switching Radians to Degree function and delete it
 # add LambertW
+# make writen more easy in logarithm & trigonometrical functions
+# new function *Control-Cursor to improve moving cursor 
 """
 
 btn_prm = {'padx': 18,
@@ -67,13 +69,23 @@ ent_prm = {'fg': 'white',
 text = ''
 permit = None
 delf = ()
+nbr = int
 n = int
 v = int
 w = int
 
 
-def Fact(arg):
-    return factorial(arg)
+def ControlCursor(index, nbr_order):
+    global n, nbr
+    nbr = 0
+    n = 0
+    while True:
+        nbr += nbr_order[n]
+        if index == 0:
+            return 0, -1
+        elif index <= nbr:
+            return nbr, n
+        n += 1
 
 
 def RealStringInsertion(str_now, index, str_order):
@@ -310,13 +322,13 @@ class Calculator:
         self.label.grid(row=0, column=0, sticky=NSEW)
         self.label.configure(font=('Segoe UI Symbol', 32))
         # First Text Display
-        self.FirstTextDisplay = Entry(self.canvaf, width=35, **ent_prm, textvariable=self.FirstStrVar)
+        self.FirstTextDisplay = Entry(self.canvaf, width=35, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
         self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
-        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32))
+        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), insertbackground='white')
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
         self.FirstTextDisplay.icursor(0)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        self.IndexCursor = 0
         # Second Canvas
         self.canvas = Canvas(self.win, relief='flat', bg='#666666', width=42)
         self.canvas.grid(row=1, column=1, rowspan=3, sticky=NSEW)
@@ -327,8 +339,9 @@ class Calculator:
         # Second Text Display
         SecondTextDisplay = Entry(self.canvas, width=27, **ent_prm, textvariable=self.SecondStrVar, state='readonly')
         SecondTextDisplay.grid(row=0, column=0, sticky=NSEW)
-        SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
-        # MathPlot LaTex Display
+        SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray',
+                                    cursor="arrow")
+        # MathPlot LaTex Display, c='white'
         self.Figure = Figure(figsize=(2, 1), facecolor='#666666', edgecolor='#666666')
         self.CanvasFigure = FigureCanvasTkAgg(self.Figure, master=self.canvas)
         self.TkAgg = self.CanvasFigure.get_tk_widget()
@@ -379,11 +392,14 @@ class Calculator:
         for k in range(5):
             self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
-        txt = ['', '', '1ST', 'ANS', 'r', 'Õ']
+        txt = ['<-', '->', '1ST', 'ANS', 'r', 'Õ']
         self.btn_m = []
         for i in range(6):
             self.btn_m.append(eci.HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
             self.btn_m[i].grid(row=0, column=i, sticky=NSEW)
+        #
+        self.btn_m[0].configure(command=lambda: self.CHDR('Left'), fg='#FF9950', activeforeground='orange')
+        self.btn_m[1].configure(command=lambda: self.CHDR('Right'), fg='#FF9950', activeforeground='orange')
         # Answer Stored
         self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
                                 command=lambda: self.Input(str(self.callback[-1])))
@@ -399,29 +415,29 @@ class Calculator:
                                 command=lambda: self.Remove())
         self.btn_m[5].ActiveBack = 'Royalblue3'
         self.btn_m[5].DefaultBackGround = 'Royalblue2'
-
-        # ========================Trigonometry======================================================================
+        # ========================Trigonometry==========================================================================
         self.btn_u = []
         for i in range(6):
             self.btn_u.append(eci.HoverButton(self.middle_frame, **btn_prm))
             self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
-        logarithm_pad = ['log(', 'exp(', 'LambertW(', '', 'sqrt(', "oo"]
-        logarithm_txt = ['log', 'exp', 'W', "", '√n', "∞"]
+        logarithm_pad = ['log(', 'exp(', 'LambertW(', '', 'sqrt(', "factorial("]
+        logarithm_txt = ['log', 'exp', 'W', "", '√n', "n!"]
         self.btn_d = []
         for i in range(6):
             self.btn_d.append(eci.HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i]))
             self.btn_d[i].grid(row=2, column=i, sticky=NSEW)
-            self.btn_d[i].configure(command=lambda n=logarithm_pad[i]: self.Input(n))
+            self.btn_d[i].configure(
+                command=lambda n=logarithm_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
         btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
-               "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", "Fact(", 'e']
+               "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", 'e', "oo"]
 
         btn_txt = ['π', 'E', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "⨯",
-                   u'n\u00B2', 'y', "1", "2", "3", "/", "nˣ", 'z', "0", '', '.', "=", "!n", "10ˣ"]
+                   u'n\u00B2', 'y', "1", "2", "3", "/", "nˣ", 'z', "0", '', '.', "=", "10ˣ", "∞"]
         self.btn = []
         i = 0
         for j in range(5):
@@ -466,10 +482,8 @@ class Calculator:
         menubare = Menu(self.win)
         File = Menu(menubare, tearoff=0)
         Mode = Menu(menubare, tearoff=0)
-        Switch = Menu(menubare, tearoff=0)
         menubare.add_cascade(label="File", menu=File)
         menubare.add_cascade(label="Mode", menu=Mode)
-        menubare.add_cascade(label="Float", menu=Switch)
         File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
         File.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
         File.add_separator()
@@ -517,6 +531,28 @@ class Calculator:
         self.FirstTextDisplay.icursor(self.IndexCursor)
         print('click cursor =', self.IndexCursor)
 
+    def CHDR(self, key):
+        if key == 'Right':
+            end = len(str(self.expression))
+            if self.IndexCursor < end:
+                try:
+                    self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
+                    self.IndexCursor += self.store_order[n + 1]
+                    self.FirstTextDisplay.icursor(self.IndexCursor)
+                except Exception:
+                    self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
+                    self.FirstTextDisplay.icursor(self.IndexCursor)
+            else:
+                pass
+
+        elif key == 'Left':
+            if self.IndexCursor > 0:
+                self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
+                self.IndexCursor -= self.store_order[n]
+                self.FirstTextDisplay.icursor(self.IndexCursor)
+            else:
+                pass
+
     def SwitchButtons(self, side):
         page = side
         # buttons to switch between buttons those will be displayed on middle & top frames
@@ -542,7 +578,9 @@ class Calculator:
             Trigonometry_pad = ['cos(', 'sin(', "tan(", 'cosh(', 'sinh(', "tanh("]
             Trigonometry_txt = ['cos', 'sin', "tan", 'cosh', 'sinh', "tanh"]
             for i in range(6):
-                self.btn_u[i].configure(text=Trigonometry_txt[i], command=lambda n=Trigonometry_pad[i]: self.Input(n))
+                self.btn_u[i].configure(
+                    text=Trigonometry_txt[i],
+                    command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
 
             if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve' \
                     or self.mode == 'Matrices':
@@ -570,7 +608,9 @@ class Calculator:
             Trigonometry_pad = ['acos(', 'asin(', "atan(", 'acosh(', 'asinh(', "atanh("]
             Trigonometry_txt = ['acos', 'asin', "atan", 'acosh', 'asinh', "atanh"]
             for i in range(6):
-                self.btn_u[i].configure(text=Trigonometry_txt[i], command=lambda n=Trigonometry_pad[i]: self.Input(n))
+                self.btn_u[i].configure(
+                    text=Trigonometry_txt[i],
+                    command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
 
             if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == 'P3DPL' or self.mode == "Plot3D" or \
                     self.mode == 'P3DPS':
@@ -934,25 +974,13 @@ class Calculator:
                 self.Input(put)
 
             elif keyword.keysym == 'Right':
-                end = len(str(self.expression))
-                if self.IndexCursor < end:
-                    self.IndexCursor += 1
-                    self.FirstTextDisplay.icursor(self.IndexCursor)
-                else:
-                    pass
+                self.CHDR('Right')
 
             elif keyword.keysym == 'Left':
-                if self.IndexCursor > 0:
-                    self.IndexCursor -= 1
-                    self.FirstTextDisplay.icursor(self.IndexCursor)
-                else:
-                    pass
-
-            elif keyword.keysym == 'Return' or put == 'equal':
-                pass
+                self.CHDR('Left')
 
             else:
-                pass
+                self.ShowDirectText()
 
         except IndexError:
             self.SecondStrVar.set('IndexError')
@@ -998,8 +1026,8 @@ class Calculator:
         except Exception:
             pass
 
-    def VariableTXT(self, strvar):
-        self.LabelStrVar.set(strvar)
+    def VariableTXT(self, str_var):
+        self.LabelStrVar.set(str_var)
         self.FirstStrVar.set(self.expression)
 
     def ShowDirectText(self):
