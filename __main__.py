@@ -414,7 +414,7 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Plot':
-            self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
+            self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
             self.FastTextVariable.set(f'f(x)₁ = ')
             self.btn_b[0]['bg'] = 'indian red'
             for i in range(1, 5):
@@ -766,7 +766,7 @@ class Calculator:
                     self.TextVariable.set(f'{self.q} = {self.expression}')
                     self.FastTextVariable.set(f'{self.q} = {self.expression}')
 
-            elif self.mode == "Plot":
+            elif self.mode == 'Plot':
                 self.TextVariable.set(f'f(x) = {self.expression}')
                 self.FastTextVariable.set(f'f(x) = {self.expression}')
 
@@ -1009,7 +1009,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.clear = True
                     self.full = None
 
-            elif self.mode == 'Plot3D':
+            elif self.mode == 'Plot':
                 if self.full is None:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
