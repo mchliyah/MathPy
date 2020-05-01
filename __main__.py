@@ -11,8 +11,8 @@ from __jeep_v4__ import *
 """
 # version 6.0.1 
 # optimize and generalise ReBuild of re-click Equal on operation
-# optimize operation: *applying 'evalf' to block float on 16 numbers *improve 'eval' by 'sympfy' that solve problem
-ZeroDivisionError, and delete the exception of that error
+# optimize operation: *applying 'evalf' to block float on 16 numbers *improve 'eval' by 'sympfy' that solve exception of
+ZeroDivisionError, and delete that error
 # resizing all
 # delete Second Text Display also Second String Variable
 # fix some errors
@@ -20,6 +20,7 @@ ZeroDivisionError, and delete the exception of that error
 # generalise definition Variable_EQl in all Show_Equal_Text and hiding reset expression anyway
 # reduce the two definitions Two_Plot_Color{Two_Func,One_Func} in one, and get established Two_Plot_Color definition, 
 and delete callback_function store
+# fix error of draw show text in plot3d_parametric_surface
 """
 
 btn_prm = {'padx': 18,
@@ -1004,14 +1005,13 @@ class Calculator:
                 elif self.full:
                     self.VariableTXT(f'f(x,y)₂ =')
                     self.DrawTexTk(self.Figure, self.CanvasFigure,
-                                   f'f(x,y)₁ = {self.StandardWrite(self.fctx1)} | f(x,y)₂ = '
+                                   f'f(x,y)₁ = {self.StandardWrite(self.fctxy1)} | f(x,y)₂ = '
                                    f'{self.StandardWrite(self.expression)}')
-
-            self.iCursor(self.IndexCursor)
-            self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
 
         except Exception:
             pass
+
+        self.iCursor(self.IndexCursor)
 
     def ResetIndexCursor(self):
         if self.mode == 'Operation':
@@ -1372,7 +1372,7 @@ class Calculator:
                     if not self.equal:
                         self.PlotFirstFunc = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
                                                                        self.x - self.y)
-                        self.VariableEQL(f'f(x)₁ =', '')
+                        self.VariableEQL(f'f(x,y)₁ =', '')
                         self.equal = True
                         self.full = None
 
@@ -1380,7 +1380,7 @@ class Calculator:
                         self.PlotAddFunc = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2),
                                                                      self.x - self.y, show=False)
                         TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
-                        self.VariableEQL(f'f(x)₁ =', '')
+                        self.VariableEQL(f'f(x,y)₁ =', '')
                         self.full = None
 
             self.iCursor(END)
