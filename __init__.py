@@ -1,7 +1,4 @@
 import tkinter as tk
-from tkinter import *
-from tkinter import Scrollbar
-from tkinter import _cnfmerge
 from operator import neg
 from random import randint
 from sympy import *
@@ -9,6 +6,7 @@ from sympy.abc import x, y, z
 from sympy.plotting import PlotGrid, plot_backends
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 from matplotlib.colors import to_hex
 
 delf = ()
@@ -61,7 +59,8 @@ def MultiPlot2D(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
     HX = HX[2:8].upper()
     Plot_First_Func2D[-1].line_color = str('#') + str(HX)
     Plot_First_Func2D[-1].label = LaTex(sympify(Function2D))
-    return Plot_First_Func2D
+    # Plot_First_Func2D
+    return PlotGrid(1, 2, Plot_First_Func2D, Plot_Add_Func2D, legend=True, show=False)
 
 
 def OnePlotLaTex(Plot_First_Func, FunctionTX):
@@ -76,7 +75,8 @@ def FirstPlotLaTex(Plot_First_Func, FunctionTX):
 
 def MultiPlot3D(Plot_First_Func3D, Plot_Add_Func3D):
     Plot_First_Func3D.extend(Plot_Add_Func3D)
-    return Plot_First_Func3D
+    # return Plot_First_Func3D
+    return PlotGrid(1, 2, Plot_First_Func3D, Plot_Add_Func3D, show=False)
 
 
 def EQT(nbr_a, nbr_b, nbr_c):
@@ -140,14 +140,15 @@ def EQT(nbr_a, nbr_b, nbr_c):
     return delf
 
 
-class ManagedEntry(Entry):
+class ManagedEntry(tk.Entry):
     def __init__(self, master=None, cnf=None, **kw):
         if cnf is None:
             cnf = {}
-        kw = _cnfmerge((kw, cnf))
-        self.TextVariable = StringVar()
+        kw = tk._cnfmerge((kw, cnf))
+        self.TextVariable = tk.StringVar()
         super(ManagedEntry, self).__init__(master=master, textvariable=self.TextVariable, cnf={}, **kw)
         self.bind_class(self, "<Button-1>", self.ClickCursor)
+        self.bind_class(self, "<Key>", self.Keyboard)
         self.index_cursor = 0
         self.expression = ''
         self.answer = ''
@@ -160,6 +161,14 @@ class ManagedEntry(Entry):
         self.n = int
         self.v = int
         self.w = int
+
+    def Keyboard(self, keyword):
+
+        if keyword.keysym == 'Right':
+            self.DirectionCursor('Right')
+
+        elif keyword.keysym == 'Left':
+            self.DirectionCursor('Left')
 
     def StringVariable(self, text):
         self.TextVariable.set(text)
@@ -311,7 +320,7 @@ class ManagedEntry(Entry):
         self.expression = ''
         self.store_expression = []
         self.store_order = []
-        self.index_cursor = int(self.index(INSERT))
+        self.index_cursor = int(self.index(tk.INSERT))
 
     def Clear(self):
         self.StringVariable('')
@@ -322,11 +331,11 @@ class ManagedEntry(Entry):
         self.index_cursor = 0
 
 
-class HoverButton(Button):
+class HoverButton(tk.Button):
     def __init__(self, master=None, cnf=None, *args, **kwargs):
         if cnf is None:
             cnf = {}
-        kw = _cnfmerge((kwargs, cnf))
+        kw = tk._cnfmerge((kwargs, cnf))
         self.DBG = kw['background']
         self.ABG = kw['activeback']
         super(HoverButton, self).__init__(master=master, *args, **kwargs)
@@ -340,29 +349,29 @@ class HoverButton(Button):
         self['bg'] = self.DBG
 
 
-class ScrolledListbox(Listbox):
+class ScrolledListbox(tk.Listbox):
     def __init__(self, master, *args, **kwargs):
-        self.canvas = Canvas(master)
+        self.canvas = tk.Canvas(master)
         self.canvas.rowconfigure(0, weight=1)
         self.canvas.columnconfigure(0, weight=1)
 
-        Listbox.__init__(self, self.canvas, *args, **kwargs)
-        self.grid(row=0, column=0, sticky=NSEW)
+        tk.Listbox.__init__(self, self.canvas, *args, **kwargs)
+        self.grid(row=0, column=0, sticky=tk.NSEW)
 
-        self.vbar = Scrollbar(self.canvas, orient=VERTICAL)
-        self.hbar = Scrollbar(self.canvas, orient=HORIZONTAL)
+        self.vbar = tk.Scrollbar(self.canvas, orient=tk.VERTICAL)
+        self.hbar = tk.Scrollbar(self.canvas, orient=tk.HORIZONTAL)
 
         self.configure(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
 
-        self.vbar.grid(row=0, column=1, sticky=NS)
+        self.vbar.grid(row=0, column=1, sticky=tk.NS)
         self.vbar.configure(command=self.yview)
-        self.hbar.grid(row=1, column=0, sticky=EW)
+        self.hbar.grid(row=1, column=0, sticky=tk.EW)
         self.hbar.configure(command=self.xview)
 
         # Copy geometry methods of self.canvas without overriding Listbox
         # methods -- hack!
-        listbox_meths = vars(Listbox).keys()
-        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
+        listbox_meths = vars(tk.Listbox).keys()
+        methods = vars(tk.Pack).keys() | vars(tk.Grid).keys() | vars(tk.Place).keys()
         methods = methods.difference(listbox_meths)
 
         for m in methods:
@@ -392,27 +401,52 @@ class ScrollableTkAggX(tk.Canvas):
         self.TkAggWidget.configure(background=facecolor)
         self.TkAggWidget.grid(row=0, column=0, sticky=tk.NSEW)
 
-        self.hbar = Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)
+        self.hbar = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)
         self.hbar.grid(row=1, column=0, sticky=tk.EW)
 
         self.configure(xscrollcommand=self.hbar.set, scrollregion=self.bbox(tk.ALL))
 
         # when all widgets are in canvas
-        self.bind('<Configure>', self.on_configure)
+        self.bind('<Configure>', self.on_configure_y)
         # --- put frame in canvas ---
         self.canvas_frame = self.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
 
     # expand canvas_frame when canvas changes its size
-    def on_configure(self, event):
+    def on_configure_y(self, event):
         # when all widgets are in canvas
         canvas_height = event.height
         self.itemconfigure(self.canvas_frame, height=canvas_height - 20)
         # update scrollregion after starting 'mainloop'
         self.configure(scrollregion=self.bbox(tk.ALL))
 
-    def Draw(self):
-        self.TkAgg.draw()
+    def on_configure_x(self, width):
+        # when all widgets are in canvas
+        self.itemconfigure(self.canvas_frame, width=width)
+        # update scrollregion after starting 'mainloop'
+        self.configure(scrollregion=self.bbox(tk.ALL))
+
+    def Draw(self, width):
+        self.on_configure_x(width)
         self.xview_moveto(0)
+        self.TkAgg.draw()
+
+
+class FigureX(Figure):
+    def __init__(self, fontsize, rgbcolor, **kwargs):
+        super(FigureX, self).__init__(tight_layout=True, **kwargs)
+        self.fontsize = fontsize
+        self.mpl_rgb = rgbcolor
+        self.width = 0
+
+    def DrawTexTk(self, la_text):
+        self.clear()
+        Text = self.text(0, 0.4, la_text, color=self.mpl_rgb, fontsize=self.fontsize)
+        Renderer = self.canvas.get_renderer()
+        bb = Text.get_window_extent(renderer=Renderer)
+        self.width = bb.width
+
+    def Draw(self, TkAggX):
+        TkAggX.Draw(width=self.width)
 
 
 class ScrollableTkAggXY(tk.Canvas):
@@ -432,10 +466,10 @@ class ScrollableTkAggXY(tk.Canvas):
         self.TkAggWidget = self.TkAgg.get_tk_widget()
         self.TkAggWidget.grid(row=0, column=0, sticky=tk.NSEW)
 
-        self.vbar = Scrollbar(self, orient=tk.VERTICAL, command=self.yview)
+        self.vbar = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.yview)
         self.vbar.grid(row=0, column=1, sticky=tk.NS)
 
-        self.hbar = Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)
+        self.hbar = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)
         self.hbar.grid(row=1, column=0, sticky=tk.EW)
 
         self.configure(yscrollcommand=self.vbar.set, xscrollcommand=self.hbar.set, scrollregion=self.bbox(tk.ALL))
@@ -444,69 +478,58 @@ class ScrollableTkAggXY(tk.Canvas):
         self.canvas_frame = self.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
 
     # expand canvas_frame when canvas changes its size
-    def on_configure(self):
+    def on_configure(self, width, height):
         # when all widgets are in canvas
-        Size = self.TkAgg.get_width_height()
-        self.itemconfigure(self.canvas_frame, height=int(Size[1]))
+        # Size = self.TkAgg.get_width_height()
+        # print('Size', Size)
+        # self.itemconfigure(self.canvas_frame, height=Size[1] - 20)
+        self.itemconfigure(self.canvas_frame, width=width + 20, height=height + 20)
         # update scrollregion after starting 'mainloop'
         self.configure(scrollregion=self.bbox(tk.ALL))
         self.yview_moveto(1)
         self.xview_moveto(0)
 
-    def Draw(self):
+    def Draw(self, width, height):
+        self.on_configure(width=width, height=height)
         self.TkAgg.draw()
-        self.on_configure()
 
 
 class FigureXY(Figure):
     def __init__(self, fontsize, **kwargs):
-        super(FigureXY, self).__init__(**kwargs)
+        super(FigureXY, self).__init__(tight_layout=True, **kwargs)
         self.fontsize = fontsize
-        self.AxesXY = self.add_subplot(1, 1, 1)
-        self.latex_math = []
+        self.Text = self.text(0, 0.5, '', fontsize=self.fontsize)
+        self.latex_math = ['']
+        self.size_w = [0]
+        self.size_h = 0
+        self.width = max(self.size_w)
+        self.height = int(self.size_h)
 
-    def TextMath(self):
-        demo = self.latex_math[-1]
-        self.AxesXY.text(0, 0.5, demo, fontsize=self.fontsize)
-        self.AxesXY.axis('off')
-        self.AxesXY.set_xticklabels("", visible=False)
-        self.AxesXY.set_yticklabels("", visible=False)
-
-    def AddFirstLaTex(self, character):
+    def DrawLaTex(self, character):
         self.latex_math.append(character)
-        self.TextMath()
-        try:
-            self.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
-        except Exception:
-            pass
+        self.clear()
+        # Gap between lines in axes coords
+        n_lines = len(self.latex_math)
+        line_axesfrac = (1. / n_lines)
+        # Plotting features demonstration formulae
+        for i_line in range(1, n_lines):
+            baseline = 1 - i_line * line_axesfrac
+            demo = self.latex_math[i_line]
+            self.Text = self.text(0, baseline - 0.5 * line_axesfrac, demo, fontsize=self.fontsize)
 
-    def AddMultiLaTex(self, character):
-        self.latex_math.append(character)
+        Renderer = self.canvas.get_renderer()
+        bb = self.Text.get_window_extent(renderer=Renderer)
+        self.size_w.append(int(bb.width))
+        self.size_h += (int(bb.height) * 2)
 
-        n_lines = int(len(self.latex_math))
-        self.AxesXY = self.add_subplot(n_lines, 1, n_lines)
+        self.width = max(self.size_w)
+        self.height = int(self.size_h)
 
-        self.TextMath()
-
-        n_axes = len(self.axes)
-        for i_axes in range(n_axes):
-            self.axes[i_axes].change_geometry(n_axes, 1, i_axes + 1)
-
-        oldSize = self.get_size_inches()
-        mac1 = len(self.latex_math[-1])
-        mac2 = len(self.latex_math[-2])
-        if mac1 > 20 or mac2 > 30 or mac2 > 20 or mac1 > 30:
-            self.set_size_inches(1.35 + oldSize[0], 1.35 + oldSize[1])
-        else:
-            self.set_size_inches(0.7 + s for s in oldSize)
-
-        try:
-            self.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
-        except Exception:
-            pass
+    def Draw(self, TkAggXY):
+        TkAggXY.Draw(width=self.width, height=self.height)
 
 
-class TkFigurePlot(tk.Canvas):
+class TkFigurePlot(tk.Frame):
     def __init__(self, figure, master, **kw):
         super(TkFigurePlot, self).__init__(master, **kw)
         self.grid(row=0, column=0, sticky=tk.NSEW)
@@ -515,32 +538,29 @@ class TkFigurePlot(tk.Canvas):
 
         self.TkAgg = FigureCanvasTkAgg(figure, master=self)
         self.TkAggWidget = self.TkAgg.get_tk_widget()
-        self.TkAggWidget.grid(row=1, column=0, sticky=NSEW)
+        self.TkAggWidget.grid(row=1, column=0, sticky=tk.NSEW)
 
-        self.ToolBarFrame = Frame(self)
+        self.ToolBarFrame = tk.Frame(self)
         self.ToolBarFrame.grid(row=0, column=0)
 
         self.ToolBar = NavigationToolbar2Tk(self.TkAgg, self.ToolBarFrame)
         self.ToolBar.update()
-
-    def Destroy(self):
-        self.ToolBarFrame.destroy()
-        self.TkAggWidget.destroy()
 
     def Draw(self):
         self.TkAgg.draw()
 
 
 class BackEndPlot(tk.Canvas):
-    def __init__(self, master, **kw):
+    def __init__(self, master, figsize, **kw):
+        self.FigSize = figsize
         super(BackEndPlot, self).__init__(master, **kw)
-        self.grid(row=0, column=0, sticky=NSEW)
+        self.grid(row=0, column=0, sticky=tk.NSEW)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        self.Figure = Figure(figsize=(6, 3), facecolor='#F0F0F0')
+        self.Figure = Figure(figsize=self.FigSize, facecolor='#F0F0F0')
         self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
-        self.TkAgg.grid(row=0, column=0, sticky=NSEW)
+        self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
 
     def Plot(self, function_to_plot):
         FunctionToPlot = function_to_plot
@@ -548,15 +568,15 @@ class BackEndPlot(tk.Canvas):
         PlotBackEnd = plot_backends['matplotlib'](FunctionToPlot)
         PlotBackEnd.process_series()
 
-        AXg = PlotBackEnd.ax[0]
+        PlottedAxe = PlotBackEnd.ax[0]
 
         self.Figure = PlotBackEnd.fig
-        self.Figure._remove_ax(AXg)
-        self.Figure.add_axes(AXg)
-        self.Figure.set_size_inches(6, 3)
+        self.Figure._remove_ax(PlottedAxe)
+        self.Figure.add_axes(PlottedAxe)
+        self.Figure.set_size_inches(self.FigSize)
         self.Figure.tight_layout()
 
-        self.TkAgg.Destroy()
+        self.TkAgg.destroy()
         self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
-        self.TkAgg.grid(row=0, column=0, sticky=NSEW)
+        self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
         self.TkAgg.Draw()
