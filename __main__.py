@@ -6,9 +6,8 @@ from sympy.abc import x, y
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-# version 5.0.0
-# Add Plotting Environment
-# stable version as just plotting one or two functions
+# version 5.0.1
+# optimize plotting environment
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -148,8 +147,11 @@ class Calculator:
         # functions
         self.fctx1 = ''
         self.fctx2 = ''
-        self.fctxy1 = ''
-        self.fctxy2 = ''
+        self.fctxy = ''
+        self.fctxya = ''
+        self.P3d = ''
+        self.P3da = ''
+        self.P3dps = ''
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
@@ -253,6 +255,7 @@ class Calculator:
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
+        filemenu.add_command(label='Plotting            P', command=lambda: self.SwitchFunction('Plotting'))
         filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('SimEquation'))
         filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
         filemenu.add_separator()
@@ -304,6 +307,7 @@ class Calculator:
     def SwitchFunction(self, passmode):
         self.mode = passmode
         self.FullTextDisplay.delete(1.0, END)
+
         if self.mode == 'Operation':
             self.FullTextDisplay.insert(END, 'Mode Operation :')
             self.FastTextVariable.set('')
@@ -390,8 +394,10 @@ class Calculator:
         self.p = ''
         self.fctx1 = ''
         self.fctx2 = ''
-        self.fctxy1 = ''
-        self.fctxy2 = ''
+        self.fctxy = ''
+        self.fctxya = ''
+        self.P3d = ''
+        self.P3dps = ''
         self.store_expression = []
         self.store_order = []
         self.expression = ''
@@ -403,8 +409,8 @@ class Calculator:
             self.FastTextVariable.set(f'From : A --> To : B')
 
         elif self.mode == 'Plotting':
-            self.TextVariable.set(f'f(x,y)₁ = ')
-            self.FastTextVariable.set(f'f(x,y)₁ = ')
+            self.TextVariable.set(f'f(x,y) = ')
+            self.FastTextVariable.set(f'f(x,y) = ')
 
         elif self.mode == 'SimEquation':
             self.TextVariable.set(f'a = ')
@@ -424,8 +430,8 @@ class Calculator:
                 self.expression = self.expression[:-1]
                 k -= 1
 
-            self.store_expression.remove(self.store_expression[-1])
             self.store_order.remove(self.store_order[-1])
+            self.store_expression.remove(self.store_expression[-1])
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -492,6 +498,9 @@ class Calculator:
 
                 elif put == 'f':
                     self.SwitchFunction("Function")
+
+                elif put == 'p':
+                    self.SwitchFunction("Plotting")
 
                 elif put == 'slash':
                     self.Input('/')
@@ -618,13 +627,8 @@ class Calculator:
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
 
             elif self.mode == "Plotting":
-                if self.full is None:
-                    self.TextVariable.set(f'f(x,y)₁ = {self.expression}')
-                    self.FastTextVariable.set(f'f(x,y)₁ = {self.expression}')
-
-                elif self.full:
-                    self.TextVariable.set(f'f(x,y)₂ = {self.expression}')
-                    self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.expression}')
+                self.TextVariable.set(f'f(x,y) = {self.expression}')
+                self.FastTextVariable.set(f'f(x,y) = {self.expression}')
 
             elif self.mode == 'SimEquation':
                 if self.full is None:
@@ -765,26 +769,28 @@ class Calculator:
                                 self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
                         plot(sympify(self.fctx1), (self.x, self.v, self.w))
                         plot3d(sympify(self.fctx1), (self.x, self.v, self.w))
-                        pass
 
             elif self.mode == 'Plotting':
-                try:
-                    if self.full is None:
-                        self.fctxy1 = str(eval(self.expression))
-                        self.FullTextDisplay.insert(END, f'\nf(x,y)₁ = {self.fctxy1}')
-                        self.expression = ""
-                        self.TextVariable.set(f'f(x,y)₂ = ')
-                        self.full = True
+                if self.full is None:
+                    self.fctxy = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxy}')
+                    self.P3d = plot3d(sympify(self.fctxy)).backend
+                    # self.P3dps = plot3d_parametric_surface(sympify(self.fctxy), self.x - self.y)
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x,y) = ')
+                    self.full = True
 
-                    elif self.full:
-                        self.fctxy2 = str(eval(self.expression))
-                        self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy2}')
-                        plot3d(sympify(self.fctxy1), sympify(self.fctxy2))
-                        plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
+                elif self.full:
+                    self.fctxya = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxya}')
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x,y) = ')
+                    self.P3da = plot3d(sympify(self.fctxya)).backend
+                    self.P3d.append(self.P3da[0])
+                    # self.P3dps.append(sympify(self.fctxya))
 
-                except SyntaxError:
-                    plot3d(sympify(self.fctxy1))
-                    plot3d_parametric_surface(sympify(self.fctxy1), self.x - self.y)
+                    self.P3d.show()
+                    # self.P3dps.show()
 
             elif self.mode == 'SimEquation':
                 if self.full is None:
@@ -916,6 +922,12 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
         self.callback.append(str(self.answer))
 
+    def ShowPlot(self):
+        pass
+
+    def SwitchPlot(self):
+        pass
+
 
 if __name__ == "__main__":
     win = Tk()
@@ -928,5 +940,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v5.0.0")
+    win.title("PyMathon v5.0.1")
     win.mainloop()
