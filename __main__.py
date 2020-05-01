@@ -1,12 +1,12 @@
 from matplotlib.figure import Figure
 from sympy.abc import y, z
-from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
+from sympy.plotting import plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
 from __jeep_v4__ import *
 
 """
-# version 6.1
+# version 6.1.0
 # optimize first TkAgg by add scroll bar axe X named Scrollable_TkAgg_X
 # build and add TkAgg scrolled in two axes {X , Y} and turn switching between Scrolled_Listbox and Scrollable_TkAgg_XY
 # setting the write hand result in Scrollable_TkAgg_XY
@@ -136,12 +136,57 @@ class Calculator:
         self.TextStrVar = StringVar()
         self.ErrorStrVar = StringVar()
         self.LabelStrVar = StringVar()
-        # ROW 0 First Canvas============================================================================================
+        # ROW 0 top canvas==============================================================================================
         top_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0', width=42)
         top_canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         top_canvas.rowconfigure(0, weight=1)
         top_canvas.columnconfigure(1, weight=1)
-        # Equal Label Display
+        # ROW 1 middle top Canvas=======================================================================================
+        self.middle_top_canvas = Canvas(self.win, relief='flat', bg='#212121')
+        self.middle_top_canvas.grid(row=1, column=0, columnspan=2, sticky=NSEW)
+        self.middle_top_canvas.rowconfigure(0, weight=1)
+        self.middle_top_canvas.columnconfigure(0, weight=1)
+        # ROW 2 set canvas showing top buttons==========================================================================
+        self.middle_canvas = Canvas(self.win, relief='flat')
+        self.middle_canvas.grid(row=2, column=0, sticky=NSEW)
+        self.middle_canvas.rowconfigure(0, weight=1)
+        self.middle_canvas.columnconfigure(0, weight=1)
+        self.middle_canvas.columnconfigure(1, weight=1)
+        self.middle_canvas.columnconfigure(2, weight=1)
+        self.middle_canvas.columnconfigure(3, weight=1)
+        self.middle_canvas.columnconfigure(4, weight=1)
+        # ROW 2 set canvas showing ScrollableTkAggXY & ScrolledListbox==================================================
+        self.east_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0')
+        self.east_canvas.grid(row=2, column=1, rowspan=3, sticky=NSEW)
+        self.east_canvas.rowconfigure(0, weight=1)
+        self.east_canvas.columnconfigure(0, weight=1)
+        # ROW 3 set canvas showing middle bottom buttons================================================================
+        self.middle_bottom_canvas = Canvas(self.win, relief='flat')
+        self.middle_bottom_canvas.grid(row=3, column=0, sticky=NSEW)
+        self.middle_bottom_canvas.rowconfigure(0, weight=1)
+        self.middle_bottom_canvas.rowconfigure(1, weight=1)
+        self.middle_bottom_canvas.rowconfigure(2, weight=1)
+        self.middle_bottom_canvas.columnconfigure(0, weight=1)
+        self.middle_bottom_canvas.columnconfigure(1, weight=1)
+        self.middle_bottom_canvas.columnconfigure(2, weight=1)
+        self.middle_bottom_canvas.columnconfigure(3, weight=1)
+        self.middle_bottom_canvas.columnconfigure(4, weight=1)
+        self.middle_bottom_canvas.columnconfigure(5, weight=1)
+        # ROW 4 set canvas showing bottom buttons=======================================================================
+        self.bottom_canvas = Canvas(self.win, relief='flat')
+        self.bottom_canvas.grid(row=4, column=0, sticky=NSEW)
+        self.bottom_canvas.rowconfigure(0, weight=1)
+        self.bottom_canvas.rowconfigure(1, weight=1)
+        self.bottom_canvas.rowconfigure(2, weight=1)
+        self.bottom_canvas.rowconfigure(3, weight=1)
+        self.bottom_canvas.rowconfigure(4, weight=1)
+        self.bottom_canvas.columnconfigure(0, weight=1)
+        self.bottom_canvas.columnconfigure(1, weight=1)
+        self.bottom_canvas.columnconfigure(2, weight=1)
+        self.bottom_canvas.columnconfigure(3, weight=1)
+        self.bottom_canvas.columnconfigure(4, weight=1)
+        self.bottom_canvas.columnconfigure(5, weight=1)
+        # Equal Label Display===========================================================================================
         EqualLabelDisplay = Label(top_canvas, **ent_prm, textvariable=self.LabelStrVar)
         EqualLabelDisplay.grid(row=0, column=0, sticky=NSEW)
         EqualLabelDisplay.configure(anchor='e')
@@ -160,10 +205,6 @@ class Calculator:
         # self.TkAgg = self.CanvasFigure.get_tk_widget()
         # self.TkAgg.grid(row=1, column=0, columnspan=2, sticky=NSEW)
         # bilko = Canvas(self.win)
-        self.middle_top_canvas = Canvas(self.win, relief='flat', bg='#212121')
-        self.middle_top_canvas.grid(row=1, column=0, columnspan=2, sticky=NSEW)
-        self.middle_top_canvas.rowconfigure(0, weight=1)
-        self.middle_top_canvas.columnconfigure(0, weight=1)
 
         self.FigureX = Figure(figsize=(100, 5), facecolor='#212121')
         self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.middle_top_canvas)
@@ -171,44 +212,18 @@ class Calculator:
         self.TkAggWidgetX.grid(row=0, column=0, sticky=NSEW)
         self.TkAggWidgetX.rowconfigure(0, weight=1)
         self.TkAggWidgetX.columnconfigure(0, weight=1)
-        # ROW 2 set canvas showing top buttons==========================================================================
-        self.middle_canvas = Canvas(self.win, relief='flat')
-        self.middle_canvas.grid(row=2, column=0, sticky=NSEW)
-        self.middle_canvas.rowconfigure(0, weight=1)
-        self.middle_canvas.columnconfigure(0, weight=1)
-        self.middle_canvas.columnconfigure(1, weight=1)
-        self.middle_canvas.columnconfigure(2, weight=1)
-        self.middle_canvas.columnconfigure(3, weight=1)
-        self.middle_canvas.columnconfigure(4, weight=1)
         # buttons that will be fake displayed on middle canvas ROW 0====================================================
         big_txt = ['', '', '', '', '']
         self.btn_b = []
         for k in range(5):
             self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[k]))
         # ROW 2 set canvas showing ScrollableTkAggXY & ScrolledListbox==================================================
-        self.east_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0')
-        self.east_canvas.grid(row=2, column=1, rowspan=3, sticky=NSEW)
-        self.east_canvas.rowconfigure(0, weight=1)
-        self.east_canvas.columnconfigure(0, weight=1)
-
         self.FullTextDisplay = ScrolledListbox(self.east_canvas)
 
         self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
         self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
         self.TkAggWidgetXY = self.TkAggXY.get_tk_widget()
-        # ROW 3 set canvas showing middle bottom buttons================================================================
-        self.middle_bottom_canvas = Canvas(self.win, relief='flat')
-        self.middle_bottom_canvas.grid(row=3, column=0, sticky=NSEW)
-        self.middle_bottom_canvas.rowconfigure(0, weight=1)
-        self.middle_bottom_canvas.rowconfigure(1, weight=1)
-        self.middle_bottom_canvas.rowconfigure(2, weight=1)
-        self.middle_bottom_canvas.columnconfigure(0, weight=1)
-        self.middle_bottom_canvas.columnconfigure(1, weight=1)
-        self.middle_bottom_canvas.columnconfigure(2, weight=1)
-        self.middle_bottom_canvas.columnconfigure(3, weight=1)
-        self.middle_bottom_canvas.columnconfigure(4, weight=1)
-        self.middle_bottom_canvas.columnconfigure(5, weight=1)
         # buttons that will be displayed on middle bottom canvas ROW 0==================================================
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
@@ -257,21 +272,6 @@ class Calculator:
             self.btn_d[i4].configure(
                 command=lambda f0=logarithm_pad[i4]: [self.Input(f0), self.Input(')'),
                                                       self.ChangeDirectionCursor('Left')])
-
-        # ROW 4 set canvas showing bottom buttons=======================================================================
-        self.bottom_canvas = Canvas(self.win, relief='flat')
-        self.bottom_canvas.grid(row=4, column=0, sticky=NSEW)
-        self.bottom_canvas.rowconfigure(0, weight=1)
-        self.bottom_canvas.rowconfigure(1, weight=1)
-        self.bottom_canvas.rowconfigure(2, weight=1)
-        self.bottom_canvas.rowconfigure(3, weight=1)
-        self.bottom_canvas.rowconfigure(4, weight=1)
-        self.bottom_canvas.columnconfigure(0, weight=1)
-        self.bottom_canvas.columnconfigure(1, weight=1)
-        self.bottom_canvas.columnconfigure(2, weight=1)
-        self.bottom_canvas.columnconfigure(3, weight=1)
-        self.bottom_canvas.columnconfigure(4, weight=1)
-        self.bottom_canvas.columnconfigure(5, weight=1)
         # buttons that will be displayed on bottom canvas ROW 0=========================================================
         btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
                "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", 'e', "oo"]
