@@ -6,8 +6,9 @@ from sympy import *
 from sympy.abc import x
 from sympy.solvers.solveset import solvify
 
-# version 4.1.0
-# New Disigne, Resize & Optimize
+# version 4.1.1
+# Add New Button Control Numerical Evaluation
+# eval() to sympify() in solvify
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -202,22 +203,22 @@ class Calculator:
         self.Equation.grid(row=0, column=6)
         # self.Equation['width'] = 2
         # buttons that will be displayed on middle frame ROW 0==========================================================
-        txt = ['', '', '', 'Answer', 'r', 'Õ']
-        btn = []
+        txt = ['RAD', '1ST', 'ENG', 'ANS', 'r', 'Õ']
+        self.btn_m = []
         i = 0
         for k in range(6):
-            btn.append(Button(self.middle_frame, **btn_prm, text=txt[i]))
-            btn[i].grid(row=0, column=k)
+            self.btn_m.append(Button(self.middle_frame, **btn_prm, text=txt[i]))
+            self.btn_m[i].grid(row=0, column=k)
             i += 1
         # Answer Stored
-        btn[3].configure(bg='SeaGreen3', activebackground='SeaGreen3',
-                         command=lambda: self.Input(str(self.callback[-1])))
+        self.btn_m[3].configure(bg='SeaGreen3', activebackground='SeaGreen3',
+                                command=lambda: self.Input(str(self.callback[-1])))
         # Clear
-        btn[4].configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23),
-                         command=lambda: self.Clear())
+        self.btn_m[4].configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23),
+                                command=lambda: self.Clear())
         # Remove
-        btn[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21),
-                         command=lambda: self.Remove())
+        self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21),
+                                command=lambda: self.Remove())
         # ROW 2
         # ========================Logarithm=============================================================================
         Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
@@ -256,7 +257,7 @@ class Calculator:
         self.btn[26].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
 
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
+        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians'), self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
@@ -277,9 +278,8 @@ class Calculator:
         if page == '1st':
             # ROW 0
             # 2nd
-            self.sweet = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
-            self.sweet.grid(row=0, column=1)
-            self.sweet.configure(fg='orange', activeforeground='indian red')
+            self.btn_m[1].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='orange',
+                                    activeforeground='indian red')
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
@@ -295,9 +295,8 @@ class Calculator:
         elif page == '2nd':
             # ROW 0
             # 1st
-            self.sweet = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("1st"))
-            self.sweet.grid(row=0, column=1)
-            self.sweet.configure(fg='orange', activeforeground='indian red')
+            self.btn_m[1].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='orange',
+                                    activeforeground='indian red')
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
@@ -317,9 +316,9 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.Operation['bg'] = 'indian red'
-            self.Equation_2nd['bg'] = '#4d4d4d'
-            self.Equation['bg'] = '#4d4d4d'
-            self.Function['bg'] = '#4d4d4d'
+            self.Equation_2nd['bg'] = '#292929'
+            self.Equation['bg'] = '#292929'
+            self.Function['bg'] = '#292929'
             self.btn[5]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
 
@@ -327,9 +326,9 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
             self.FastTextVariable.set('aX² + bX + c = 0')
             self.Equation_2nd['bg'] = 'indian red'
-            self.Equation['bg'] = '#4d4d4d'
-            self.Function['bg'] = '#4d4d4d'
-            self.Operation['bg'] = '#4d4d4d'
+            self.Equation['bg'] = '#292929'
+            self.Function['bg'] = '#292929'
+            self.Operation['bg'] = '#292929'
             self.btn[5].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
 
@@ -337,18 +336,18 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.Function['bg'] = 'indian red'
-            self.Equation_2nd['bg'] = '#4d4d4d'
-            self.Equation['bg'] = '#4d4d4d'
-            self.Operation['bg'] = '#4d4d4d'
+            self.Equation_2nd['bg'] = '#292929'
+            self.Equation['bg'] = '#292929'
+            self.Operation['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
 
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
-            self.Function['bg'] = '#4d4d4d'
-            self.Equation_2nd['bg'] = '#4d4d4d'
+            self.Function['bg'] = '#292929'
+            self.Equation_2nd['bg'] = '#292929'
             self.Equation['bg'] = 'indian red'
-            self.Operation['bg'] = '#4d4d4d'
+            self.Operation['bg'] = '#292929'
             self.btn[5].config(state=NORMAL)
             self.btn[2].config(state=DISABLED)
 
@@ -361,19 +360,15 @@ class Calculator:
             convert_constant = π / 180
             inverse_convert_constant = 180 / π
             # Degree -> Radians
-            Deg_Rad = Button(self.middle_frame, **btn_prm, text='Deg',
-                             command=lambda: self.SwitchDegRad('Radians'))
-            Deg_Rad.grid(row=0, column=0)
-            Deg_Rad.configure(fg='orange', activeforeground='indian red')
+            self.btn_m[0].configure(text='DEG', command=lambda: self.SwitchDegRad('Radians'), fg='orange',
+                                    activeforeground='indian red')
 
         elif switch == 'Radians':
             convert_constant = 1
             inverse_convert_constant = 1
             # Radians -> Degree
-            Rad_Deg = Button(self.middle_frame, **btn_prm, text='Rad',
-                             command=lambda: self.SwitchDegRad('Degree'))
-            Rad_Deg.grid(row=0, column=0)
-            Rad_Deg.configure(fg='orange', activeforeground='indian red')
+            self.btn_m[0].configure(text='RAD', command=lambda: self.SwitchDegRad('Degree'), fg='orange',
+                                    activeforeground='indian red')
 
     def Clear(self):
         self.a = ''
@@ -545,12 +540,38 @@ class Calculator:
 
         self.Click()
 
+    def SwitchENG(self, NBR):
+        dot = NBR
+        self.ENG = NBR
+        if dot == int(16):
+            self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(15):
+            self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(12):
+            self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(9):
+            self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(6):
+            self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(3):
+            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(1):
+            self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='orange',
+                                    activeforeground='indian red')
+        self.Click()
+
     def Click(self):
         try:
             if self.mode == 'Operation':
                 self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
-                self.FastTextVariable.set(eval(self.expression))
+                self.FastTextVariable.set(N(eval(self.expression), self.ENG))
 
             elif self.mode == 'Equation 2nd':
                 if not self.full and not self.half:
@@ -605,7 +626,7 @@ class Calculator:
             if self.mode == 'Operation':
 
                 if not self.equal:
-                    self.answer = eval(self.expression)
+                    self.answer = N(eval(self.expression), self.ENG)
                     self.FastTextVariable.set('')
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -623,7 +644,7 @@ class Calculator:
                                 self.expression += str(self.store_expression[z])
                                 z += 1
                             self.expression = str(self.callback[-1]) + str(self.expression)
-                            self.answer = eval(self.expression)
+                            self.answer = N(eval(self.expression), self.ENG)
                             self.FastTextVariable.set(self.answer)
                             self.TextVariable.set(f'{self.expression} = {self.answer}')
                             self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -633,20 +654,20 @@ class Calculator:
             elif self.mode == 'Equation 2nd':
                 if not self.full:
                     if not self.half:
-                        self.a = float(eval(self.expression))
+                        self.a = N(eval(self.expression), self.ENG)
                         self.expression = ""
                         self.TextVariable.set(f'b = ')
                         self.half = True
 
                     elif self.half:
-                        self.b = float(eval(self.expression))
+                        self.b = N(eval(self.expression), self.ENG)
                         self.expression = ""
                         self.TextVariable.set(f'c = ')
                         self.full = True
 
                 elif self.full:
-                    c = float(eval(self.expression))
-                    d = float((self.b ** 2) - 4 * self.a * c)
+                    c = N(eval(self.expression), self.ENG)
+                    d = N((self.b ** 2) - 4 * self.a * c, self.ENG)
                     nd = neg(d)
                     nb = neg(self.b)
                     self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
@@ -660,42 +681,42 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
   ∆ =  b² - 4ac
 
   ∆ = {self.b}² - (4 x ({self.a}) x ({c})) 
-      = {self.b ** 2} - ({4 * self.a * c}) 
+      = {N(self.b ** 2, self.ENG)} - ({N(4 * self.a * c, self.ENG)}) 
       = {d}''')
                         if d == 0:
                             self.FullTextDisplay.insert(INSERT, f'''\n 
 ∆=0 : X = -b / 2a
 
-    X[1] = X[2] = ({neg(self.b)}) / (2 x {self.a})
-    X[1] = X[2] = {neg(self.b)} / {(2 * self.a)}''')
+    X[1] = X[2] = ({N(neg(self.b), self.ENG)}) / (2 x {self.a})
+    X[1] = X[2] = {neg(self.b)} / ({N(2 * self.a, self.ENG)})''')
                         elif d >= 0:
                             self.FullTextDisplay.insert(INSERT, f'''\n
 ∆>0 : X = (-b ± √∆) / 2a
 
  X[1] = ({nb} + √{d}) / (2 x {self.a})
-       = ({nb} + √{d}) / ({2 * self.a})
-       = {nb} / ({2 * self.a}) + √({d}) / ({2 * self.a})
+       = ({nb} + √{d}) / ({N(2 * self.a, self.ENG)})
+       = {nb} / ({N(2 * self.a, self.ENG)}) + √({d}) / ({N(2 * self.a, self.ENG)})
 
  X[2] = ({nb} - √{d}) / (2 x {self.a})
        = ({nb} - √{d}) / ({2 * self.a})
-       = {nb} / ({2 * self.a}) - √({d}) / ({2 * self.a})''')
+       = {nb} / ({N(2 * self.a, self.ENG)}) - √({d}) / ({N(2 * self.a, self.ENG)})''')
                         elif d <= 0:
                             self.FullTextDisplay.insert(INSERT, f'''\n      = {nd}i²
 
 ∆<0 : X = (-b ± i√∆) / 2a
 
  X[1] = ({nb} + i√({nd})) / (2 x {self.a})
-       = ({nb} + i√({nd})) / ({2 * self.a})
-       = {nb} / ({2 * self.a}) + i√({nd}) / ({2 * self.a})
+       = ({nb} + i√({nd})) / ({N(2 * self.a, self.ENG)})
+       = {nb} / ({N(2 * self.a, self.ENG)}) + i√({nd}) / ({N(2 * self.a, self.ENG)})
 
  X[2] = ({nb} - i√({nd})) / (2 x {self.a})
-       = ({nb} - i√({nd})) / ({2 * self.a})
-       = {nb} / ({2 * self.a}) - i√({nd}) / ({2 * self.a})
+       = ({nb} - i√({nd})) / ({N(2 * self.a, self.ENG)})
+       = {nb} / ({N(2 * self.a, self.ENG)}) - i√({nd}) / ({N(2 * self.a, self.ENG)})
 
   z = a ± ib
 
-   a = {nb} / {(2 * self.a)}
-   b = ± √{nd} / {(2 * self.a)}''')
+   a = {nb} / ({N(2 * self.a, self.ENG)})
+   b = ± √{nd} / ({N(2 * self.a, self.ENG)})''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
@@ -739,9 +760,9 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                         self.full = True
 
                 elif self.full:
-                    self.FullTextDisplay.insert(INSERT, f'\nf(x) = {self.expression}')
+                    self.FullTextDisplay.insert(INSERT, f'\nf(x) = {sympify(self.expression)}')
                     for x in range(self.v, self.w):
-                        self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {eval(self.expression)}')
+                        self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
 
                     self.clear = True
                     self.full = False
@@ -758,9 +779,11 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.p = str(eval(self.expression))
                     self.TextVariable.set(f'\n{self.q} = {self.p}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.q} = {self.p}')
-                    sol = solvify(Eq(eval(self.q), eval(self.p)), self.x, self.C)
+                    sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
+                    print(0)
                     if sol is None:
-                        sol = solvify(Eq(eval(self.q), eval(self.p)), self.x, self.R)
+                        sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
+                        print(1)
                     self.FastTextVariable.set(sol)
                     m = 1
                     for l in range(len(sol)):
@@ -775,13 +798,13 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
         except ValueError:
             self.FastTextVariable.set('ValueError')
         except NotImplementedError:
-            self.FastTextVariable.set('CannotSolve')
+            self.FastTextVariable.set('Cannot Solve This Equation')
         except SyntaxError:
             self.FastTextVariable.set('SyntaxError')
             try:
                 if self.mode == 'Operation' and self.equal:
                     self.expression = str(self.callback[-1])
-                    self.answer = eval(self.expression)
+                    self.answer = N(eval(self.expression), self.ENG)
                     self.FastTextVariable.set(self.answer)
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -798,7 +821,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             try:
                 if self.mode == 'Operation' and self.equal:
                     self.expression = str(self.callback[-1])
-                    self.answer = eval(self.expression)
+                    self.answer = N(eval(self.expression), self.ENG)
                     self.FastTextVariable.set(self.answer)
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -819,5 +842,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v4.1.0")
+    win.title("PyMathon v4.1.1")
     win.mainloop()
