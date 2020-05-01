@@ -1,14 +1,14 @@
 import tkinter as tk
-import math as mt
+from math import log2, log10
 from operator import *
 from tkinter import *
-from sympy import S, Eq, exp, tan, sin, cos, log, sqrt
+from sympy import *
 from sympy.abc import x
 from sympy.solvers.solveset import solvify
 
-# version 3.3.2
-# Optimize & Reorganize & Resize Buttons
-# Rename the Equation Solver to Solve Set
+# version 4.0
+# Support infinty
+# Reorganize Buttons
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -55,79 +55,79 @@ def Exit():
 
 
 def Sin(arg):
-    return mt.sin(arg * convert_constant)
+    return sin(arg * convert_constant)
 
 
 def Cos(arg):
-    return mt.cos(arg * convert_constant)
+    return cos(arg * convert_constant)
 
 
 def Tan(arg):
-    return mt.tan(arg * convert_constant)
+    return tan(arg * convert_constant)
 
 
 def aSin(arg):
-    return inverse_convert_constant * (mt.asin(arg))
+    return inverse_convert_constant * (asin(arg))
 
 
 def aCos(arg):
-    return inverse_convert_constant * (mt.acos(arg))
+    return inverse_convert_constant * (acos(arg))
 
 
 def aTan(arg):
-    return inverse_convert_constant * (mt.atan(arg))
+    return inverse_convert_constant * (atan(arg))
 
 
 def Sinh(arg):
-    return mt.sinh(arg)
+    return sinh(arg)
 
 
 def Cosh(arg):
-    return mt.cosh(arg)
+    return cosh(arg)
 
 
 def Tanh(arg):
-    return mt.tanh(arg)
+    return tanh(arg)
 
 
 def aSinh(arg):
-    return mt.asinh(arg)
+    return asinh(arg)
 
 
 def aCosh(arg):
-    return mt.acosh(arg)
+    return acosh(arg)
 
 
 def aTanh(arg):
-    return mt.atanh(arg)
+    return atanh(arg)
 
 
 def Sq(arg):
-    return mt.sqrt(arg)
+    return sqrt(arg)
 
 
 def iSq(arg):
-    return mt.isqrt(arg)
+    return isqrt(arg)
 
 
 def Ln(arg):
-    return mt.log(arg)
+    return log(arg)
 
 
 def Log(arg):
-    return mt.log10(arg)
+    return log10(arg)
 
 
 def Log2(arg):
-    return mt.log2(arg)
+    return log2(arg)
 
 
 def Exp(arg):
-    return mt.exp(arg)
+    return exp(arg)
 
 
 def Fact(arg):
-    return mt.factorial(arg)
+    return factorial(arg)
 
 
 class Calculator:
@@ -224,10 +224,10 @@ class Calculator:
         # Remove
         btn[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21),
                          command=lambda: self.Remove())
-        # ROW 3
+        # ROW 2
         # ========================Logarithm=============================================================================
-        Logarithm_pad = ['log(', 'exp(', "sin(", 'cos(', 'tan(', "sqrt("]
-        Logarithm_txt = ['log', 'exp', "sin", 'cos', 'tan', "sqrt"]
+        Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
+        Logarithm_txt = ['Ln', 'Log₁₀', "Log₂", 'Exp', '√n', "∞"]
         self.btn_d = []
         i = 0
         for k in range(6):
@@ -265,9 +265,8 @@ class Calculator:
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         filemenu.add_separator()
-        filemenu.add_command(label='1st Page             A', command=lambda: self.SwitchButtons("1st"))
+        filemenu.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
         filemenu.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
-        filemenu.add_command(label='3rd Page            Z', command=lambda: self.SwitchButtons("3rd"))
         filemenu.add_separator()
         filemenu.add_command(label="Close         Alt+F4", command=Exit)
 
@@ -275,12 +274,12 @@ class Calculator:
         page = side
         # buttons to switch between buttons those will be displayed on middle frame
         if page == '1st':
-            # ROW 1
+            # ROW 0
             # 2nd
             self.sweet = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
             self.sweet.grid(row=0, column=1)
             self.sweet.configure(fg='orange', activeforeground='indian red')
-            # ROW 2
+            # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
             Trigonometry_txt = ['Cos', 'Sin', "Tan", 'Cosh', 'Sinh', "Tanh"]
@@ -293,12 +292,12 @@ class Calculator:
                 i += 1
 
         elif page == '2nd':
-            # ROW 1
+            # ROW 0
             # 1st
-            self.sweet = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("3rd"))
+            self.sweet = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("1st"))
             self.sweet.grid(row=0, column=1)
             self.sweet.configure(fg='orange', activeforeground='indian red')
-            # ROW 2
+            # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
             Trigonometry_txt = ['aCos', 'aSin', "aTan", 'aCosh', 'aSinh', "aTanh"]
@@ -308,24 +307,6 @@ class Calculator:
                 self.btn_u.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
                 self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
-                i += 1
-
-        elif page == '3rd':
-            # ROW 1
-            # 1st
-            self.sweet = Button(self.middle_frame, **btn_prm, text="3rd", command=lambda: self.SwitchButtons("1st"))
-            self.sweet.grid(row=0, column=1)
-            self.sweet.configure(fg='orange', activeforeground='indian red')
-            # ROW 2
-            # ========================Logarithm=============================================================================
-            Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'Sq(', "Fact("]
-            Logarithm_txt = ['Ln', 'Log', "Log2", 'Exp', '√n', "!n"]
-            self.btn_u = []
-            i = 0
-            for k in range(6):
-                self.btn_u.append(Button(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
-                self.btn_u[i].grid(row=1, column=k)
-                self.btn_u[i]["command"] = lambda n=Logarithm_pad[i]: self.Input(n)
                 i += 1
 
     def SwitchFunction(self, passmode):
@@ -340,11 +321,6 @@ class Calculator:
             self.Function['bg'] = 'slate gray'
             self.btn[5]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
-            self.sweet.config(state=NORMAL)
-            for i in range(6):
-                self.btn_d[i].config(state=DISABLED)
-            for i in range(6):
-                self.btn_u[i].config(state=NORMAL)
 
         elif self.mode == 'Equation 2nd':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
@@ -355,11 +331,6 @@ class Calculator:
             self.Operation['bg'] = 'slate gray'
             self.btn[5].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
-            self.sweet.config(state=NORMAL)
-            for i in range(6):
-                self.btn_d[i].config(state=DISABLED)
-            for i in range(6):
-                self.btn_u[i].config(state=NORMAL)
 
         elif self.mode == 'Function':
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
@@ -370,11 +341,6 @@ class Calculator:
             self.Operation['bg'] = 'slate gray'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
-            self.sweet.config(state=NORMAL)
-            for i in range(6):
-                self.btn_d[i].config(state=DISABLED)
-            for i in range(6):
-                self.btn_u[i].config(state=NORMAL)
 
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
@@ -384,11 +350,6 @@ class Calculator:
             self.Operation['bg'] = 'slate gray'
             self.btn[5].config(state=NORMAL)
             self.btn[2].config(state=DISABLED)
-            self.sweet.config(state=DISABLED)
-            for i in range(6):
-                self.btn_u[i].config(state=DISABLED)
-            for i in range(6):
-                self.btn_d[i].config(state=NORMAL)
 
         self.Clear()
 
@@ -490,13 +451,13 @@ class Calculator:
                 elif keyword.keysym == 'Return' or put == 'equal':
                     self.InputEquals()
 
-                elif put == 'a':
+                elif put == 'v':
                     self.SwitchButtons("1st")
 
                 elif put == 'b':
                     self.SwitchButtons("2nd")
 
-                elif put == 'z':
+                elif put == 'b':
                     self.SwitchButtons("3rd")
 
                 elif put == 'r':
@@ -550,11 +511,11 @@ class Calculator:
                 elif put == 'l':
                     self.Input('Ln')
 
+                elif put == 'i':
+                    self.Input('oo')
+
                 elif put == 'j':
                     self.Input('1j')
-
-                elif put == 'i':
-                    self.Input('i')
 
                 elif put == 'exclam':
                     self.Input('factorial(')
@@ -619,7 +580,7 @@ class Calculator:
                     self.FastTextVariable.set(f'{self.q} = {self.expression}')
 
         except ZeroDivisionError:
-            self.FastTextVariable.set(mt.inf)
+            self.FastTextVariable.set(oo)
         except ValueError:
             pass
         except SyntaxError:
@@ -728,9 +689,9 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
    b = ± √{nd} / {(2 * self.a)}''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
-                            self.TextVariable.set(f"Empty Solution {{Ꞩ}}")
+                            self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif self.b == 0:
-                            self.TextVariable.set(f"Empty Solution {{Ꞩ}}")
+                            self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif c == 0:
                             self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
                             self.FullTextDisplay.insert(INSERT, f'''\nThe Equation : {self.b}X + ({c}) = 0
@@ -801,7 +762,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.full = False
 
         except ZeroDivisionError:
-            self.FastTextVariable.set(mt.inf)
+            self.FastTextVariable.set(oo)
         except ValueError:
             self.FastTextVariable.set('ValueError')
         except NotImplementedError:
@@ -849,5 +810,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.3.2")
+    win.title("PyMathon v4.0")
     win.mainloop()
