@@ -20,7 +20,7 @@ btn_prm = {'padx': 18,
            'background': '#666666',
            'fg': 'white',
            'bg': '#666666',
-           'font': ('Segoe UI Symbol', 16),
+           'font': ('Segoe UI Symbol', 16, 'bold'),
            'width': 2,
            'height': 1,
            'relief': 'raised',
@@ -33,7 +33,7 @@ btnb_prm = {'padx': 18,
             'background': '#4d4d4d',
             'fg': 'white',
             'bg': '#4d4d4d',
-            'font': ('Segoe UI Symbol', 16),
+            'font': ('Segoe UI Symbol', 17),
             'width': 2,
             'height': 1,
             'relief': 'raised',
@@ -46,7 +46,7 @@ big2_prm = {'padx': 14,
             'background': '#212121',
             'fg': 'white',
             'bg': '#212121',
-            'font': ('Segoe UI Symbol', 12),
+            'font': ('Segoe UI Symbol', 13),
             'width': 5,
             'height': 1,
             'relief': 'raised',
@@ -245,46 +245,31 @@ class Calculator(Canvas):
                 self.btn[i].grid(row=j, column=k, sticky=NSEW, padx=1, pady=1)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
-        # +
-        self.btn[3].configure(bg='#FF5E00', activebackground='#A74400')
-        self.btn[3].ActiveBack = '#CF4E00'
-        self.btn[3].DefaultBackGround = '#FF5E00'
-        # seven eight nine
-        for l in range(6, 9):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
-        # -
-        self.btn[9].configure(bg='#FF5E00', activebackground='#A74400')
-        self.btn[9].ActiveBack = '#CF4E00'
-        self.btn[9].DefaultBackGround = '#FF5E00'
-        # four five six
-        for l in range(12, 15):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
-        # *
-        self.btn[15].configure(bg='#FF5E00', activebackground='#A74400')
-        self.btn[15].ActiveBack = '#CF4E00'
-        self.btn[15].DefaultBackGround = '#FF5E00'
-        # one two three
-        for l in range(18, 21):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
-        # /
-        self.btn[21].configure(bg='#FF5E00', activebackground='#A74400')
-        self.btn[21].ActiveBack = '#CF4E00'
-        self.btn[21].DefaultBackGround = '#FF5E00'
-        # zero
-        self.btn[24].configure(bg='#212121', activebackground="#111111")
-        self.btn[24].grid(columnspan=2)
-        self.btn[24].ActiveBack = '#161616'
-        self.btn[24].DefaultBackGround = '#212121'
+        # + - * / =
+        for l in range(3, 28, 6):
+            self.btn[l].configure(bg='#FF5E00', activebackground='#A74400')
+            self.btn[l].ActiveBack = '#CF4E00'
+            self.btn[l].DefaultBackGround = '#FF5E00'
         # equals
-        self.btn[27].configure(bg='#FF5E00', activebackground='#A74400', command=self.InputEquals)
-        self.btn[27].ActiveBack = '#CF4E00'
-        self.btn[27].DefaultBackGround = '#FF5E00'
+        self.btn[27].configure(command=self.InputEquals)
+        # seven four one zero
+        for l in range(6, 25, 6):
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
+        # zero
+        self.btn[24].grid(columnspan=2)
+        self.btn[25].destroy()
+        # eight five two
+        for l in range(7, 20, 6):
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
+        # nine six three
+        for l in range(8, 21, 6):
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
@@ -324,7 +309,6 @@ class Calculator(Canvas):
         Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
         Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
         Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
-        self.btn[25].destroy()
 
     def SwitchButtons(self, side):
         page = side
@@ -781,10 +765,7 @@ class Calculator(Canvas):
             elif put == 'parenright':
                 self.Input(')')
 
-            elif put == 'bar':
-                self.Input('Sq(')
-
-            elif put == 'backslash':
+            elif put == 'backslash' or put == 'bar':
                 self.Input('sqrt(')
 
             elif keyword.keysym == 's':
@@ -1487,10 +1468,6 @@ def aCosh(arg):
 
 def aTanh(arg):
     return atanh(arg)
-
-
-def Sq(arg):
-    return sqrt(arg)
 
 
 def Ln(arg):
