@@ -3,8 +3,10 @@ from operator import *
 from tkinter import *
 from tkinter import ttk, _cnfmerge as cnfmerge
 
-# version 3.2.2
-# Improve Re-Click Equal In Keyboard Bind Now It's Work
+# version 3.2.3
+# Add Two Command In File Menu To Switch Between 1st Page & 2nd Page
+# Add New Keyboard Bind: {a, A}: 1st Page, {b, B}: 2nd Page, {r, R}: Radians, {d, D}: Degree,
+# {o, O}: Operation, And Change From {f, F}: factorial To {f, F}: Function But factorial Still Have {!}
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -213,14 +215,17 @@ class Calculator:
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
         # Switch Menu In Bare Display=================================================================================
-        filemenu.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
+        filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Equation', command=lambda: self.SwitchFunction('Equation'))
-        filemenu.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
+        filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
         filemenu.add_separator()
-        filemenu.add_command(label='Radians', command=lambda: self.SwitchDegRad('Radians'))
-        filemenu.add_command(label='Degree', command=lambda: self.SwitchDegRad('Degree'))
+        filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
+        filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=Exit)
+        filemenu.add_command(label='1st Page             A', command=lambda: self.SwitchButtons("1st"))
+        filemenu.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
+        filemenu.add_separator()
+        filemenu.add_command(label="Close         Alt+F4", command=Exit)
 
     def SwitchButtons(self, side):
         page = side
@@ -235,12 +240,12 @@ class Calculator:
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
             Trigonometry_txt = ['Cos', 'Sin', "Tan", 'Cosh', 'Sinh', "Tanh"]
-            btn = []
+            btn_f = []
             i = 0
             for k in range(6):
-                btn.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
-                btn[i].grid(row=2, column=k)
-                btn[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
+                btn_f.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
+                btn_f[i].grid(row=2, column=k)
+                btn_f[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
 
         elif page == '2nd':
@@ -253,12 +258,12 @@ class Calculator:
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
             Trigonometry_txt = ['aCos', 'aSin', "aTan", 'aCosh', 'aSinh', "aTanh"]
-            btn = []
+            btn_s = []
             i = 0
             for k in range(6):
-                btn.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
-                btn[i].grid(row=2, column=k)
-                btn[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
+                btn_s.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
+                btn_s[i].grid(row=2, column=k)
+                btn_s[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
 
     def SwitchFunction(self, passmode):
@@ -386,6 +391,24 @@ class Calculator:
                 elif keyword.keysym == 'Return' or put == 'equal':
                     self.InputEquals()
 
+                elif put == 'a':
+                    self.SwitchButtons("1st")
+
+                elif put == 'b':
+                    self.SwitchButtons("2nd")
+
+                elif put == 'r':
+                    self.SwitchDegRad('Radians')
+
+                elif put == 'd':
+                    self.SwitchDegRad('Degree')
+
+                elif put == 'o':
+                    self.SwitchFunction("Operation")
+
+                elif put == 'f':
+                    self.SwitchFunction("Function")
+
                 elif put == 'slash':
                     self.Input('/')
 
@@ -425,7 +448,7 @@ class Calculator:
                 elif put == 'j':
                     self.Input('1j')
 
-                elif put == 'f' or put == 'exclam':
+                elif put == 'exclam':
                     self.Input('factorial(')
 
                 elif put == 'm':
@@ -688,5 +711,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.2.2")
+    win.title("Scientific Calculator v3.2.3")
     win.mainloop()
