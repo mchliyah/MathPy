@@ -221,7 +221,8 @@ class Calculator:
         self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32))
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
-        self.IndexCursor = int(self.FirstTextDisplay.index(0))
+        self.FirstTextDisplay.icursor(0)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
         # Second Canvas
         self.canvas = Canvas(self.win, relief='flat', bg='#666666', width=42)
         self.canvas.grid(row=1, column=1, rowspan=3, sticky=NSEW)
@@ -341,7 +342,7 @@ class Calculator:
             self.btn[l].ActiveBack = '#CF4E00'
             self.btn[l].DefaultBackGround = '#FF5E00'
         # equals
-        self.btn[27].configure(command=self.ShowEqualText)
+        self.btn[27].configure(command=lambda: self.ShowEqualText())
         # seven four one zero
         for l in range(6, 25, 6):
             self.btn[l].configure(bg='#212121', activebackground="#111111")
@@ -869,17 +870,19 @@ class Calculator:
     def KeyboardInput(self, keyword):
         put = keyword.keysym.lower()
         try:
-            if keyword.keysym == 'Return' or put == 'equal':
-                self.ShowEqualText()
-
-            if self.clear:
-                if self.mode == 'Operation':
+            if self.mode == 'Operation':
+                if keyword.keysym == 'Return' or put == 'equal':
+                    self.ShowEqualText()
+                if self.clear:
                     if keyword.keysym == 'Return' or put == 'equal':
                         pass
                     else:
                         self.Delete()
-                else:
+            else:
+                if self.clear:
                     self.Delete()
+                if keyword.keysym == 'Return' or put == 'equal':
+                    self.ShowEqualText()
 
             if keyword.keysym == 'BackSpace':
                 self.Remove()
@@ -1006,9 +1009,12 @@ class Calculator:
             return string
 
     def ResetIndexCursor(self):
-        self.store_expression = []
-        self.store_order = []
-        self.IndexCursor = 0
+        if self.mode == 'Operation':
+            pass
+        else:
+            self.store_expression = []
+            self.store_order = []
+            self.IndexCursor = 0
 
     def Input(self, keyword):
         if self.clear:
@@ -1232,6 +1238,22 @@ class Calculator:
                                             f'  x = {neg(c)} / {b}',
                                             f'  x = {neg(c) / b}')
 
+    def ReBuild(self):
+        try:
+            self.expression = ''
+            self.v = int(len(self.store_expression)) - 1
+            self.w = int(len(self.store_expression))
+            while True:
+                operation = str(self.store_expression[self.v])
+                if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
+                        or operation == '^':
+                    for y in range(self.v, self.w):
+                        self.expression += str(self.store_expression[y])
+                    break
+                self.v -= 1
+        except Exception:
+            self.SecondStrVar.set('error')
+
     def ShowEqualText(self):
         self.callback_function.append(str(self.expression))
         try:
@@ -1239,41 +1261,34 @@ class Calculator:
                 try:
                     if not self.equal:
                         self.answer = eval(self.expression)
-                        self.SecondStrVar.set('')
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
+                        self.SecondStrVar.set(self.answer)
                         self.DrawTexTk(self.HandWrite(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
                         self.equal = True
 
                     elif self.equal:
-                        self.expression = ''
-                        self.v = int(len(self.store_expression)) - 1
-                        self.w = int(len(self.store_expression)) - 1
-                        while True:
-                            trs = str(self.store_expression[self.v])
-                            if trs == '**' or trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '^':
-                                while self.v <= self.w:
-                                    self.expression += str(self.store_expression[self.v])
-                                    self.v += 1
-                                self.expression = str(self.callback[-1]) + str(self.expression)
-                                self.answer = eval(self.expression)
-                                self.FirstStrVar.set(f'{self.expression} = {self.answer}')
-                                self.SecondStrVar.set(self.answer)
-                                self.DrawTexTk(self.HandWrite(self.answer))
-                                self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
-                                break
-                            self.v -= 1
-                except Exception:
-                    try:
-                        self.expression = str(self.callback[-1])
+                        self.ReBuild()
+                        self.expression = str(self.callback[-1]) + str(self.expression)
                         self.answer = eval(self.expression)
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                         self.SecondStrVar.set(self.answer)
                         self.DrawTexTk(self.HandWrite(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
+                except Exception:
+                    try:
+                        if self.equal:
+                            self.expression = str(self.callback[-1])
+                            self.answer = eval(self.expression)
+                            self.FirstStrVar.set(f'{self.expression} = {self.answer}')
+                            self.SecondStrVar.set(self.answer)
+                            self.DrawTexTk(self.HandWrite(self.answer))
+                            self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
+                        else:
+                            self.SecondStrVar.set(f'Before Equal ValueError or IndexError or SyntaxError')
                     except Exception:
-                        self.SecondStrVar.set(f'ValueError or IndexError or SyntaxError')
+                        self.SecondStrVar.set(f'After Equal ValueError or IndexError or SyntaxError')
 
                 self.callback.append(str(self.answer))
 
@@ -1622,8 +1637,8 @@ class Calculator:
             self.SecondStrVar.set('ValueError')
         except NotImplementedError:
             self.SecondStrVar.set('Cannot Solve This Equation')
-        except SyntaxError:
-            self.SecondStrVar.set('SyntaxError')
+        # except SyntaxError:
+        #     self.SecondStrVar.set('SyntaxError')
         except NameError:
             self.SecondStrVar.set('NameError')
         except TypeError:
