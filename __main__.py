@@ -7,30 +7,29 @@ from sympy import *
 from sympy.abc import x, y
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
-# from sympy import init_session, init_printing
 
 
 # version 5.0.3
 # optimize plotting environment globaly and by call two fonctions with differents colors
 # optimize text display by add scroll bar axe y
-# add button change color when mouse in or out
+# new button option, when the mouse hovers over the button, it changes color
 # fix bugs
 class HoverButton(Button):
     def __init__(self, master=None, cnf=None, **kw):
         if cnf is None:
             cnf = {}
         kw = cnfmerge((kw, cnf))
-        self.defaultBackGround = kw['background']
-        self.defaultActiveBack = kw['activeback']
+        self.DefaultBackGround = kw['background']
+        self.ActiveBack = kw['activeback']
         super(HoverButton, self).__init__(master=master, **kw)
         self.bind_class(self, "<Enter>", self.on_enter)
         self.bind_class(self, "<Leave>", self.on_leave)
 
     def on_enter(self, e):
-        self['bg'] = self.defaultActiveBack
+        self['bg'] = self.ActiveBack
 
     def on_leave(self, e):
-        self['bg'] = self.defaultBackGround
+        self['bg'] = self.DefaultBackGround
 
 
 btn_prm = {'padx': 18,
@@ -98,6 +97,7 @@ z = ''
 
 class Calculator:
     def __init__(self, master):
+        self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎', '∞']
         self.color = ['', "r", "g", "o", "y", "b"]
         self.ENG = 16
         self.btn_u = []
@@ -163,6 +163,7 @@ class Calculator:
         self.FullTextDisplay = ScrolledText(master, width=52, height=14, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         self.FullTextDisplay.config(undo=True, wrap='word')
+        self.FullTextDisplay.focus_set()
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(master, relief='flat', bg='slate gray')
         self.top_frame.grid(row=1, column=0)
@@ -176,7 +177,7 @@ class Calculator:
         big_txt = ['', '', '', '', '']
         self.btn_b = []
         for k in range(5):
-            self.btn_b.append(Button(self.top_frame, **big2_prm, text=big_txt[k]))
+            self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
         txt = ['RAD', '1ST', 'ENG', 'ANS', 'r', 'Õ']
         self.btn_m = []
@@ -186,18 +187,18 @@ class Calculator:
         # Answer Stored
         self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
                                 command=lambda: self.Input(str(self.callback[-1])))
-        self.btn_m[3].defaultActiveBack = '#009C27'
-        self.btn_m[3].defaultBackGround = '#20B645'
+        self.btn_m[3].ActiveBack = '#009C27'
+        self.btn_m[3].DefaultBackGround = '#20B645'
         # Clear
         self.btn_m[4].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 23),
                                 command=lambda: self.Delete())
-        self.btn_m[4].defaultActiveBack = 'firebrick3'
-        self.btn_m[4].defaultBackGround = 'firebrick2'
+        self.btn_m[4].ActiveBack = 'firebrick3'
+        self.btn_m[4].DefaultBackGround = 'firebrick2'
         # Remove
         self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
                                 command=lambda: self.Remove())
-        self.btn_m[5].defaultActiveBack = 'Royalblue3'
-        self.btn_m[5].defaultBackGround = 'Royalblue2'
+        self.btn_m[5].ActiveBack = 'Royalblue3'
+        self.btn_m[5].DefaultBackGround = 'Royalblue2'
 
         # ========================Trigonometry======================================================================
         self.btn_u = []
@@ -207,7 +208,7 @@ class Calculator:
         # ROW 2
         # ========================Logarithm=============================================================================
         Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
-        Logarithm_txt = ['Ln', 'Log₍₁₀₎', "Log₍₂₎", 'Exp', '√n', "∞"]
+        Logarithm_txt = ['Ln', 'Log⏨', "Log₂", 'Exp', '√n', "∞"]
         self.btn_d = []
         for i in range(6):
             self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
@@ -231,23 +232,23 @@ class Calculator:
                 i += 1
         for l in range(6, 9):
             self.btn[l].configure(bg='#292929', activebackground="#111111")
-            self.btn[l].defaultActiveBack = '#202020'
-            self.btn[l].defaultBackGround = '#292929'
+            self.btn[l].ActiveBack = '#202020'
+            self.btn[l].DefaultBackGround = '#292929'
         for l in range(12, 15):
             self.btn[l].configure(bg='#292929', activebackground="#111111")
-            self.btn[l].defaultActiveBack = '#202020'
-            self.btn[l].defaultBackGround = '#292929'
+            self.btn[l].ActiveBack = '#202020'
+            self.btn[l].DefaultBackGround = '#292929'
         for l in range(18, 21):
             self.btn[l].configure(bg='#292929', activebackground="#111111")
-            self.btn[l].defaultActiveBack = '#202020'
-            self.btn[l].defaultBackGround = '#292929'
+            self.btn[l].ActiveBack = '#202020'
+            self.btn[l].DefaultBackGround = '#292929'
         self.btn[25].configure(bg='#292929', activebackground="#111111")
-        self.btn[25].defaultActiveBack = '#202020'
-        self.btn[25].defaultBackGround = '#292929'
+        self.btn[25].ActiveBack = '#202020'
+        self.btn[25].DefaultBackGround = '#292929'
         # Equals
         self.btn[26].configure(bg='#FF5E00', activebackground='#A74400', command=self.InputEquals)
-        self.btn[26].defaultActiveBack = '#CF4E00'
-        self.btn[26].defaultBackGround = '#FF5E00'
+        self.btn[26].ActiveBack = '#CF4E00'
+        self.btn[26].DefaultBackGround = '#FF5E00'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
@@ -259,24 +260,29 @@ class Calculator:
         File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=Exit)
-        Mode.add_command(label="Operation", command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction("Operation", True)])
-        Mode.add_command(label='Function', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Function', True)])
-        Mode.add_command(label="Equation", command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Equation', True)])
+        Mode.add_command(label="Operation",
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction("Operation", True)])
+        Mode.add_command(label='Function',
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Function', True)])
+        Mode.add_command(label="Equation",
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Equation', True)])
         Mode.add_command(label='Solve', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
         Mode.add_separator()
         Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot', True)])
-        Mode.add_command(label='Plot Prm', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot Prm', True)])
-        Mode.add_command(label='Plot3D', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot3D', True)])
+        Mode.add_command(label='Plot Prm',
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot Prm', True)])
+        Mode.add_command(label='Plot3D',
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot3D', True)])
         Mode.add_command(label='P3DPL', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
         Mode.add_command(label='P3DPS', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
         Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
-        Switch.add_command(label='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(15)))
-        Switch.add_command(label='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(12)))
-        Switch.add_command(label='ENG₍₉₎', command=lambda: self.SwitchENG(int(9)))
-        Switch.add_command(label='ENG₍₆₎', command=lambda: self.SwitchENG(int(6)))
-        Switch.add_command(label='ENG₍₃₎', command=lambda: self.SwitchENG(int(3)))
-        Switch.add_command(label='ENG₍₂₎', command=lambda: self.SwitchENG(int(2)))
-        Switch.add_command(label='ENG₍₁₎', command=lambda: self.SwitchENG(int(1)))
+        Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
+        Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
+        Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
+        Switch.add_command(label='ENG₆', command=lambda: self.SwitchENG(int(6)))
+        Switch.add_command(label='ENG₃', command=lambda: self.SwitchENG(int(3)))
+        Switch.add_command(label='ENG₂', command=lambda: self.SwitchENG(int(2)))
+        Switch.add_command(label='ENG₁', command=lambda: self.SwitchENG(int(1)))
 
     def SwitchButtons(self, side):
         page = side
@@ -351,10 +357,10 @@ class Calculator:
                 self.btn_d[2].config(state=NORMAL)
 
             self.btn_a[0].config(bg='#80000B', relief='sunken')
-            self.btn_a[0].defaultBackGround = '#80000B'
+            self.btn_a[0].DefaultBackGround = '#80000B'
             for i in range(1, 4):
                 self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].defaultBackGround = '#292929'
+                self.btn_a[i].DefaultBackGround = '#292929'
 
         elif self.mode == 'Function':
             if self.switched:
@@ -368,17 +374,17 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             self.btn_a[0].config(bg='#292929', relief='raised')
-            self.btn_a[0].defaultBackGround = '#292929'
+            self.btn_a[0].DefaultBackGround = '#292929'
             self.btn_a[1].config(bg='#80000B', relief='sunken')
-            self.btn_a[1].defaultBackGround = '#80000B'
+            self.btn_a[1].DefaultBackGround = '#80000B'
             for i in range(2, 4):
                 self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].defaultBackGround = '#292929'
+                self.btn_a[i].DefaultBackGround = '#292929'
 
         elif self.mode == 'Equation':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode Simple Equation : aX² + bX + c = 0')
-                self.FastTextVariable.set('aX² + bX + c = 0')
+                self.FullTextDisplay.insert(END, 'Mode Simple Equation : ax² + bx + c = 0')
+                self.FastTextVariable.set('ax² + bx + c = 0')
                 self.btn[5].config(state=DISABLED)
                 self.btn[11].config(state=DISABLED)
                 self.btn[2].config(state=DISABLED)
@@ -388,11 +394,11 @@ class Calculator:
 
             for i in range(2):
                 self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].defaultBackGround = '#292929'
+                self.btn_a[i].DefaultBackGround = '#292929'
             self.btn_a[2].config(bg='#80000B', relief='sunken')
-            self.btn_a[2].defaultBackGround = '#80000B'
+            self.btn_a[2].DefaultBackGround = '#80000B'
             self.btn_a[3].config(bg='#292929', relief='raised')
-            self.btn_a[3].defaultBackGround = '#292929'
+            self.btn_a[3].DefaultBackGround = '#292929'
 
         elif self.mode == 'Solve':
             if self.switched:
@@ -406,9 +412,9 @@ class Calculator:
 
             for i in range(3):
                 self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].defaultBackGround = '#292929'
+                self.btn_a[i].DefaultBackGround = '#292929'
             self.btn_a[3].config(bg='#80000B', relief='sunken')
-            self.btn_a[3].defaultBackGround = '#80000B'
+            self.btn_a[3].DefaultBackGround = '#80000B'
 
         elif self.mode == 'Plot':
             if self.switched:
@@ -422,10 +428,10 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             self.btn_b[0].config(bg='#80000B', relief='sunken')
-            self.btn_b[0].defaultBackGround = '#80000B'
+            self.btn_b[0].DefaultBackGround = '#80000B'
             for i in range(1, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].defaultBackGround = '#292929'
+                self.btn_b[i].DefaultBackGround = '#292929'
 
         elif self.mode == 'Plot Prm':
             if self.switched:
@@ -439,12 +445,12 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             self.btn_b[0].config(bg='#292929', relief='raised')
-            self.btn_b[0].defaultBackGround = '#292929'
+            self.btn_b[0].DefaultBackGround = '#292929'
             self.btn_b[1].config(bg='#80000B', relief='sunken')
-            self.btn_b[1].defaultBackGround = '#80000B'
+            self.btn_b[1].DefaultBackGround = '#80000B'
             for i in range(2, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].defaultBackGround = '#292929'
+                self.btn_b[i].DefaultBackGround = '#292929'
 
         elif self.mode == 'P3DPL':
             if self.switched:
@@ -459,12 +465,12 @@ class Calculator:
 
             for i in range(2):
                 self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].defaultBackGround = '#292929'
+                self.btn_b[i].DefaultBackGround = '#292929'
             self.btn_b[2].config(bg='#80000B', relief='sunken')
-            self.btn_b[2].defaultBackGround = '#80000B'
+            self.btn_b[2].DefaultBackGround = '#80000B'
             for i in range(3, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].defaultBackGround = '#292929'
+                self.btn_b[i].DefaultBackGround = '#292929'
 
         elif self.mode == 'Plot3D':
             if self.switched:
@@ -479,11 +485,11 @@ class Calculator:
 
             for i in range(3):
                 self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].defaultBackGround = '#292929'
+                self.btn_b[i].DefaultBackGround = '#292929'
             self.btn_b[3].config(bg='#80000B', relief='sunken')
-            self.btn_b[3].defaultBackGround = '#80000B'
+            self.btn_b[3].DefaultBackGround = '#80000B'
             self.btn_b[4].config(bg='#292929', relief='raised')
-            self.btn_b[4].defaultBackGround = '#292929'
+            self.btn_b[4].DefaultBackGround = '#292929'
 
         elif self.mode == 'P3DPS':
             if self.switched:
@@ -498,9 +504,9 @@ class Calculator:
 
             for i in range(4):
                 self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].defaultBackGround = '#292929'
+                self.btn_b[i].DefaultBackGround = '#292929'
             self.btn_b[4].config(bg='#80000B', relief='sunken')
-            self.btn_b[4].defaultBackGround = '#80000B'
+            self.btn_b[4].DefaultBackGround = '#80000B'
 
         if self.switched:
             self.Delete()
@@ -532,25 +538,25 @@ class Calculator:
             self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(15):
-            self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₁₅', command=lambda: self.SwitchENG(int(12)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(12):
-            self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₁₂', command=lambda: self.SwitchENG(int(9)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(9):
-            self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₉', command=lambda: self.SwitchENG(int(6)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(6):
-            self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₆', command=lambda: self.SwitchENG(int(3)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(3):
-            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₃', command=lambda: self.SwitchENG(int(2)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(2):
-            self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₂', command=lambda: self.SwitchENG(int(1)), fg='#FF9950',
                                     activeforeground='orange')
         elif dot == int(1):
-            self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='#FF9950',
+            self.btn_m[2].configure(text='ENG₁', command=lambda: self.SwitchENG(int(16)), fg='#FF9950',
                                     activeforeground='orange')
         self.Click()
 
@@ -582,7 +588,7 @@ class Calculator:
 
         elif self.mode == 'Equation':
             self.TextVariable.set(f'a = ')
-            self.FastTextVariable.set('aX² + bX + c = 0')
+            self.FastTextVariable.set('ax² + bx + c = 0')
 
         elif self.mode == 'Plot':
             self.TextVariable.set(f'f(x) = ')
@@ -773,15 +779,15 @@ class Calculator:
             elif self.mode == 'Equation':
                 if self.full is None:
                     self.TextVariable.set(f'a = {self.expression}')
-                    self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
+                    self.FastTextVariable.set(f'{self.expression}x² + bx + c = 0')
 
                 elif not self.full:
                     self.TextVariable.set(f'b = {self.expression}')
-                    self.FastTextVariable.set(f'{self.a}X² + ({self.expression})X + c = 0')
+                    self.FastTextVariable.set(f'{self.a}x² + ({self.expression})x + c = 0')
 
                 elif self.full:
                     self.TextVariable.set(f'c = {self.expression}')
-                    self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
+                    self.FastTextVariable.set(f'{self.a}x² + ({self.b})x + ({self.expression}) = 0')
 
             elif self.mode == 'Solve':
                 if self.full is None:
@@ -943,69 +949,65 @@ class Calculator:
                     nd = neg(d)
                     nb = neg(self.b)
                     self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
-                    self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
+                    self.FastTextVariable.set(f'{self.a}x² + ({self.b})x + ({c}) = 0')
                     if self.a > 0 or self.a < 0:
                         self.FullTextDisplay.insert(END, f'''\n
-The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
-
- The Equation Have Two Solutions For X :
+The Equation Have Two Solutions For x :
 
   ∆ =  b² - 4ac
 
-  ∆ = {self.b}² - (4 x ({self.a}) x ({c})) 
+  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c})) 
       = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)}) 
       = {d}''')
                         if d == 0:
                             self.FullTextDisplay.insert(END, f'''\n 
-∆=0 : X = -b / 2a
+∆=0 : x = -b / 2a
 
-    X[1] = X[2] = ({N(neg(self.b), 3)}) / (2 x {self.a})
-    X[1] = X[2] = {neg(self.b)} / ({N(2 * self.a, 3)})''')
+    x₁ = x₂ = ({N(neg(self.b), 3)}) / (2 ⨯ {self.a})
+    x₁ = x₂ = {N(neg(self.b) / (2 * self.a), 3)}''')
                         elif d >= 0:
                             self.FullTextDisplay.insert(END, f'''\n
-∆>0 : X = (-b ± √∆) / 2a
+∆>0 : x = (-b ± √∆) / 2a
 
- X[1] = ({nb} + √{d}) / (2 x {self.a})
+ x₁ = ({nb} + √{d}) / (2 ⨯ {self.a})
        = {N((nb + sqrt(d)) / (2 * self.a), 3)}
 
- X[2] = ({nb} - √{d}) / (2 x {self.a})
+ x₂ = ({nb} - √{d}) / (2 ⨯ {self.a})
        = {N((nb - sqrt(d)) / (2 * self.a), 3)}''')
                         elif d <= 0:
-                            self.FullTextDisplay.insert(END, f'''\n      = {nd}j²
+                            self.FullTextDisplay.insert(END, f'''\n      = {nd}i²
 
-∆<0 : X = (-b ± j√∆) / 2a
+∆<0 : x = (-b ± i√∆) / 2a
 
- X[1] = ({nb} + j√({nd})) / (2 x {self.a})
+ x₁ = ({nb} + i√({nd})) / (2 ⨯ {self.a})
        = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}
 
- X[2] = ({nb} - j√({nd})) / (2 x {self.a})
+ x₂ = ({nb} - i√({nd})) / (2 ⨯ {self.a})
        = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}
 
-  z = a ± jb
+  z = a ± ib
 
-   a = {N(nb / (2 * self.a), 3)})
-   b = ± {N(nd / (2 * self.a), 3)})''')
+   a = {N(nb / (2 * self.a), 3)}
+   b = ± {N(sqrt(nd) / (2 * self.a), 3)}''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif self.b == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif c == 0:
-                            self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
-                            self.FullTextDisplay.insert(END, f'''\nThe Equation : {self.b}X + ({c}) = 0
+                            self.FastTextVariable.set(f'{self.a}X² + ({self.b})x + ({c}) = 0')
+                            self.FullTextDisplay.insert(END, f'''\n
+The Equation Have One Solution For x :
 
- The Equation Have One Solution For X :
-
-  {self.b}X = 0
-  X = 0''')
+  {self.b}x = 0
+  x = 0''')
                         else:
-                            self.FullTextDisplay.insert(END, f'''\nThe Equation : {self.b}X + ({c}) = 0 
+                            self.FullTextDisplay.insert(END, f'''\n
+The Equation Have One Solution For x :  
 
- The Equation Have One Solution For X :  
-
-  {self.b}X = {neg(c)}    
-  X = {neg(c)} / {self.b}
-  X = {N(eval(neg(c) / self.b), 3)}''')
+  {self.b}x = {neg(c)}    
+  x = {neg(c)} / {self.b}
+  x = {N(eval(neg(c) / self.b), 3)}''')
 
                     self.clear = True
                     self.full = None
@@ -1026,7 +1028,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.FastTextVariable.set(sol)
                     for l in range(len(sol)):
-                        self.FullTextDisplay.insert(END, f'\nX[{int(l) + 1}] = {sol[l]}')
+                        self.FullTextDisplay.insert(END, f'\nx{self.nb[int(l) + 1]} = {sol[l]}')
 
                     self.clear = True
                     self.full = None
