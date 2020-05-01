@@ -16,14 +16,14 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 # switching modes are more organized for call widgets
 # reduce conditions in definition of delete and switch mode
 # fix the setting zero in Equation Solver, and add float answer
+# remove 'π' noinspection NonAsciiCharacters and use just 'pi'
+# add to the empty canvas logo, name and version of app, and name of author
 """
-# noinspection NonAsciiCharacters
-π = pi
 
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '7.0.0 beta 3'
+    __version__ = '7.0.0 GM'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
@@ -88,8 +88,8 @@ class Calculator:
 
     def __init__(self):
         self.win = Tk()
-        self.win.geometry("1100x683")
-        self.win.minsize(width=420, height=683)
+        self.win.geometry("1100x684")
+        self.win.minsize(width=420, height=684)
         self.win.resizable(width=True, height=True)
         self.win.title(u"%s v%s" % (self.__name__, self.__version__))
         self.little_tuple = {'(': '₍', ')': '₎'}
@@ -140,6 +140,8 @@ class Calculator:
         # string variable for text input
         self.ErrorStrVar = StringVar()
         self.LabelStrVar = StringVar()
+        image = PhotoImage(file='Alecive-Flatwoken-Apps-Libreoffice-Math-B.gif')
+        Picture = image.subsample('2', '2')
         # ROW 0 top canvas==============================================================================================
         self.top_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0', width=42)
         self.top_canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
@@ -153,8 +155,20 @@ class Calculator:
         self.east_canvas.grid(row=2, column=1, rowspan=4, sticky=NSEW)
         self.east_canvas.rowconfigure(0, weight=1)
         self.east_canvas.columnconfigure(0, weight=1)
-        self.empty_canvas = Canvas(self.win, relief='flat')
+        # canvas showing logo, name and version of app, and name of author
+        self.empty_canvas = Canvas(self.win, relief='flat', bg='#212121')
         self.empty_canvas.grid(row=2, column=0, sticky=NSEW)
+        self.empty_canvas.rowconfigure(0, weight=1)
+        self.empty_canvas.columnconfigure(1, weight=1)
+        # Picture of logo
+        label0 = Label(self.empty_canvas, **self.ent_prm)
+        label0.grid(row=0, column=0, sticky=NSEW)
+        label0.configure(bg='#212121', image=Picture)
+        # Name of app
+        label1 = Label(self.empty_canvas, **self.ent_prm,
+                       text=u"%s v%s\nCreated by %s" % (self.__name__, self.__version__, self.__author__))
+        label1.grid(row=0, column=1, sticky=NSEW)
+        label1.configure(font=('Segoe UI Symbol', 20), fg='white', bg='#212121')
         # ROW 3 set canvas showing top buttons==========================================================================
         self.middle_canvas = Canvas(self.win, relief='flat')
         self.middle_canvas.grid(row=3, column=0, sticky=NSEW)
@@ -271,7 +285,7 @@ class Calculator:
             self.btn_d[i4].grid(row=2, column=i4, sticky=NSEW)
             self.btn_d[i4].configure(command=lambda f0=logarithm_pad[i4]: self.Input(f0))
         # buttons that will be displayed on bottom canvas ROW 0=========================================================
-        btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
+        btn = ['pi', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
                "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", 'e', "oo"]
 
         btn_txt = ['π', 'e¹', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "⨯",
@@ -817,7 +831,7 @@ class Calculator:
                 self.Input('fctrl(')
 
             elif put == 'p':
-                self.Input('π')
+                self.Input('pi')
 
             elif put == 'a' or put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or \
                     put == '3' or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
