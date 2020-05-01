@@ -1,9 +1,12 @@
-from tkinter import *
 from math import *
 from operator import *
+from tkinter import *
+from tkinter import _cnfmerge as cnfmerge
 
-# version 2.3
-# fix Minor Bugs
+# version 2.5
+# Add Menu Switcher In Bare Display
+# Mix Color Between First Text Display And Buttons Switch
+# Change Notation
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -13,22 +16,38 @@ btn_prm = {'padx': 16,
            'width': 2,
            'height': 1,
            'relief': 'flat',
-           'activebackground': "#666666"}
+           'activebackground': '#666666',
+           'activeforeground': "white"}
 big_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
            'fg': 'white',
-           'bg': 'dark slate gray',
+           'bg': 'slate gray',
            'font': ('Segoe UI Symbol', 16),
            'width': 5,
            'height': 1,
-           'relief': 'flat',
-           'activebackground': 'dim gray'}
+           'relief': 'raised',
+           'activebackground': 'dim gray',
+           'activeforeground': "white"}
 ent_prm = {'bd': 4,
            'fg': 'white',
-           'bg': '#4d4d4d',
+           'bg': 'gray94',
            'font': ('Segoe UI Symbol', 18),
            'relief': 'flat'}
+
+
+class EntryBox(Entry, Widget, XView):
+    def __init__(self, master=None, cnf=None, **kw):
+        if cnf is None:
+            cnf = {}
+        kw = cnfmerge((kw, cnf))
+        kw['justify'] = kw.get('justify', 'left')
+        kw['state'] = 'readonly'
+        super(EntryBox, self).__init__(master=master, **kw)
+
+
+def Exit():
+    return win.destroy()
 
 
 class Calculator:
@@ -37,8 +56,10 @@ class Calculator:
         self.expression = ''
         # store expressions by order
         self.store = []
-        # store last answer of operation
+        # answer of operation
         self.ans = ''
+        # store last answer of operation
+        self.storeans = ['']
         # float numbers of equation
         self.a = ''
         self.b = ''
@@ -61,9 +82,10 @@ class Calculator:
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        self.FirstTextDisplay = Entry(master, width=44, **ent_prm, textvariable=self.TextVariable)
+        self.FirstTextDisplay = EntryBox(master, width=44, **ent_prm, textvariable=self.TextVariable)
         self.FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        self.FirstTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 35))
+        self.FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 35))
+        self.FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
         self.SecondTextDisplay = Entry(master, width=36, **ent_prm, textvariable=self.FastTextVariable)
         self.SecondTextDisplay.grid(row=1, column=1)
@@ -71,8 +93,9 @@ class Calculator:
         # Full Text Display
         self.FullTextDisplay = Text(master, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
+        self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
-        top_frame = Frame(master, relief='flat', bg='dark slate gray')
+        top_frame = Frame(master, relief='flat', bg='slate gray')
         top_frame.grid(row=1, column=0)
         # ROW 2 set frame showing middle buttons
         self.middle_frame = Frame(master, relief='flat', bg='#666666')
@@ -96,18 +119,24 @@ class Calculator:
         self.Complex.grid(row=0, column=6, columnspan=2)
 
         # buttons that will be displayed on middle frame ROW 0==========================================================
-        # left
-        Button(self.middle_frame, **btn_prm, text="(", command=lambda: self.Input('(')).grid(row=1, column=1)
-        # right
-        Button(self.middle_frame, **btn_prm, text=")", command=lambda: self.Input(')')).grid(row=1, column=2)
-        # bntClear
-        btnClear = Button(self.middle_frame, **btn_prm, text="r", command=lambda: self.Clear())
-        btnClear.grid(row=1, column=4)
-        btnClear.configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23))
-        # btnRemove
-        btnRemove = Button(self.middle_frame, **btn_prm, text="Õ", command=lambda: self.Remove())
-        btnRemove.grid(row=1, column=5)
-        btnRemove.configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21))
+        pad = ['(', ')', "", '', '', ""]
+        txt = ['(', ')', "", 'Answer', 'r', "Õ"]
+        btn = []
+        i = 0
+        for k in range(6):
+            btn.append(Button(self.middle_frame, **btn_prm, text=txt[i]))
+            btn[i].grid(row=1, column=k)
+            btn[i]["command"] = lambda n=pad[i]: self.Input(n)
+            i += 1
+        # Answer Stored
+        btn[3].configure(bg='SeaGreen3', activebackground='SeaGreen3',
+                         command=lambda: self.Input(str(self.storeans[-1])))
+        # Clear
+        btn[4].configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23),
+                         command=lambda: self.Clear())
+        # Remove
+        btn[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21),
+                         command=lambda: self.Remove())
         # ROW 3
         # ========================Logarithm=============================================================================
         Logarithm_pad = ['log(', 'log10(', "log2(", 'log1p(', 'exp(', "expm1("]
@@ -121,10 +150,10 @@ class Calculator:
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ["7", "8", "9", "+", self.ans, 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
+        btn = ["7", "8", "9", "+", '**2', 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
                'e', '0', ".", "=", "/", "factorial(", 'pi']
-        btn_txt = ["7", "8", "9", "+", 'Answer', 'x', "4", "5", "6", "-", "^", "j", "1", "2", "3", "*", "√",
-                   'e', '0', ".", "=", "/", "!", 'π']
+        btn_txt = ["7", "8", "9", "+", 'n²', 'x', "4", "5", "6", "-", "nˣ", "j", "1", "2", "3", "*", "√n",
+                   'e', '0', ".", "=", "/", "!n", 'π']
         self.btn = []
         i = 0
         for j in range(4):
@@ -134,9 +163,17 @@ class Calculator:
                 self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d", command=lambda n=btn[i]: self.Input(n))
                 i += 1
         # Equals
-        self.btn[20].configure(bg='#ff9980', activebackground='#ff9980', command=self.InputEquals)
+        self.btn[20].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
+
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation')
+        # Switch Menu In Bare Display=================================================================================
+        filemenu.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
+        filemenu.add_command(label='Equation', command=lambda: self.SwitchFunction('Equation'))
+        filemenu.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
+        filemenu.add_command(label='Complex', command=lambda: self.SwitchFunction('Complex'))
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=Exit)
 
     def SwitchButtons(self, side):
         page = side
@@ -145,7 +182,7 @@ class Calculator:
             # ROW 1
             # 2nd
             secend = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
-            secend.grid(row=1, column=3)
+            secend.grid(row=1, column=2)
             secend.configure(foreground='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
@@ -163,7 +200,7 @@ class Calculator:
             # ROW 1
             # 1st
             first = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("1st"))
-            first.grid(row=1, column=3)
+            first.grid(row=1, column=2)
             first.configure(foreground='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
@@ -184,9 +221,9 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.Operation['bg'] = 'indian red'
-            self.Equation['bg'] = 'dark slate gray'
-            self.Function['bg'] = 'dark slate gray'
-            self.Complex['bg'] = 'dark slate gray'
+            self.Equation['bg'] = 'slate gray'
+            self.Function['bg'] = 'slate gray'
+            self.Complex['bg'] = 'slate gray'
             self.btn[5]['state'] = ['disabled']
             self.btn[11]['state'] = ['disabled']
 
@@ -194,9 +231,9 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
             self.FastTextVariable.set('aX² + bX + c = 0')
             self.Equation['bg'] = 'indian red'
-            self.Function['bg'] = 'dark slate gray'
-            self.Operation['bg'] = 'dark slate gray'
-            self.Complex['bg'] = 'dark slate gray'
+            self.Function['bg'] = 'slate gray'
+            self.Operation['bg'] = 'slate gray'
+            self.Complex['bg'] = 'slate gray'
             self.btn[5].config(state=DISABLED)
             self.btn[11].config(state=DISABLED)
 
@@ -204,18 +241,18 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.Function['bg'] = 'indian red'
-            self.Equation['bg'] = 'dark slate gray'
-            self.Operation['bg'] = 'dark slate gray'
-            self.Complex['bg'] = 'dark slate gray'
+            self.Equation['bg'] = 'slate gray'
+            self.Operation['bg'] = 'slate gray'
+            self.Complex['bg'] = 'slate gray'
             self.btn[5]['state'] = ['normal']
             self.btn[11]['state'] = ['disabled']
 
         elif self.mode == 'Complex':
             self.FullTextDisplay.insert(INSERT, 'Mode Complex :')
             self.FastTextVariable.set('')
-            self.Function['bg'] = 'dark slate gray'
-            self.Equation['bg'] = 'dark slate gray'
-            self.Operation['bg'] = 'dark slate gray'
+            self.Function['bg'] = 'slate gray'
+            self.Equation['bg'] = 'slate gray'
+            self.Operation['bg'] = 'slate gray'
             self.Complex['bg'] = 'indian red'
             self.btn[5].config(state=DISABLED)
             self.btn[11].config(state=NORMAL)
@@ -262,12 +299,66 @@ class Calculator:
 
         self.Click()
 
+    def KeyboardInput(self, keyword):
+        if self.clear:
+            self.Clear()
+        try:
+            if keyword.keysym == 'BackSpace':
+                self.expression = str(self.expression).replace(self.store[-1], '')
+                self.store.remove(self.store[-1])
+
+            elif keyword.keysym == 'Delete':
+                self.Clear()
+
+            elif keyword.keysym == 'slash':
+                self.store.append((str('/')))
+                self.expression += str('/')
+
+            elif keyword.keysym == 'asterisk':
+                self.store.append((str('*')))
+                self.expression += str('*')
+
+            elif keyword.keysym == 'minus':
+                self.store.append((str('-')))
+                self.expression += str('-')
+
+            elif keyword.keysym == 'plus':
+                self.store.append((str('+')))
+                self.expression += str('+')
+
+            elif keyword.keysym == 'period':
+                self.store.append((str('.')))
+                self.expression += str('.')
+
+            elif keyword.keysym == 'parenleft':
+                self.store.append((str('(')))
+                self.expression += str('(')
+
+            elif keyword.keysym == 'parenright':
+                self.store.append((str(')')))
+                self.expression += str(')')
+
+            elif keyword.keysym == 'Return' or keyword.keysym == 'equal':
+                return self.InputEquals()
+
+            elif keyword.keysym == 'Shift_R' or keyword.keysym == 'Shift_L':
+                pass
+
+            else:
+                self.store.append((str(keyword.keysym)))
+                self.expression += str(keyword.keysym)
+
+        except IndexError:
+            self.FastTextVariable.set('IndexError')
+
+        self.Click()
+
     def Click(self):
         try:
             if self.mode == 'Operation':
+                self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
-                self.ans = eval(self.expression)
-                self.FastTextVariable.set(self.ans)
+                self.FastTextVariable.set(eval(self.expression))
 
             elif self.mode == 'Equation':
                 if not self.full and not self.half:
@@ -296,9 +387,9 @@ class Calculator:
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
 
             elif self.mode == 'Complex':
+                self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
-                self.ans = eval(self.expression)
-                self.FastTextVariable.set(self.ans)
+                self.FastTextVariable.set(eval(self.expression))
 
         except ZeroDivisionError:
             pass
@@ -314,7 +405,6 @@ class Calculator:
     def InputEquals(self):
         try:
             if self.mode == 'Operation':
-                # self.expression = str(self.FirstTextDisplay.get()).lower()
                 self.ans = eval(self.expression)
                 self.FastTextVariable.set('')
                 self.TextVariable.set(f'{self.expression} = {self.ans}')
@@ -440,7 +530,6 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.half = False
 
             elif self.mode == 'Complex':
-                # self.expression = str(self.FirstTextDisplay.get()).lower()
                 self.ans = eval(self.expression)
                 self.FastTextVariable.set('')
                 self.TextVariable.set(f'{self.expression} = {self.ans}')
@@ -458,12 +547,19 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
         except TypeError:
             self.FastTextVariable.set('TypeError')
 
+        self.storeans.append(str(self.ans))
 
-win = Tk()
-win.title("Scientific Calculator v2.3")
-# win.configure(bg='#666666')
-win.configure(bg='#4d4d4d')
-win.resizable(False, False)
-# run calculator
-Calculator(win)
-win.mainloop()
+
+if __name__ == "__main__":
+    win = Tk()
+    menubare = Menu(win)
+    filemenu = Menu(menubare, tearoff=0)
+    menubare.add_cascade(label="File", menu=filemenu)
+    # run calculator
+    Calculator(win)
+    # Window configuration
+    # win.configure(menu=menubare, bg='#666666')
+    win.configure(menu=menubare, bg='#4d4d4d')
+    win.resizable(False, False)
+    win.title("Scientific Calculator v2.5")
+    win.mainloop()
