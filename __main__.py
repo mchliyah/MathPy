@@ -1,13 +1,15 @@
 from math import log2, log10
 from operator import *
 from tkinter import *
+from tkinter.scrolledtext import *
 from sympy import *
 from sympy.abc import x, y
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-# version 5.0.2
-# optimize plotting environment by applying evry plot at self
+# version 5.0.3
+# optimize plotting environment globaly and by call two fonctions with differents colors
+# optimize text display by add scroll bar axe y
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -46,90 +48,15 @@ ent_prm = {'bd': 1,
            'bg': '#4d4d4d',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
-π = 3.141592653589793
+π = pi
 convert_constant = 1
 inverse_convert_constant = 1
 z = ''
 
 
-def Exit():
-    return win.destroy()
-
-
-def Sin(arg):
-    return sin(arg * convert_constant)
-
-
-def Cos(arg):
-    return cos(arg * convert_constant)
-
-
-def Tan(arg):
-    return tan(arg * convert_constant)
-
-
-def aSin(arg):
-    return inverse_convert_constant * (asin(arg))
-
-
-def aCos(arg):
-    return inverse_convert_constant * (acos(arg))
-
-
-def aTan(arg):
-    return inverse_convert_constant * (atan(arg))
-
-
-def Sinh(arg):
-    return sinh(arg)
-
-
-def Cosh(arg):
-    return cosh(arg)
-
-
-def Tanh(arg):
-    return tanh(arg)
-
-
-def aSinh(arg):
-    return asinh(arg)
-
-
-def aCosh(arg):
-    return acosh(arg)
-
-
-def aTanh(arg):
-    return atanh(arg)
-
-
-def Sq(arg):
-    return sqrt(arg)
-
-
-def Ln(arg):
-    return log(arg)
-
-
-def Log(arg):
-    return log10(arg)
-
-
-def Log2(arg):
-    return log2(arg)
-
-
-def Exp(arg):
-    return exp(arg)
-
-
-def Fact(arg):
-    return factorial(arg)
-
-
 class Calculator:
     def __init__(self, master):
+        self.color = ['', "r", "g", "o", "y", "b"]
         self.ENG = 16
         self.btn_u = []
         self.btn_a = []
@@ -140,7 +67,7 @@ class Calculator:
         self.store_order = []
         # answer of operation
         self.answer = ''
-        # store last answer of operation
+        # store answers of operation
         self.callback = []
         # float numbers of equation
         self.a = ''
@@ -166,6 +93,8 @@ class Calculator:
         self.P3d = ''
         self.PA = ''
         self.P3dps = ''
+        # store functions
+        self.callback_function = []
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
@@ -188,8 +117,9 @@ class Calculator:
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', state='readonly',
                                     readonlybackground='slate gray')
         # Full Text Display
-        self.FullTextDisplay = Text(master, width=54, height=14, **ent_prm)
+        self.FullTextDisplay = ScrolledText(master, width=52, height=14, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
+        self.FullTextDisplay.config(undo=True, wrap='word')
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(master, relief='flat', bg='slate gray')
         self.top_frame.grid(row=1, column=0)
@@ -199,16 +129,11 @@ class Calculator:
         # ROW 3 set frame showing bottom buttons
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
-        # buttons that will be displayed on top frame ROW 0=============================================================
-        big_txt = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
-        big_pad = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+        # buttons that will be fake displayed on top frame ROW 0========================================================
+        big_txt = ['', '', '', '', '']
         self.btn_b = []
-        i = 0
         for k in range(5):
-            self.btn_b.append(Button(self.top_frame, **big2_prm, text=big_txt[i]))
-            self.btn_b[i].grid(row=0, column=k)
-            self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
-            i += 1
+            self.btn_b.append(Button(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
         txt = ['RAD', '1ST', 'ENG', 'ANS', 'r', 'Õ']
         self.btn_m = []
@@ -222,7 +147,7 @@ class Calculator:
                                 command=lambda: self.Input(str(self.callback[-1])))
         # Clear
         self.btn_m[4].configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23),
-                                command=lambda: self.Clear())
+                                command=lambda: self.Delete())
         # Remove
         self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21),
                                 command=lambda: self.Remove())
@@ -266,11 +191,11 @@ class Calculator:
         self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
-        File.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
-        File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
-        File.add_separator()
         File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
         File.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
+        File.add_separator()
+        File.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
+        File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=Exit)
         Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
@@ -329,8 +254,8 @@ class Calculator:
             # buttons that will be displayed on top frame ROW 0=============================================================
             for k in range(4):
                 self.btn_a[k].destroy()
-            big_txt = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
-            big_pad = ['Plot', 'Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+            big_txt = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
+            big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             self.btn_b = []
             i = 0
             for k in range(5):
@@ -353,7 +278,7 @@ class Calculator:
                 self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
-            if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == "Plot3D" or self.mode == 'P3DPL' or \
+            if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == 'P3DPL' or self.mode == "Plot3D" or \
                     self.mode == 'P3DPS':
                 self.SwitchFunction(self.mode)
 
@@ -440,24 +365,24 @@ class Calculator:
             self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        elif self.mode == 'Plot3D':
-            self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
-            self.FastTextVariable.set(f'f(x,y)')
+        elif self.mode == 'P3DPL':
+            self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
+            self.FastTextVariable.set('f(x)₁ = ')
             for i in range(2):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn_b[2]['bg'] = 'indian red'
             for i in range(3, 5):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['normal']
+            self.btn[11]['state'] = ['disabled']
             self.btn[2]['state'] = ['disabled']
             self.btn_d[1]['state'] = ['disabled']
             self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        elif self.mode == 'P3DPL':
-            self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
-            self.FastTextVariable.set('f(x)₁ = ')
+        elif self.mode == 'Plot3D':
+            self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
+            self.FastTextVariable.set(f'f(x,y)')
             for i in range(3):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn_b[3]['bg'] = 'indian red'
@@ -481,7 +406,7 @@ class Calculator:
             self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        self.Clear()
+        self.Delete()
 
     def SwitchDegRad(self, convert):
         switch = convert
@@ -532,7 +457,7 @@ class Calculator:
                                     activeforeground='indian red')
         self.Click()
 
-    def Clear(self):
+    def Delete(self):
         self.a = ''
         self.b = ''
         self.c = ''
@@ -549,6 +474,7 @@ class Calculator:
         self.P3dps = ''
         self.store_expression = []
         self.store_order = []
+        self.callback_function = []
         self.expression = ''
         self.TextVariable.set('')
         self.FastTextVariable.set('')
@@ -583,7 +509,7 @@ class Calculator:
 
     def Remove(self):
         if self.clear:
-            self.Clear()
+            self.Delete()
 
         try:
             k = self.store_order[-1]
@@ -608,17 +534,17 @@ class Calculator:
                         self.InputEquals()
 
                     else:
-                        self.Clear()
+                        self.Delete()
 
                 else:
-                    self.Clear()
+                    self.Delete()
 
             if not self.clear:
                 if keyword.keysym == 'BackSpace':
                     self.Remove()
 
                 elif keyword.keysym == 'Delete':
-                    self.Clear()
+                    self.Delete()
 
                 elif keyword.keysym == 'Return' or put == 'equal':
                     self.InputEquals()
@@ -698,9 +624,11 @@ class Calculator:
                 elif put == 'h':
                     self.Input('h(')
 
-                elif put == 'x' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
-                        or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9' \
-                        or put == 'y':
+                elif put == 'p':
+                    self.Input('π')
+
+                elif put == 'x' or put == '0' or put == '1' or put == '2' or put == '3' or put == 'y' \
+                        or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
                     self.Input(put)
 
                 else:
@@ -713,7 +641,7 @@ class Calculator:
 
     def Input(self, keyword):
         if self.clear:
-            self.Clear()
+            self.Delete()
 
         self.store_expression.append(str(keyword))
         self.store_order.append(len(str(keyword)))
@@ -807,6 +735,7 @@ class Calculator:
 
     def InputEquals(self):
         global z
+        self.callback_function.append(str(self.expression))
         try:
             if self.mode == 'Operation':
                 try:
@@ -940,29 +869,25 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 ∆>0 : X = (-b ± √∆) / 2a
 
  X[1] = ({nb} + √{d}) / (2 x {self.a})
-       = ({nb} + √{d}) / ({N(2 * self.a, 3)})
-       = {nb} / ({N(2 * self.a, 3)}) + √({d}) / ({N(2 * self.a, 3)})
+       = {N((nb + sqrt(d)) / (2 * self.a), 3)}
 
  X[2] = ({nb} - √{d}) / (2 x {self.a})
-       = ({nb} - √{d}) / ({2 * self.a})
-       = {nb} / ({N(2 * self.a, 3)}) - √({d}) / ({N(2 * self.a, 3)})''')
+       = {N((nb - sqrt(d)) / (2 * self.a), 3)}''')
                         elif d <= 0:
-                            self.FullTextDisplay.insert(END, f'''\n      = {nd}i²
+                            self.FullTextDisplay.insert(END, f'''\n      = {nd}j²
 
-∆<0 : X = (-b ± i√∆) / 2a
+∆<0 : X = (-b ± j√∆) / 2a
 
- X[1] = ({nb} + i√({nd})) / (2 x {self.a})
-       = ({nb} + i√({nd})) / ({N(2 * self.a, 3)})
-       = {nb} / ({N(2 * self.a, 3)}) + i√({nd}) / ({N(2 * self.a, 3)})
+ X[1] = ({nb} + j√({nd})) / (2 x {self.a})
+       = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}
 
- X[2] = ({nb} - i√({nd})) / (2 x {self.a})
-       = ({nb} - i√({nd})) / ({N(2 * self.a, 3)})
-       = {nb} / ({N(2 * self.a, 3)}) - i√({nd}) / ({N(2 * self.a, 3)})
+ X[2] = ({nb} - j√({nd})) / (2 x {self.a})
+       = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}
 
-  z = a ± ib
+  z = a ± jb
 
-   a = {nb} / ({N(2 * self.a, 3)})
-   b = ± √{nd} / ({N(2 * self.a, 3)})''')
+   a = {N(nb / (2 * self.a), 3)})
+   b = ± {N(nd / (2 * self.a), 3)})''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
@@ -1023,6 +948,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
                     self.PA = plot(sympify(self.fctx))
                     self.P3d.append(self.PA[0])
+                    for s in range(1, len(self.callback_function)):
+                        self.P3d[s].line_color = self.color[s]
                     self.P3d.show()
                     self.expression = ""
                     self.TextVariable.set(f'f(x) = ')
@@ -1032,12 +959,13 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'\nf(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
+                    self.TextVariable.set(f'f(x)₂ =')
                     self.expression = ""
                     self.full = True
 
                 elif self.full:
                     self.fctx2 = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx1}')
+                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
                         self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
@@ -1049,6 +977,9 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     elif self.equal:
                         self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
                         self.P3d.append(self.PA[0])
+                        d = int(len(self.callback_function) / 2)
+                        for s in range(1, d):
+                            self.P3d[s].line_color = self.color[s]
                         self.P3d.show()
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
@@ -1059,6 +990,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'\nf(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
+                    self.TextVariable.set(f'f(x)₂ =')
                     self.expression = ""
                     self.full = True
 
@@ -1076,6 +1008,9 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     elif self.equal:
                         self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
                         self.P3d.append(self.PA[0])
+                        d = int(len(self.callback_function) / 2)
+                        for s in range(1, d):
+                            self.P3d[s].line_color = self.color[s]
                         self.P3d.show()
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
@@ -1110,7 +1045,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
                 elif self.full:
                     self.fctxy2 = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy1}')
+                    self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy2}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
@@ -1148,6 +1083,82 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
         self.callback.append(str(self.answer))
 
 
+def Exit():
+    return win.destroy()
+
+
+def Sin(arg):
+    return sin(arg * convert_constant)
+
+
+def Cos(arg):
+    return cos(arg * convert_constant)
+
+
+def Tan(arg):
+    return tan(arg * convert_constant)
+
+
+def aSin(arg):
+    return inverse_convert_constant * (asin(arg))
+
+
+def aCos(arg):
+    return inverse_convert_constant * (acos(arg))
+
+
+def aTan(arg):
+    return inverse_convert_constant * (atan(arg))
+
+
+def Sinh(arg):
+    return sinh(arg)
+
+
+def Cosh(arg):
+    return cosh(arg)
+
+
+def Tanh(arg):
+    return tanh(arg)
+
+
+def aSinh(arg):
+    return asinh(arg)
+
+
+def aCosh(arg):
+    return acosh(arg)
+
+
+def aTanh(arg):
+    return atanh(arg)
+
+
+def Sq(arg):
+    return sqrt(arg)
+
+
+def Ln(arg):
+    return log(arg)
+
+
+def Log(arg):
+    return log10(arg)
+
+
+def Log2(arg):
+    return log2(arg)
+
+
+def Exp(arg):
+    return exp(arg)
+
+
+def Fact(arg):
+    return factorial(arg)
+
+
 if __name__ == "__main__":
     win = Tk()
     menubare = Menu(win)
@@ -1162,5 +1173,5 @@ if __name__ == "__main__":
     # Window configuration
     win.configure(menu=menubare, bg='#666666')
     win.resizable(False, False)
-    win.title("PyMathon v5.0.2")
+    win.title("PyMathon v5.0.3")
     win.mainloop()
