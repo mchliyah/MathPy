@@ -600,6 +600,14 @@ class Calculator:
             self.TextVariable.set(f'a = ')
             self.FastTextVariable.set('ax² + bx + c = 0')
 
+        elif self.mode == 'Solve':
+            self.TextVariable.set(f'e > ')
+            self.FastTextVariable.set('e > ')
+
+        elif self.mode == 'Matrix':
+            self.TextVariable.set(f'e₁ > ')
+            self.FastTextVariable.set('e₁ > ')
+
         elif self.mode == 'Plot':
             self.TextVariable.set(f'f(x) = ')
             self.FastTextVariable.set(f'f(x) = ')
@@ -801,33 +809,33 @@ class Calculator:
 
             elif self.mode == 'Solve':
                 if self.full is None:
-                    self.TextVariable.set(self.expression)
-                    self.FastTextVariable.set(self.expression)
+                    self.TextVariable.set(f'e > {self.expression}')
+                    self.FastTextVariable.set(f'e > {self.expression}')
                 elif self.full:
-                    self.TextVariable.set(f'{self.q} = {self.expression}')
-                    self.FastTextVariable.set(f'{self.q} = {self.expression}')
+                    self.TextVariable.set(f'e > {self.q} = {self.expression}')
+                    self.FastTextVariable.set(f'e > {self.q} = {self.expression}')
 
             elif self.mode == 'Matrix':
                 if self.full is None:
-                    self.TextVariable.set(self.expression)
-                    self.FastTextVariable.set(self.expression)
+                    self.TextVariable.set(f'e₁ > {self.expression}')
+                    self.FastTextVariable.set(f'e₁ > {self.expression}')
                 elif not self.full:
-                    self.TextVariable.set(f'{self.q} = {self.expression}')
-                    self.FastTextVariable.set(f'{self.q} = {self.expression}')
+                    self.TextVariable.set(f'e₁ > {self.q} = {self.expression}')
+                    self.FastTextVariable.set(f'e₁ > {self.q} = {self.expression}')
 
                 elif self.full and self.clear is None:
-                    self.TextVariable.set(self.expression)
-                    self.FastTextVariable.set(self.expression)
+                    self.TextVariable.set(f'e₂ > {self.expression}')
+                    self.FastTextVariable.set(f'e₂ > {self.expression}')
                 elif self.full and not self.clear and self.equal is None:
-                    self.TextVariable.set(f'{self.j} = {self.expression}')
-                    self.FastTextVariable.set(f'{self.j} = {self.expression}')
+                    self.TextVariable.set(f'e₂ > {self.j} = {self.expression}')
+                    self.FastTextVariable.set(f'e₂ > {self.j} = {self.expression}')
 
                 elif self.full and not self.clear and not self.equal:
-                    self.TextVariable.set(self.expression)
-                    self.FastTextVariable.set(self.expression)
+                    self.TextVariable.set(f'e₃ > {self.expression}')
+                    self.FastTextVariable.set(f'e₃ > {self.expression}')
                 elif self.full and not self.clear and self.equal:
-                    self.TextVariable.set(f'{self.m} = {self.expression}')
-                    self.FastTextVariable.set(f'{self.m} = {self.expression}')
+                    self.TextVariable.set(f'e₃ > {self.m} = {self.expression}')
+                    self.FastTextVariable.set(f'e₃ > {self.m} = {self.expression}')
 
             elif self.mode == 'Plot':
                 self.TextVariable.set(f'f(x) = {self.expression}')
@@ -1034,14 +1042,14 @@ class Calculator:
             elif self.mode == 'Solve':
                 if self.full is None:
                     self.q = str(eval(self.expression))
-                    self.TextVariable.set(f'{self.q} = ')
+                    self.TextVariable.set(f'e > {self.q} = ')
                     self.expression = ""
                     self.full = True
 
                 elif self.full:
                     self.p = str(eval(self.expression))
-                    self.TextVariable.set(f'{self.q} = {self.p}')
-                    self.FullTextDisplay.insert(END, f'{self.q} = {self.p}')
+                    self.TextVariable.set(f'e > {self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, f'e > {self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
@@ -1055,14 +1063,15 @@ class Calculator:
             elif self.mode == 'Matrix':
                 if self.full is None:
                     self.q = str(sympify(self.expression))
-                    self.TextVariable.set(f'{self.q} = ')
+                    self.TextVariable.set(f'e₁ > {self.q} = ')
                     self.expression = ""
                     self.full = False
 
                 elif not self.full:
                     self.p = str(sympify(self.expression))
-                    self.TextVariable.set(f'{self.q} = {self.p}')
-                    self.FullTextDisplay.insert(END, 'New System :', f'   | {self.q} = {self.p}')
+                    self.TextVariable.set('e₂ > ')
+                    self.FastTextVariable.set('e₂ > ')
+                    self.FullTextDisplay.insert(END, 'New System :', f' e₁ | {self.q} = {self.p}')
                     self.expression = ""
                     self.full = True
                     self.clear = None
@@ -1070,7 +1079,7 @@ class Calculator:
                 elif self.full:
                     if self.clear is None:
                         self.j = str(sympify(self.expression))
-                        self.TextVariable.set(f'{self.j} = ')
+                        self.TextVariable.set(f'e₂ > {self.j} = ')
                         self.expression = ""
                         self.equal = None
                         self.clear = False
@@ -1078,30 +1087,31 @@ class Calculator:
                     elif not self.clear:
                         if self.equal is None:
                             self.k = str(sympify(self.expression))
-                            self.TextVariable.set(f'{self.j} = {self.k}')
-                            self.FullTextDisplay.insert(END, f'<| {self.j} = {self.k}')
+                            self.TextVariable.set('e₃ > ')
+                            self.FastTextVariable.set('e₃ > ')
+                            self.FullTextDisplay.insert(END, f' e₂ | {self.j} = {self.k}')
                             self.expression = ""
                             self.equal = False
 
                         elif not self.equal:
                             self.m = str(sympify(self.expression))
-                            self.TextVariable.set(f'{self.m} = ')
+                            self.TextVariable.set(f'e₃ > {self.m} = ')
                             self.expression = ""
                             self.equal = True
 
                         elif self.equal:
                             self.n = str(sympify(self.expression))
-                            self.TextVariable.set(f'{self.m} = {self.n}')
-                            self.FullTextDisplay.insert(END, f'   | {self.m} = {self.n}')
+                            self.FullTextDisplay.insert(END, f' e₃ | {self.m} = {self.n}')
                             try:
                                 self.lslv = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
-                            except ValueError or TypeError or SyntaxError or NameError or NotImplementedError:
+                            except ValueError or TypeError:
                                 self.lslv = nonlinsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
+                            self.TextVariable.set(self.lslv)
                             self.FastTextVariable.set(self.lslv)
                             self.FullTextDisplay.insert(END, self.lslv)
 
