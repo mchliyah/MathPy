@@ -10,6 +10,8 @@ from __jeep_v4__ import *
 # optimize first TkAgg by add scroll bar axe X named Scrollable_TkAgg_X
 # build and add TkAgg scrolled in two axes {X , Y} and turn switching between Scrolled_Listbox and Scrollable_TkAgg_XY
 # setting the write hand result in Scrollable_TkAgg_XY
+# optimize system equation solver getting the result from "linesolve" & "nonlinesolve" and setting the result in
+TkAgg_XY
 """
 
 btn_prm = {'padx': 18,
@@ -66,7 +68,7 @@ big2_prm = {'padx': 14,
             'activeforeground': "white"}
 ent_prm = {'fg': 'black',
            'bg': '#F0F0F0',
-           'font': ('Segoe UI Symbol', 16),
+           'font': ('Segoe UI Symbol', 32),
            'relief': 'flat'}
 # noinspection NonAsciiCharacters
 π = pi
@@ -142,11 +144,11 @@ class Calculator:
         # Label Text Display
         self.label = Label(canvas, **ent_prm, textvariable=self.LabelStrVar)
         self.label.grid(row=0, column=0, sticky=NSEW)
-        self.label.configure(font=('Segoe UI Symbol', 32), anchor='e')
+        self.label.configure(anchor='e')
         # First Text Display, insertbackground='white'
         self.FirstTextDisplay = Entry(canvas, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
         self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
-        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), takefocus=True)
+        self.FirstTextDisplay.configure(takefocus=True)
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
         self.IndexCursor = 0
@@ -172,8 +174,7 @@ class Calculator:
         # Second Text Display
         SecondTextDisplay = Entry(self.win, width=27, **ent_prm, textvariable=self.SecondStrVar, state='readonly')
         SecondTextDisplay.grid(row=2, column=1, sticky=NSEW)
-        SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), fg='white', readonlybackground='#212121',
-                                    cursor="arrow", justify='center')
+        SecondTextDisplay.configure(fg='white', readonlybackground='#212121', cursor="arrow", justify='center')
         # ROW 3 set frame showing middle buttons========================================================================
         self.middle_frame = Frame(self.win, relief='flat')
         self.middle_frame.grid(row=3, column=0, sticky=NSEW)
@@ -187,7 +188,8 @@ class Calculator:
         self.middle_frame.columnconfigure(4, weight=1)
         self.middle_frame.columnconfigure(5, weight=1)
         # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=12, **ent_prm)
+        self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=8, **ent_prm)
+        self.FullTextDisplay.configure(font=('Segoe UI Symbol', 24))
         self.FullTextDisplay.grid(row=3, column=1, rowspan=2, sticky=NSEW)
         self.FullTextDisplay.rowconfigure(0, weight=1)
         self.FullTextDisplay.columnconfigure(0, weight=1)
@@ -350,7 +352,7 @@ class Calculator:
         self.win.configure(menu=menubare, bg='#4d4d4d')
         self.win.geometry("1100x680")
         self.win.minsize(width=1100, height=680)
-        self.win.resizable(width=True, height=False)
+        self.win.resizable(width=True, height=True)
         self.win.title("MathPy v6.1")
         self.win.mainloop()
 
@@ -646,7 +648,8 @@ class Calculator:
         figure = widget
         if figure == 'listbox':
             self.TkAggXY.Destroying()
-            self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=12, **ent_prm)
+            self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=8, **ent_prm)
+            self.FullTextDisplay.configure(font=('Segoe UI Symbol', 24))
             self.FullTextDisplay.grid(row=3, column=1, rowspan=2, sticky=NSEW)
             self.FullTextDisplay.rowconfigure(0, weight=1)
             self.FullTextDisplay.columnconfigure(0, weight=1)
@@ -909,7 +912,7 @@ class Calculator:
         mpl_white_rvb = (255. / 255., 255. / 255., 255. / 255.)
         try:
             self.FigureX.clear()
-            self.FigureX.text(0, 0.4, la_text, color=mpl_white_rvb, fontsize=30)
+            self.FigureX.text(0, 0.5, la_text, color=mpl_white_rvb, fontsize=30)
             self.TkAggX.draw()
         except Exception:
             pass
@@ -1038,8 +1041,12 @@ class Calculator:
         n_lines = len(self.mathext)
         self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=n_lines)
         oldSize = self.FigureXY.get_size_inches()
-        # self.fig.set_size_inches((0.9 + s for s in oldSize))
-        self.FigureXY.set_size_inches(0.9 + oldSize[0], 0.9 + oldSize[1])
+        lmac1 = len(self.mathext[-1])
+        lmac2 = len(self.mathext[-2])
+        if lmac1 > 20 or lmac2 > 30 or lmac2 > 20 or lmac1 > 30:
+            self.FigureXY.set_size_inches(1.5 + oldSize[0], 1.5 + oldSize[1])
+        else:
+            self.FigureXY.set_size_inches(0.9 + s for s in oldSize)
 
     def AggDrawMultiLaTex(self):
         i_line = 0
@@ -1050,7 +1057,7 @@ class Calculator:
             ax.set_xticklabels("", visible=False)
             ax.set_yticklabels("", visible=False)
             i_line += 1
-        self.FigureXY.tight_layout()  # pad=-1, h_pad=-3
+        self.FigureXY.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
         self.TkAggXY.Drawing()
 
     def VariableEQL(self, label_var, first_var):
@@ -1211,13 +1218,12 @@ class Calculator:
                                 self.SolutionTT = nonlinsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
                                     [self.x, self.y])
-
-                            self.SolutionTT = str(self.SolutionTT)
-                            self.w = int(len(self.SolutionTT))
+                            sol = str(self.SolutionTT)
+                            self.w = int(len(sol))
                             self.v = 0
                             while self.v < self.w:
                                 self.exist = False
-                                if self.SolutionTT[self.v] == 'z' or self.SolutionTT == 'EmptySet':
+                                if sol[self.v] == 'z' or sol == 'EmptySet':
                                     self.VariableEQL('eq₃ >', '')
                                     self.DrawTexTk('eq₃ > ')
                                     self.equal = False
@@ -1229,19 +1235,8 @@ class Calculator:
                                 self.MultiLaTexDraw('System of Two Equations : {eq₁,eq₂}_[x,y]')
                                 self.DrawTexTk(self.DrawAfter(self.SolutionTT))
                                 self.MultiLaTexDraw(self.DrawAfter(self.SolutionTT))
-                                self.SolutionTT = str(self.SolutionTT[11:-2])
 
-                                self.w = int(len(self.SolutionTT))
-                                self.v = 0
-                                while self.v < self.w:
-                                    self.xexp = str(self.xexp) + str(self.SolutionTT[self.v])
-                                    self.v += 1
-                                    if self.SolutionTT[self.v] == ',':
-                                        while self.v < self.w:
-                                            self.yexp = str(self.yexp) + str(self.SolutionTT[self.v])
-                                            self.v += 1
-
-                                self.yexp = str(self.yexp).replace(', ', '')
+                                self.xexp, self.yexp = next(iter(self.SolutionTT))
                                 self.VariableEQL(f'x = {self.xexp} | y = {self.yexp}', '')
                                 self.MultiLaTexDraw(f'> x = {self.DrawAfter(self.xexp)}')
                                 self.MultiLaTexDraw(f'> y = {self.DrawAfter(self.yexp)}')
@@ -1266,8 +1261,6 @@ class Calculator:
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
-                            self.SolutionTT = str(self.SolutionTT)
-
                             if self.SolutionTT == 'EmptySet':
                                 self.VariableEQL(self.SolutionTT, '')
                                 self.DrawTexTk(self.DrawAfter(self.SolutionTT))
@@ -1277,24 +1270,8 @@ class Calculator:
                                 self.MultiLaTexDraw('System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
                                 self.DrawTexTk(self.DrawAfter(self.SolutionTT))
                                 self.MultiLaTexDraw(self.DrawAfter(self.SolutionTT))
-                                self.SolutionTT = str(self.SolutionTT[11:-2])
 
-                                self.w = int(len(self.SolutionTT))
-                                self.v = 0
-                                while self.v < self.w:
-                                    self.xexp = str(self.xexp) + str(self.SolutionTT[self.v])
-                                    self.v += 1
-                                    if self.SolutionTT[self.v] == ',':
-                                        while self.v < self.w:
-                                            self.yexp = str(self.yexp) + str(self.SolutionTT[self.v])
-                                            self.v += 1
-                                            if self.SolutionTT[self.v] == ',':
-                                                while self.v < self.w:
-                                                    self.zexp = str(self.zexp) + str(self.SolutionTT[self.v])
-                                                    self.v += 1
-
-                                self.yexp = str(self.yexp).replace(', ', '')
-                                self.zexp = str(self.zexp).replace(', ', '')
+                                self.xexp, self.yexp, self.zexp = next(iter(self.SolutionTT))
                                 self.VariableEQL(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}', '')
                                 self.MultiLaTexDraw(f'> x = {self.DrawAfter(self.xexp)}')
                                 self.MultiLaTexDraw(f'> y = {self.DrawAfter(self.yexp)}')
