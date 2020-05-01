@@ -1,19 +1,31 @@
+import matplotlib
+
+matplotlib.use('TkAgg')  # MUST BE CALLED BEFORE IMPORTING plot
+# matplotlib.use('Qt5Agg')  # MUST BE CALLED BEFORE IMPORTING plot
+from __jeep_v5__ import *
+from tkinter import *
+from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
-from sympy.abc import y, z
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from sympy import *
+from sympy.abc import x, y, z
 from sympy.plotting import plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-from __jeep_v4__ import *
-
+__author__ = 'Achraf Najmi'
+__version__ = '6.2.0_b1'
+__name__ = 'MathPy'
 """
-# version 6.1.0
-# optimize first TkAgg by add scroll bar axe X named Scrollable_TkAgg_X
-# build and add TkAgg scrolled in two axes {X , Y} and turn switching between Scrolled_Listbox and Scrollable_TkAgg_XY
-# setting the write hand result in Scrollable_TkAgg_XY
-# optimize system equation solver getting the result from "linesolve" & "nonlinesolve" and setting the result in
-TkAgg_XY
+# version 6.2
+# other improvements
+# plotting environment plotted new case of her in window {beta testing}
+# add logo in TkAgg_XY
+# more improving of getting and setting the result in system equation solver 
+# more improving of setting the result in TkAgg_XY
+# DrawBefore and DrawAfter move them to jeep v5 as @staticmethod
 """
-
+# noinspection NonAsciiCharacters
+π = pi
 btn_prm = {'padx': 18,
            'pady': 1,
            'bd': 1,
@@ -70,8 +82,6 @@ ent_prm = {'fg': 'black',
            'bg': '#F0F0F0',
            'font': ('Segoe UI Symbol', 32),
            'relief': 'flat'}
-# noinspection NonAsciiCharacters
-π = pi
 
 
 class Calculator:
@@ -201,11 +211,6 @@ class Calculator:
         ErrorLabelDisplay.grid(row=0, column=2, sticky=NSEW)
         ErrorLabelDisplay.configure(anchor='e')
         # ROW 1 set MathPlot LaTex Display==============================================================================
-        # self.CanvasFigure = FigureCanvasTkAgg(figure=self.Figure, master=self.win)
-        # self.TkAgg = self.CanvasFigure.get_tk_widget()
-        # self.TkAgg.grid(row=1, column=0, columnspan=2, sticky=NSEW)
-        # bilko = Canvas(self.win)
-
         self.FigureX = Figure(figsize=(100, 5), facecolor='#212121')
         self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.middle_top_canvas)
         self.TkAggWidgetX = self.TkAggX.get_tk_widget()
@@ -218,12 +223,7 @@ class Calculator:
         for k in range(5):
             self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[k]))
         # ROW 2 set canvas showing ScrollableTkAggXY & ScrolledListbox==================================================
-        self.FullTextDisplay = ScrolledListbox(self.east_canvas)
 
-        self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
-        self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
-        self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
-        self.TkAggWidgetXY = self.TkAggXY.get_tk_widget()
         # buttons that will be displayed on middle bottom canvas ROW 0==================================================
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
@@ -263,7 +263,7 @@ class Calculator:
             self.btn_u[i3].grid(row=1, column=i3, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
-        logarithm_pad = ['log(', 'exp(', 'LambertW(', 'integrate(', 'sqrt(', "factorial("]
+        logarithm_pad = ['log(', 'exp(', 'LambertW(', 'integrate(', 'sqrt(', "fctrl("]
         logarithm_txt = ['log', 'exp', 'W', "∫f(x)", '√n', "n!"]
         self.btn_d = []
         for i4 in range(6):
@@ -352,8 +352,7 @@ class Calculator:
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
         Mode.add_command(label='Plot 3D Parametric Surface',
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
-        # Master Display ===============================================================================================
-        # Window configuration
+        # Configuration Master Display==================================================================================
         self.win.rowconfigure(1, weight=1)
         self.win.columnconfigure(1, weight=1)
 
@@ -363,7 +362,7 @@ class Calculator:
         self.win.geometry("1100x680")
         self.win.minsize(width=1100, height=680)
         self.win.resizable(width=True, height=True)
-        self.win.title("MathPy v6.1")
+        self.win.title(u"%s v%s" % (__name__, __version__))
         self.win.mainloop()
 
     def iCursor(self, cursor):
@@ -490,16 +489,19 @@ class Calculator:
         self.mode = passmode
         self.switched = do_it
         if self.switched:
+            self.east_canvas.destroy()
             if self.mode == 'Operation' or self.mode == 'Solve' or self.mode == 'Matrices':
-                self.mathext = ["MathPy 6.1.0 Created by Achraf"]
+                self.mathext = [u"    %s v%s Created by %s" % (__name__, __version__, __author__)]
                 self.SwitchWidget('TkAgg')
+            elif self.mode == 'Plot':
+                self.SwitchWidget('plot')
             else:
                 self.SwitchWidget('listbox')
                 self.FullTextDisplay.delete(0, END)
 
         if self.mode == 'Operation':
             if self.switched:
-                self.AggSwitchDraw(f'Mode Operation : ')
+                self.MultiLaTexSwitchDraw(f'Mode Operation : ')
                 self.btn[11].config(state=NORMAL)
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
@@ -546,7 +548,7 @@ class Calculator:
 
         elif self.mode == 'Solve':
             if self.switched:
-                self.AggSwitchDraw('Mode Line Equation Solver : One {eq} : [x] | Constants : (y,z)')
+                self.MultiLaTexSwitchDraw('Mode Line Equation Solver : One {eq} : [x] | Constants : (y,z)')
                 self.btn[11].config(state=NORMAL)
                 self.btn[17].config(state=NORMAL)
                 self.btn[23].config(state=NORMAL)
@@ -562,7 +564,7 @@ class Calculator:
 
         elif self.mode == 'Matrices':
             if self.switched:
-                self.AggSwitchDraw('Mode System Equation Solver :')
+                self.MultiLaTexSwitchDraw('Mode System Equation Solver :')
                 self.btn[11].config(state=NORMAL)
                 self.btn[17].config(state=NORMAL)
                 self.btn[23].config(state=NORMAL)
@@ -576,7 +578,7 @@ class Calculator:
 
         elif self.mode == 'Plot':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
+                # self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
                 self.btn[11]['state'] = ['normal']
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
@@ -651,15 +653,19 @@ class Calculator:
             self.btn_b[4].config(bg='#80000B', relief='sunken')
             self.btn_b[4].DBG = '#80000B'
 
-        self.TextDisplay.focus_set()
-
         if self.switched:
             self.Delete()
 
+        self.TextDisplay.focus_set()
+
     def SwitchWidget(self, widget):
         figure = widget
+        self.east_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0')
+        self.east_canvas.grid(row=2, column=1, rowspan=3, sticky=NSEW)
         if figure == 'listbox':
-            self.TkAggWidgetXY.destroy()
+            self.east_canvas.rowconfigure(0, weight=1)
+            self.east_canvas.columnconfigure(0, weight=1)
+
             self.FullTextDisplay = ScrolledListbox(self.east_canvas, width=52, height=8, **ent_prm)
             self.FullTextDisplay.configure(font=('Segoe UI Symbol', 24))
             self.FullTextDisplay.grid(row=0, column=0, sticky=NSEW)
@@ -667,14 +673,42 @@ class Calculator:
             self.FullTextDisplay.columnconfigure(0, weight=1)
 
         elif figure == 'TkAgg':
-            self.FullTextDisplay.destroy()
+            self.east_canvas.rowconfigure(0, weight=1)
+            self.east_canvas.columnconfigure(0, weight=1)
+
             self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
-            self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
+            self.AxesXY = self.FigureXY.subplots(nrows=2, ncols=1)
+
             self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
             self.TkAggWidgetXY = self.TkAggXY.get_tk_widget()
             self.TkAggWidgetXY.grid(row=0, column=0, sticky=NSEW)
             self.TkAggWidgetXY.rowconfigure(0, weight=1)
             self.TkAggWidgetXY.columnconfigure(0, weight=1)
+
+        else:
+            self.east_canvas.rowconfigure(1, weight=1)
+            self.east_canvas.columnconfigure(0, weight=1)
+
+            self.Figure = Figure(figsize=(6, 4), facecolor='#F0F0F0')
+
+            # self.TkAgg = TkFigureFrame(figure=self.Figure, window=self.east_canvas)
+            # self.TkAggWidget = self.TkAgg.get_tk_widget()
+            # self.TkAggWidget.grid(row=1, column=0, sticky=NSEW)
+
+            self.TkAgg = FigureCanvasTkAgg(figure=self.Figure, master=self.east_canvas)
+            self.TkAggWidget = self.TkAgg.get_tk_widget()
+            self.TkAggWidget.grid(row=1, column=0, sticky=NSEW)
+
+            self.ToolBarFrame = Frame(master=self.east_canvas)
+            self.ToolBarFrame.grid(row=0, column=0)
+            self.ToolBarFrame.columnconfigure(0, weight=1)
+
+            self.ToolBar = NavigationToolbar2Tk(self.TkAgg, self.ToolBarFrame)
+            self.ToolBar.update()
+            self.ToolBar.grid(row=0, column=0)
+            self.ToolBar.columnconfigure(0, weight=1)
+
+        self.TextDisplay.focus_set()
 
     def Delete(self):
         self.a = ''
@@ -749,6 +783,8 @@ class Calculator:
         self.clear = False
         self.full = None
         self.exist = None
+
+        self.TextDisplay.focus_set()
 
     def Remove(self):
         if self.clear:
@@ -865,7 +901,7 @@ class Calculator:
                 self.Input('1j')
 
             elif put == 'exclam' or put == 'f':
-                self.Input('factorial('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('fctrl('), self.Input(')'), self.ChangeDirectionCursor('Left')
 
             elif put == 'p':
                 self.Input('π')
@@ -898,29 +934,6 @@ class Calculator:
 
         self.ShowInput()
 
-    @staticmethod
-    def DrawAfter(character):
-        try:
-            simplify = sympify(character)
-            LaTex = latex(simplify)
-            return r"$%s$" % LaTex
-        except None:
-            pass
-        except Exception:
-            pass
-
-    @staticmethod
-    def DrawBefore(character):
-        try:
-            pik = str(character).replace('integrate', 'Integral').replace('diff', 'Derivative')
-            simplify = sympify(pik, rational=True, evaluate=False)
-            LaTex = latex(simplify)
-            return r"$%s$" % LaTex
-        except None:
-            pass
-        except Exception:
-            pass
-
     def DrawTexTk(self, la_text):
         mpl_white_rvb = (255. / 255., 255. / 255., 255. / 255.)
         try:
@@ -938,130 +951,117 @@ class Calculator:
         try:
             if self.mode == 'Operation':
                 self.TextStrVar.set(self.expression)
-                self.DrawTexTk(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(eval(self.expression))}')
+                self.DrawTexTk(f'op > {DrawBefore(self.expression)} = {DrawAfter(eval(self.expression))}')
 
             elif self.mode == 'Function':
                 if self.full is None:
                     self.VariableTXT('From :')
                     self.DrawTexTk(
-                        f'From : {self.DrawAfter(self.expression)} --> To : B | f(x) = Function')
+                        f'From : {DrawAfter(self.expression)} --> To : B | f(x) = Function')
 
                 elif not self.full:
                     self.VariableTXT('To :')
                     self.DrawTexTk(
-                        f'From : {self.DrawAfter(self.v)} --> To : '
-                        f'{self.DrawAfter(self.expression)} | f(x) = Function')
+                        f'From : {DrawAfter(self.v)} --> To : '
+                        f'{DrawAfter(self.expression)} | f(x) = Function')
 
                 elif self.full:
                     self.VariableTXT('f(x) =')
                     self.DrawTexTk(
-                        f'From : {self.DrawAfter(self.v)} --> To : {self.DrawAfter(self.w)} | '
-                        f'f(x) = {self.DrawAfter(self.expression)}')
+                        f'From : {DrawAfter(self.v)} --> To : {DrawAfter(self.w)} | '
+                        f'f(x) = {DrawAfter(self.expression)}')
 
             elif self.mode == 'Equation':
                 if self.full is None:
                     self.VariableTXT('a =')
                     self.DrawTexTk(
-                        f'{self.DrawAfter(self.expression)}x² + bx + c = 0')
+                        f'{DrawAfter(self.expression)}x² + bx + c = 0')
 
                 elif not self.full:
                     self.VariableTXT('b =')
                     self.DrawTexTk(
-                        f'{self.DrawAfter(self.a)}x² + ({self.DrawAfter(self.expression)})x + c = 0')
+                        f'{DrawAfter(self.a)}x² + ({DrawAfter(self.expression)})x + c = 0')
 
                 elif self.full:
                     self.VariableTXT('c =')
                     self.DrawTexTk(
-                        f'{self.DrawAfter(self.a)}x² + ({self.DrawAfter(self.b)})x + '
-                        f'({self.DrawAfter(self.expression)}) = 0')
+                        f'{DrawAfter(self.a)}x² + ({DrawAfter(self.b)})x + '
+                        f'({DrawAfter(self.expression)}) = 0')
 
             elif self.mode == 'Solve':
                 if self.full is None:
                     self.VariableTXT('eq >')
-                    self.DrawTexTk(f'eq > {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'eq > {DrawAfter(self.expression)}')
                 elif self.full:
                     self.VariableTXT(f'eq > {self.q} =')
                     self.DrawTexTk(
-                        f'eq > {self.DrawAfter(self.q)} = '
-                        f'{self.DrawAfter(self.expression)}')
+                        f'eq > {DrawAfter(self.q)} = '
+                        f'{DrawAfter(self.expression)}')
 
             elif self.mode == 'Matrices':
                 if self.full is None:
                     self.VariableTXT(f'eq₁ >')
-                    self.DrawTexTk(f'eq₁ > {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'eq₁ > {DrawAfter(self.expression)}')
                 elif not self.full:
                     self.VariableTXT(f'eq₁ > {self.q} = ')
-                    self.DrawTexTk(f'eq₁ > {self.DrawAfter(self.q)} = {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'eq₁ > {DrawAfter(self.q)} = {DrawAfter(self.expression)}')
 
                 elif self.full:
                     if self.clear is None:
                         self.VariableTXT(f'eq₂ >')
-                        self.DrawTexTk(f'eq₂ > {self.DrawAfter(self.expression)}')
+                        self.DrawTexTk(f'eq₂ > {DrawAfter(self.expression)}')
                     elif not self.clear and self.equal is None:
                         self.VariableTXT(f'eq₂ > {self.j} =')
-                        self.DrawTexTk(f'eq₂ > {self.DrawAfter(self.j)} = {self.DrawAfter(self.expression)}')
+                        self.DrawTexTk(f'eq₂ > {DrawAfter(self.j)} = {DrawAfter(self.expression)}')
 
                     elif not self.clear and not self.equal:
                         self.VariableTXT(f'eq₃ >')
-                        self.DrawTexTk(f'eq₃ > {self.DrawAfter(self.expression)}')
+                        self.DrawTexTk(f'eq₃ > {DrawAfter(self.expression)}')
                     elif not self.clear and self.equal:
                         self.VariableTXT(f'eq₃ > {self.m} =')
-                        self.DrawTexTk(f'eq₃ > {self.DrawAfter(self.m)} = {self.DrawAfter(self.expression)}')
+                        self.DrawTexTk(f'eq₃ > {DrawAfter(self.m)} = {DrawAfter(self.expression)}')
 
             elif self.mode == 'Plot':
                 self.VariableTXT(f'f(x) =')
-                self.DrawTexTk(f'f(x) = {self.DrawAfter(self.expression)}')
+                self.DrawTexTk(f'f(x) = {DrawAfter(self.expression)}')
 
             elif self.mode == "Plot Prm" or self.mode == "P3DPL":
                 if self.full is None:
                     self.VariableTXT(f'f(x)₁ =')
-                    self.DrawTexTk(f'f(x)₁ = {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'f(x)₁ = {DrawAfter(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT(f'f(x)₂ =')
-                    self.DrawTexTk(f'f(x)₁ = {self.DrawAfter(self.fctx1)} | '
-                                   f'f(x)₂ = {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'f(x)₁ = {DrawAfter(self.fctx1)} | '
+                                   f'f(x)₂ = {DrawAfter(self.expression)}')
 
             elif self.mode == "Plot3D":
                 self.VariableTXT(f'f(x,y) =')
-                self.DrawTexTk(f'f(x,y) = {self.DrawAfter(self.expression)}')
+                self.DrawTexTk(f'f(x,y) = {DrawAfter(self.expression)}')
 
             elif self.mode == "P3DPS":
                 if self.full is None:
                     self.VariableTXT(f'f(x,y)₁ =')
-                    self.DrawTexTk(f'f(x,y)₁ = {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'f(x,y)₁ = {DrawAfter(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT(f'f(x,y)₂ =')
-                    self.DrawTexTk(f'f(x,y)₁ = {self.DrawAfter(self.fctxy1)} | '
-                                   f'f(x,y)₂ = {self.DrawAfter(self.expression)}')
+                    self.DrawTexTk(f'f(x,y)₁ = {DrawAfter(self.fctxy1)} | '
+                                   f'f(x,y)₂ = {DrawAfter(self.expression)}')
 
             self.ErrorStrVar.set('')
         except Exception:
             pass
+        self.TextDisplay.focus_set()
 
         self.iCursor(self.IndexCursor)
 
-    def AggSwitchDraw(self, character):
-        self.FigureXY.clear()
+    def MultiLaTexSwitchDraw(self, character):
         self.mathext.append(character)
-        self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
-        self.AggDrawMultiLaTex()
 
-    def MultiLaTexDraw(self, character):
-        self.FigureXY.clear()
-        self.mathext.append(character)
-        n_lines = len(self.mathext)
-        self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=n_lines)
-        oldSize = self.FigureXY.get_size_inches()
-        lmac1 = len(self.mathext[-1])
-        lmac2 = len(self.mathext[-2])
-        if lmac1 > 20 or lmac2 > 30 or lmac2 > 20 or lmac1 > 30:
-            self.FigureXY.set_size_inches(1.5 + oldSize[0], 1.5 + oldSize[1])
-        else:
-            self.FigureXY.set_size_inches(0.9 + s for s in oldSize)
-
-    def AggDrawMultiLaTex(self):
+        ico = AnnotationBbox(OffsetImage(plt.imread('Alecive-Flatwoken-Apps-Libreoffice-Math-B.ico'), zoom=0.1),
+                             (0.0009, 0.6), frameon=False)
+        self.AxesXY[0].add_artist(ico)
         i_line = 0
         for ax in self.AxesXY.flatten():
             demo = self.mathext[i_line]
@@ -1070,8 +1070,40 @@ class Calculator:
             ax.set_xticklabels("", visible=False)
             ax.set_yticklabels("", visible=False)
             i_line += 1
-        self.FigureXY.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
-        self.TkAggXY.Drawing()
+        try:
+            self.FigureXY.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
+        except Exception:
+            pass
+        self.TkAggXY.Draw()
+
+    def MultiLaTexEQDraw(self, character):
+        self.mathext.append(character)
+
+        n_lines = int(len(self.mathext))
+        self.AxesXY = self.FigureXY.add_subplot(n_lines, 1, n_lines)
+
+        demo = self.mathext[-1]
+        self.AxesXY.text(0, 0.5, demo, fontsize=20)
+        self.AxesXY.axis('off')
+        self.AxesXY.set_xticklabels("", visible=False)
+        self.AxesXY.set_yticklabels("", visible=False)
+
+        n_axes = len(self.FigureXY.axes)
+        for i_axes in range(n_axes):
+            self.FigureXY.axes[i_axes].change_geometry(n_axes, 1, i_axes + 1)
+
+        oldSize = self.FigureXY.get_size_inches()
+        mac1 = len(self.mathext[-1])
+        mac2 = len(self.mathext[-2])
+        if mac1 > 20 or mac2 > 30 or mac2 > 20 or mac1 > 30:
+            self.FigureXY.set_size_inches(1.35 + oldSize[0], 1.35 + oldSize[1])
+        else:
+            self.FigureXY.set_size_inches(0.9 + s for s in oldSize)
+
+        try:
+            self.FigureXY.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
+        except Exception:
+            pass
 
     def VariableEQL(self, label_var, first_var):
         self.LabelStrVar.set(label_var)
@@ -1082,34 +1114,18 @@ class Calculator:
             if self.mode == 'Operation':
                 if not self.equal:
                     self.answer = sympify(eval(self.expression))
-                    intro = len(str(self.answer))
-                    if intro <= 10:
-                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
-                        self.DrawTexTk(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                        self.MultiLaTexDraw(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                        self.clear = True
-                        self.equal = True
-                    else:
-                        self.answer = sympify(str(self.answer)).evalf(10)
-                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
-                        self.DrawTexTk(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                        self.MultiLaTexDraw(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                        self.clear = True
-                        self.equal = True
+                    self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
+                    self.DrawTexTk(f'op > {DrawBefore(self.expression)} = {DrawAfter(self.answer)}')
+                    self.MultiLaTexEQDraw(f'op > {DrawBefore(self.expression)} = {DrawAfter(self.answer)}')
+                    self.clear = True
+                    self.equal = True
 
                 elif self.equal:
                     self.answer, self.expression = FullReBuild(self.store_expression, self.callback)
                     self.answer = sympify(self.answer)
-                    intro = len(str(self.answer))
-                    if intro <= 10:
-                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
-                        self.DrawTexTk(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                        self.MultiLaTexDraw(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                    else:
-                        self.answer = sympify(str(self.answer)).evalf(10)
-                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
-                        self.DrawTexTk(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
-                        self.MultiLaTexDraw(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(self.answer)}')
+                    self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
+                    self.DrawTexTk(f'op > {DrawBefore(self.expression)} = {DrawAfter(self.answer)}')
+                    self.MultiLaTexEQDraw(f'op > {DrawBefore(self.expression)} = {DrawAfter(self.answer)}')
                 self.callback.append(str(self.answer))
 
             elif self.mode == 'Function':
@@ -1143,7 +1159,7 @@ class Calculator:
                             sup = sympify(eval(self.fctx)).evalf(3)
                             self.FullTextDisplay.insert(END, f'f({x}) = {sup}')
                         self.PlotAddFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
-                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
+                        TwoPlotMultiColor(self.PlotFirstFunc, self.PlotAddFunc, self.fctx)
                         self.VariableEQL(f'f(x) =', '')
 
             elif self.mode == 'Equation':
@@ -1160,8 +1176,8 @@ class Calculator:
                 elif self.full:
                     self.c = self.expression
                     self.VariableEQL(f'a = {self.a} | b = {self.b} | c = {self.c}', '')
-                    self.DrawTexTk(f'{self.DrawAfter(self.a)}x² + ({self.DrawAfter(self.b)})x + '
-                                   f'({self.DrawAfter(self.c)}) = 0')
+                    self.DrawTexTk(f'{DrawAfter(self.a)}x² + ({DrawAfter(self.b)})x + '
+                                   f'({DrawAfter(self.c)}) = 0')
                     qe = int(len(EQT(self.a, self.b, self.c)))
                     for eq in range(qe):
                         self.FullTextDisplay.insert(END, EQT(self.a, self.b, self.c)[eq])
@@ -1173,7 +1189,7 @@ class Calculator:
                 if self.full is None:
                     self.q = str(eval(self.expression))
                     self.VariableEQL(f'eq > {self.q} =', '')
-                    self.DrawTexTk(f'eq > {self.DrawAfter(self.q)} = ')
+                    self.DrawTexTk(f'eq > {DrawAfter(self.q)} = ')
                     self.full = True
 
                 elif self.full:
@@ -1188,11 +1204,12 @@ class Calculator:
                             self.SolutionOS = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
                         except Exception:
                             self.DrawTexTk('Cannot Solve This Equation')
-                    self.DrawTexTk(f'eq > {self.DrawAfter(self.SolutionOS)}')
-                    self.MultiLaTexDraw(f'eq > {self.DrawBefore(self.q)} = {self.DrawBefore(self.p)}')
-                    self.MultiLaTexDraw(f'{self.DrawAfter(self.SolutionOS)}')
+                    self.DrawTexTk(f'eq > {DrawBefore(self.q)} = {DrawBefore(self.p)}'
+                                   f' > Solution : {DrawAfter(self.SolutionOS)}')
+                    self.MultiLaTexEQDraw(f'eq > {DrawBefore(self.q)} = {DrawBefore(self.p)}')
+                    self.MultiLaTexEQDraw(f'Solution : {DrawAfter(self.SolutionOS)}')
                     for sl in range(len(self.SolutionOS)):
-                        self.MultiLaTexDraw(f'> x{self.nb[int(sl) + 1]} = {self.DrawAfter(self.SolutionOS[sl])}')
+                        self.MultiLaTexEQDraw(f'> x{self.nb[int(sl) + 1]} = {DrawAfter(self.SolutionOS[sl])}')
 
                     self.clear = True
                     self.full = None
@@ -1207,8 +1224,8 @@ class Calculator:
                     self.p = str(sympify(self.expression))
                     self.VariableEQL('eq₂ >', '')
                     self.DrawTexTk('eq₂ > ')
-                    self.MultiLaTexDraw('New System :')
-                    self.MultiLaTexDraw(f' eq₁ | {self.DrawBefore(self.q)} = {self.DrawBefore(self.p)}')
+                    self.MultiLaTexEQDraw('New System :')
+                    self.MultiLaTexEQDraw(f' eq₁ | {DrawBefore(self.q)} = {DrawBefore(self.p)}')
                     self.full = True
                     self.clear = None
 
@@ -1222,7 +1239,7 @@ class Calculator:
                     elif not self.clear:
                         if self.equal is None:
                             self.k = str(sympify(self.expression))
-                            self.MultiLaTexDraw(f' eq₂ | {self.DrawBefore(self.j)} = {self.DrawBefore(self.k)}')
+                            self.MultiLaTexEQDraw(f' eq₂ | {DrawBefore(self.j)} = {DrawBefore(self.k)}')
                             try:
                                 self.SolutionTT = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
@@ -1241,18 +1258,43 @@ class Calculator:
                                     self.DrawTexTk('eq₃ > ')
                                     self.equal = False
                                     self.exist = True
+                                    if sol == 'EmptySet':
+                                        self.VariableEQL('', '')
+                                        self.DrawTexTk(f'Empty Solution : {DrawAfter(self.SolutionTT)}')
+                                        self.MultiLaTexEQDraw(f'Empty  Solution : {DrawAfter(self.SolutionTT)}')
+                                        self.clear = True
+                                        self.full = None
                                     break
                                 self.v += 1
 
                             if not self.exist:
-                                self.MultiLaTexDraw('System of Two Equations : {eq₁,eq₂}_[x,y]')
-                                self.DrawTexTk(self.DrawAfter(self.SolutionTT))
-                                self.MultiLaTexDraw(self.DrawAfter(self.SolutionTT))
+                                self.VariableEQL('System of Two Equations : {eq₁,eq₂}_[x,y]', '')
+                                self.DrawTexTk(f'Solution : {DrawAfter(self.SolutionTT)}')
+                                self.MultiLaTexEQDraw(f'Solution : {DrawAfter(self.SolutionTT)}')
+                                try:
+                                    self.xexp, self.yexp = next(iter(self.SolutionTT))
+                                    self.MultiLaTexEQDraw(f'> x = {DrawAfter(self.xexp)}')
+                                    self.MultiLaTexEQDraw(f'> y = {DrawAfter(self.yexp)}')
+                                except Exception:
+                                    try:
+                                        sol = str(self.SolutionTT[11:-2])
 
-                                self.xexp, self.yexp = next(iter(self.SolutionTT))
-                                self.VariableEQL(f'x = {self.xexp} | y = {self.yexp}', '')
-                                self.MultiLaTexDraw(f'> x = {self.DrawAfter(self.xexp)}')
-                                self.MultiLaTexDraw(f'> y = {self.DrawAfter(self.yexp)}')
+                                        self.w = int(len(sol))
+                                        self.v = 0
+                                        while self.v < self.w:
+                                            self.xexp = str(self.xexp) + str(sol[self.v])
+                                            self.v += 1
+                                            if sol[self.v] == ',':
+                                                while self.v < self.w:
+                                                    self.yexp = str(self.yexp) + str(sol[self.v])
+                                                    self.v += 1
+
+                                        self.yexp = str(self.yexp).replace(', ', '')
+                                        self.VariableEQL(f'x = {self.xexp} | y = {self.yexp}', '')
+                                        self.MultiLaTexEQDraw(f'> x = {DrawAfter(self.xexp)}')
+                                        self.MultiLaTexEQDraw(f'> y = {DrawAfter(self.yexp)}')
+                                    except Exception:
+                                        pass
                                 self.clear = True
                                 self.full = None
 
@@ -1264,7 +1306,7 @@ class Calculator:
                         elif self.equal:
                             self.n = str(sympify(self.expression))
                             self.expression = ''
-                            self.MultiLaTexDraw(f' eq₃ | {self.DrawBefore(self.m)} = {self.DrawBefore(self.n)}')
+                            self.MultiLaTexEQDraw(f' eq₃ | {DrawBefore(self.m)} = {DrawBefore(self.n)}')
                             try:
                                 self.SolutionTT = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
@@ -1274,37 +1316,91 @@ class Calculator:
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
-                            if self.SolutionTT == 'EmptySet':
-                                self.VariableEQL(self.SolutionTT, '')
-                                self.DrawTexTk(self.DrawAfter(self.SolutionTT))
-                                self.MultiLaTexDraw(self.DrawAfter(self.SolutionTT))
+                            sol = str(self.SolutionTT)
+                            if sol == 'EmptySet':
+                                self.VariableEQL('', '')
+                                self.DrawTexTk(f'Empty Solution : {DrawAfter(self.SolutionTT)}')
+                                self.MultiLaTexEQDraw(f'Empty  Solution : {DrawAfter(self.SolutionTT)}')
 
                             else:
-                                self.MultiLaTexDraw('System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
-                                self.DrawTexTk(self.DrawAfter(self.SolutionTT))
-                                self.MultiLaTexDraw(self.DrawAfter(self.SolutionTT))
+                                self.VariableEQL('System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]', '')
+                                self.DrawTexTk(f'Solution : {DrawAfter(self.SolutionTT)}')
+                                self.MultiLaTexEQDraw(f'Solution : {DrawAfter(self.SolutionTT)}')
+                                try:
+                                    self.xexp, self.yexp, self.zexp = next(iter(self.SolutionTT))
+                                    self.MultiLaTexEQDraw(f'> x = {DrawAfter(self.xexp)}')
+                                    self.MultiLaTexEQDraw(f'> y = {DrawAfter(self.yexp)}')
+                                    self.MultiLaTexEQDraw(f'> z = {DrawAfter(self.zexp)}')
+                                except Exception:
+                                    try:
+                                        sol = str(self.SolutionTT[11:-2])
 
-                                self.xexp, self.yexp, self.zexp = next(iter(self.SolutionTT))
-                                self.VariableEQL(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}', '')
-                                self.MultiLaTexDraw(f'> x = {self.DrawAfter(self.xexp)}')
-                                self.MultiLaTexDraw(f'> y = {self.DrawAfter(self.yexp)}')
-                                self.MultiLaTexDraw(f'> z = {self.DrawAfter(self.zexp)}')
+                                        self.w = int(len(sol))
+                                        self.v = 0
+                                        while self.v < self.w:
+                                            self.xexp = str(self.xexp) + str(sol[self.v])
+                                            self.v += 1
+                                            if sol[self.v] == ',':
+                                                while self.v < self.w:
+                                                    self.yexp = str(self.yexp) + str(sol[self.v])
+                                                    self.v += 1
+                                                    if sol[self.v] == ',':
+                                                        while self.v < self.w:
+                                                            self.zexp = str(self.zexp) + str(sol[self.v])
+                                                            self.v += 1
+
+                                        self.yexp = str(self.yexp).replace(', ', '')
+                                        self.zexp = str(self.zexp).replace(', ', '')
+                                        self.VariableEQL(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}', '')
+                                        self.MultiLaTexEQDraw(f'> x = {DrawAfter(self.xexp)}')
+                                        self.MultiLaTexEQDraw(f'> y = {DrawAfter(self.yexp)}')
+                                        self.MultiLaTexEQDraw(f'> z = {DrawAfter(self.zexp)}')
+                                    except Exception:
+                                        pass
                             self.clear = True
                             self.full = None
 
             elif self.mode == 'Plot':
                 if self.full is None:
                     self.fctx = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                    self.PlotFirstFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10))
+                    # self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
+                    self.PlotFirstFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), legend=True,
+                                              _backend="matplotlib", show=False)
+                    LabelLatexPlot(self.PlotFirstFunc, self.fctx)
+                    print(self.PlotFirstFunc._backend.fig, self.PlotFirstFunc[0])
+                    print(self.PlotFirstFunc._backend.ax, self.PlotFirstFunc._backend.ax[0])
+                    # assert isinstance(self.Figure, (add_artist, self.PlotFirstFun)).__str__(self.PlotFirstFunc.fig)
+                    # self.Figure.__repr__(self.PlotFirstFunc.ax)
+                    # self.Figure.draw(self.PlotFirstFunc.fig)
+                    self.axg = self.Figure._add_axes_internal(self.PlotFirstFunc._backend.fig,
+                                                              self.PlotFirstFunc._backend.ax[0])
+                    # self.axg = self.Figure.add_subplot(self.PlotFirstFunc._backend.ax[0])
+                    self.Figure.tight_layout()
+                    self.TkAgg.draw()
+                    print(self.axg)
                     self.VariableEQL(f'f(x) =', '')
                     self.full = True
 
                 elif self.full:
                     self.fctx = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                    self.PlotAddFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
-                    TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
+                    # self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}'), show=False
+                    self.PlotAddFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), legend=True, show=False)
+                    LabelLatexPlot(self.PlotAddFunc, self.fctx)
+                    self.PlotFirstFunc = TwoPlotMultiColor(self.PlotFirstFunc, self.PlotAddFunc, self.fctx)
+                    self.mpl = self.PlotFirstFunc._backend.ax
+                    self.mpl.append(self.PlotAddFunc._backend.ax[0])
+                    print(self.PlotFirstFunc._backend.fig)
+                    # print(self.PlotFirstFunc._backend.ax, self.PlotFirstFunc._backend.ax[0], self.PlotFirstFunc._backend.ax[1])
+                    print(self.mpl[s] for s in range(len(self.mpl)))
+                    # print(self.mpl[s] for s in range(2))
+                    # print(self.mpl[0], self.mpl[1])
+
+                    # self.axg = self.Figure._add_axes_internal(self.PlotAddFunc._backend.fig, ax=self.PlotFirstFunc._backend.ax[0])
+                    self.Figure._remove_ax(self.axg)
+                    self.Figure.clear()
+                    self.axg = self.Figure._add_axes_internal(self.PlotAddFunc._backend.fig, ax=self.mpl[-1])
+                    self.Figure.tight_layout()
+                    self.TkAgg.draw()
                     self.VariableEQL(f'f(x) =', '')
 
             elif self.mode == 'Plot Prm':
@@ -1312,7 +1408,7 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.DrawTexTk(
-                        f'f(x)₁ = {self.DrawAfter(self.fctx1)} | f(x)₂ =')
+                        f'f(x)₁ = {DrawAfter(self.fctx1)} | f(x)₂ =')
                     self.VariableEQL(f'f(x)₂ =', '')
                     self.full = True
 
@@ -1320,11 +1416,12 @@ class Calculator:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.DrawTexTk(
-                        f'f(x)₁ = {self.DrawAfter(self.fctx1)} | f(x)₂ = '
-                        f'{self.DrawAfter(self.fctx2)}')
+                        f'f(x)₁ = {DrawAfter(self.fctx1)} | f(x)₂ = '
+                        f'{DrawAfter(self.fctx2)}')
                     if not self.equal:
                         self.PlotFirstFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
-                                                             xlim=(-10, 10))
+                                                             xlim=(-10, 10), legend=True, show=False)
+                        LabelLatexPlot(self.PlotFirstFunc, (self.fctx1, self.fctx2))
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.equal = True
                         self.full = None
@@ -1332,7 +1429,7 @@ class Calculator:
                     elif self.equal:
                         self.PlotAddFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                            xlim=(-10, 10), show=False)
-                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
+                        TwoPlotMultiColor(self.PlotFirstFunc, self.PlotAddFunc, (self.fctx1, self.fctx2))
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
@@ -1341,7 +1438,7 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.DrawTexTk(
-                        f'f(x)₁ = {self.DrawAfter(self.fctx1)} | f(x)₂ = ')
+                        f'f(x)₁ = {DrawAfter(self.fctx1)} | f(x)₂ = ')
                     self.VariableEQL(f'f(x)₂ =', '')
                     self.full = True
 
@@ -1349,11 +1446,13 @@ class Calculator:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.DrawTexTk(
-                        f'f(x)₁ = {self.DrawAfter(self.fctx1)} | f(x)₂ = '
-                        f'{self.DrawAfter(self.fctx2)}')
+                        f'f(x)₁ = {DrawAfter(self.fctx1)} | f(x)₂ = '
+                        f'{DrawAfter(self.fctx2)}')
                     if not self.equal:
-                        self.PlotFirstFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
-                                                                    ylim=(-10, 10), xlim=(-10, 10))
+                        self.PlotFirstFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x
+                                                                    , ylim=(-10, 10), xlim=(-10, 10), legend=True
+                                                                    , show=False)
+                        LabelLatexPlot(self.PlotFirstFunc, (self.fctx1, self.fctx2))
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.equal = True
                         self.full = None
@@ -1361,7 +1460,7 @@ class Calculator:
                     elif self.equal:
                         self.PlotAddFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                                   ylim=(-10, 10), xlim=(-10, 10), show=False)
-                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
+                        TwoPlotMultiColor(self.PlotFirstFunc, self.PlotAddFunc, (self.fctx1, self.fctx2))
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
@@ -1369,7 +1468,7 @@ class Calculator:
                 if self.full is None:
                     self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
-                    self.PlotFirstFunc = plot3d(sympify(self.fctxy))
+                    self.PlotFirstFunc = plot3d(sympify(self.fctxy), legend=True)
                     self.VariableEQL(f'f(x,y) =', '')
                     self.full = True
 
@@ -1378,7 +1477,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PlotAddFunc = plot3d(sympify(self.fctxy), show=False)
 
-                    TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
+                    TwoPlot3D(self.PlotFirstFunc, self.PlotAddFunc)
                     self.VariableEQL(f'f(x,y) =', '')
 
             elif self.mode == 'P3DPS':
@@ -1386,18 +1485,18 @@ class Calculator:
                     self.fctxy1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.DrawTexTk(
-                        f'f(x,y)₁ = {self.DrawAfter(self.fctxy1)} | f(x,y)₂ = ')
+                        f'f(x,y)₁ = {DrawAfter(self.fctxy1)} | f(x,y)₂ = ')
                     self.VariableEQL(f'f(x,y)₂ = ', '')
                     self.full = True
 
                 elif self.full:
                     self.fctxy2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₂ = {self.fctxy2}')
-                    self.DrawTexTk(f'f(x,y)₁ = {self.DrawAfter(self.fctxy1)} | f(x,y)₂ = '
-                                   f'{self.DrawAfter(self.fctxy2)}')
+                    self.DrawTexTk(f'f(x,y)₁ = {DrawAfter(self.fctxy1)} | f(x,y)₂ = '
+                                   f'{DrawAfter(self.fctxy2)}')
                     if not self.equal:
                         self.PlotFirstFunc = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
-                                                                       self.x - self.y)
+                                                                       self.x - self.y, legend=True)
                         self.VariableEQL(f'f(x,y)₁ =', '')
                         self.equal = True
                         self.full = None
@@ -1405,7 +1504,7 @@ class Calculator:
                     elif self.equal:
                         self.PlotAddFunc = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2),
                                                                      self.x - self.y, show=False)
-                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
+                        TwoPlot3D(self.PlotFirstFunc, self.PlotAddFunc)
                         self.VariableEQL(f'f(x,y)₁ =', '')
                         self.full = None
 
@@ -1428,7 +1527,11 @@ class Calculator:
         self.iCursor(END)
 
         if self.mode == 'Operation' or self.mode == 'Solve' or self.mode == 'Matrices':
-            self.AggDrawMultiLaTex()
+            self.TkAggXY.Draw()
+
+        elif self.mode == 'Plot':
+            pass
+
         else:
             self.FullTextDisplay.see(END)
 
@@ -1444,6 +1547,6 @@ class Calculator:
         return self.win.destroy()
 
 
-if __name__ == "__main__":
+if __name__ == "MathPy":
     # run calculator
     Calculator()
