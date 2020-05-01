@@ -15,7 +15,7 @@ from __jeep_v1__ import *
 # version 6
 # stop working ENG definition and delete it
 # stop working switching Radians to Degree definition and delete it
-# add LambertW
+# add function LambertW
 # make writen more easy in logarithm & trigonometrical functions & dict constructor for right one
 # optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions
 # new definition *Control-Cursor to improve moving cursor with optimize click insert 
@@ -23,6 +23,7 @@ from __jeep_v1__ import *
 # optimize bind : add *integrate {i} and *diff {D,d} and ∞ {I}
 # change colors of operations and of tktex
 # optimize size between First Text Display and Label Display to be more synchronise
+# fix unsolved equations of Equation Solver
 """
 
 btn_prm = {'padx': 18,
@@ -89,6 +90,7 @@ class Calculator:
     def __init__(self):
         self.win = Tk()
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
+        self.Solution = ''
         self.btn_u = []
         self.btn_a = []
         # expression that will be displayed on screen
@@ -263,19 +265,20 @@ class Calculator:
         self.btn_m2[2].DefaultBackGround = 'Royalblue2'
         # ========================Trigonometry==========================================================================
         self.btn_u = []
-        for i in range(6):
+        for i3 in range(6):
             self.btn_u.append(HoverButton(self.middle_frame, **btn_prm))
-            self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
+            self.btn_u[i3].grid(row=1, column=i3, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
         logarithm_pad = ['log(', 'exp(', 'LambertW(', 'integrate(', 'sqrt(', "factorial("]
         logarithm_txt = ['log', 'exp', 'W', "∫f(x)", '√n', "n!"]
         self.btn_d = []
-        for i in range(6):
-            self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i]))
-            self.btn_d[i].grid(row=2, column=i, sticky=NSEW)
-            self.btn_d[i].configure(
-                command=lambda n=logarithm_pad[i]: [self.Input(n), self.Input(')'), self.ChangeDirectionCursor('Left')])
+        for i4 in range(6):
+            self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i4]))
+            self.btn_d[i4].grid(row=2, column=i4, sticky=NSEW)
+            self.btn_d[i4].configure(
+                command=lambda f0=logarithm_pad[i4]: [self.Input(f0), self.Input(')'),
+                                                      self.ChangeDirectionCursor('Left')])
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
@@ -285,47 +288,47 @@ class Calculator:
         btn_txt = ['π', 'E', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "⨯",
                    u'n\u00B2', 'y', "1", "2", "3", "/", "nˣ", 'z', "0", '', '.', "=", "10ˣ", "∞"]
         self.btn = []
-        i = 0
+        i5 = 0
         for j in range(5):
             for k in range(6):
-                self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
-                self.btn[i].grid(row=j, column=k, sticky=NSEW)
-                self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
-                i += 1
+                self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i5]))
+                self.btn[i5].grid(row=j, column=k, sticky=NSEW)
+                self.btn[i5].configure(command=lambda f1=btn[i5]: self.Input(f1))
+                i5 += 1
         # (
-        self.btn[4]['command'] = lambda n=btn[4]: [self.Input(n), self.Input(')'), self.ChangeDirectionCursor('Left')]
+        self.btn[4]['command'] = lambda f2=btn[4]: [self.Input(f2), self.Input(')'), self.ChangeDirectionCursor('Left')]
         # + - * / =  'slate gray'
-        for l in range(3, 22, 6):
-            self.btn[l].configure(bg='light slate gray', activebackground='slate gray4')
-            self.btn[l].ActiveBack = 'slate gray'
-            self.btn[l].DefaultBackGround = 'light slate gray'
+        for l0 in range(3, 22, 6):
+            self.btn[l0].configure(bg='light slate gray', activebackground='slate gray4')
+            self.btn[l0].ActiveBack = 'slate gray'
+            self.btn[l0].DefaultBackGround = 'light slate gray'
         # equals
         self.btn[27].configure(command=lambda: self.ShowEqualText(), bg='#FF5E00', activebackground='#A74400')
         self.btn[27].ActiveBack = '#CF4E00'
         self.btn[27].DefaultBackGround = '#FF5E00'
         # seven four one zero
-        for l in range(6, 25, 6):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
+        for l1 in range(6, 25, 6):
+            self.btn[l1].configure(bg='#212121', activebackground="#111111")
+            self.btn[l1].ActiveBack = '#161616'
+            self.btn[l1].DefaultBackGround = '#212121'
         # zero
         self.btn[24].grid(columnspan=2)
         self.btn[25].destroy()
         # eight five two
-        for l in range(7, 20, 6):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
+        for l2 in range(7, 20, 6):
+            self.btn[l2].configure(bg='#212121', activebackground="#111111")
+            self.btn[l2].ActiveBack = '#161616'
+            self.btn[l2].DefaultBackGround = '#212121'
         # nine six three
-        for l in range(8, 21, 6):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
+        for l3 in range(8, 21, 6):
+            self.btn[l3].configure(bg='#212121', activebackground="#111111")
+            self.btn[l3].ActiveBack = '#161616'
+            self.btn[l3].DefaultBackGround = '#212121'
         # x y z
-        for l in range(11, 24, 6):
-            self.btn[l].configure(bg='#212121', activebackground="#111111")
-            self.btn[l].ActiveBack = '#161616'
-            self.btn[l].DefaultBackGround = '#212121'
+        for l4 in range(11, 24, 6):
+            self.btn[l4].configure(bg='#212121', activebackground="#111111")
+            self.btn[l4].ActiveBack = '#161616'
+            self.btn[l4].DefaultBackGround = '#212121'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True)
         # Switch Menu In Bare Display===================================================================================
@@ -381,7 +384,7 @@ class Calculator:
         try:
             end = len(str(self.expression))
             if self.IndexCursor < end:
-                self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
+                self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
         except Exception:
             pass
         print('click cursor =', self.IndexCursor)
@@ -392,19 +395,19 @@ class Calculator:
             end = len(str(self.expression))
             if self.IndexCursor < end:
                 try:
-                    self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
-                    self.IndexCursor += self.store_order[n + 1]
+                    self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
+                    self.IndexCursor += self.store_order[ExNbr + 1]
                     self.FirstTextDisplay.icursor(self.IndexCursor)
                 except Exception:
-                    self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
+                    self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
                     self.FirstTextDisplay.icursor(self.IndexCursor)
             else:
                 pass
 
         elif key == 'Left':
             if self.IndexCursor > 0:
-                self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
-                self.IndexCursor -= self.store_order[n]
+                self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
+                self.IndexCursor -= self.store_order[ExNbr]
                 self.FirstTextDisplay.icursor(self.IndexCursor)
             else:
                 pass
@@ -423,7 +426,7 @@ class Calculator:
             for i in range(5):
                 self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
-                self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
+                self.btn_a[i]["command"] = lambda f3=big_pad[i]: self.SwitchFunction(f3, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 2nd
@@ -436,7 +439,8 @@ class Calculator:
             for i in range(6):
                 self.btn_u[i].configure(
                     text=Trigonometry_txt[i],
-                    command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.ChangeDirectionCursor('Left')])
+                    command=lambda f4=Trigonometry_pad[i]: [self.Input(f4), self.Input(')'),
+                                                            self.ChangeDirectionCursor('Left')])
 
             self.btn_d[3].configure(
                 text='∫f(x)',
@@ -457,7 +461,7 @@ class Calculator:
             for i in range(5):
                 self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
-                self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
+                self.btn_b[i]["command"] = lambda f5=big_pad[i]: self.SwitchFunction(f5, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 1st
@@ -470,7 +474,8 @@ class Calculator:
             for i in range(6):
                 self.btn_u[i].configure(
                     text=Trigonometry_txt[i],
-                    command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.ChangeDirectionCursor('Left')])
+                    command=lambda f6=Trigonometry_pad[i]: [self.Input(f6), self.Input(')'),
+                                                            self.ChangeDirectionCursor('Left')])
 
             self.btn_d[3].configure(
                 text='d/dx',
@@ -882,10 +887,10 @@ class Calculator:
             pass
 
     @staticmethod
-    def DrawTexTk(figure, tktex, text):
+    def DrawTexTk(figure, tktex, texty):
         try:
             figure.clear()
-            figure.text(0.01, 0.4, text, fontsize=30)
+            figure.text(0.01, 0.4, texty, fontsize=30)
             tktex.draw()
         except Exception:
             pass
@@ -1102,8 +1107,8 @@ class Calculator:
                     if not self.equal:
                         self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {sympify(self.fctx)}')
-                        for x in range(self.v, self.w):
-                            self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), 3)}')
+                        for xa in range(self.v, self.w):
+                            self.FullTextDisplay.insert(END, f'f({xa}) = {N(eval(self.fctx), 3)}')
                         self.PlotFirstFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
                         self.expression = ""
                         self.VariableTXT(f'f(x) =')
@@ -1112,8 +1117,8 @@ class Calculator:
                     elif self.equal:
                         self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                        for x in range(self.v, self.w):
-                            self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), 3)}')
+                        for xb in range(self.v, self.w):
+                            self.FullTextDisplay.insert(END, f'f({xb}) = {N(eval(self.fctx), 3)}')
                         self.PlotAddFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
                         TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
                         self.expression = ""
@@ -1161,13 +1166,19 @@ class Calculator:
                     self.expression = ''
                     self.VariableTXT(f'eq > {self.q} = {self.p}')
                     self.FullTextDisplay.insert(END, f'eq > {self.q} = {self.p}')
-                    sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
-                    if sol is None:
-                        sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
-                    self.SecondStrVar.set(sol)
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(sol))
-                    for l in range(len(sol)):
-                        self.FullTextDisplay.insert(END, f'> x{self.nb[int(l) + 1]} = {sol[l]}')
+                    try:
+                        self.Solution = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
+                        if self.Solution is None:
+                            self.Solution = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
+                    except NotImplementedError:
+                        try:
+                            self.Solution = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
+                        except NotImplementedError:
+                            self.SecondStrVar.set('Cannot Solve This Equation')
+                    self.SecondStrVar.set(self.Solution)
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.Solution))
+                    for xc in range(len(self.Solution)):
+                        self.FullTextDisplay.insert(END, f'> x{self.nb[int(xc) + 1]} = {self.Solution[xc]}')
 
                     self.clear = True
                     self.full = None
@@ -1440,8 +1451,6 @@ class Calculator:
             self.SecondStrVar.set(oo)
         except ValueError:
             self.SecondStrVar.set('ValueError')
-        except NotImplementedError:
-            self.SecondStrVar.set('Cannot Solve This Equation')
         except SyntaxError:
             self.SecondStrVar.set('SyntaxError')
         except NameError:
