@@ -151,15 +151,15 @@ class Calculator:
         self.FirstTextDisplay.focus_set()
         self.IndexCursor = 0
         # ROW 1 set MathPlot LaTex Display==============================================================================
-        self.Figure = Figure(figsize=(100, 5), facecolor='#212121')
+        self.FigureX = Figure(figsize=(100, 5), facecolor='#212121')
         # self.CanvasFigure = FigureCanvasTkAgg(figure=self.Figure, master=self.win)
         # self.TkAgg = self.CanvasFigure.get_tk_widget()
         # self.TkAgg.grid(row=1, column=0, columnspan=2, sticky=NSEW)
         # bilko = Canvas(self.win)
-        self.CanvasFigure = ScrollableTkAggX(figure=self.Figure, master=self.win)
-        self.CanvasFigure.grid(row=1, column=0, columnspan=2, sticky=NSEW)
-        self.CanvasFigure.rowconfigure(0, weight=1)
-        self.CanvasFigure.columnconfigure(0, weight=1)
+        self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.win)
+        self.TkAggX.grid(row=1, column=0, columnspan=2, sticky=NSEW)
+        self.TkAggX.rowconfigure(0, weight=1)
+        self.TkAggX.columnconfigure(0, weight=1)
         # ROW 2 set frame showing top buttons===========================================================================
         self.top_frame = Frame(self.win, relief='flat')
         self.top_frame.grid(row=2, column=0, sticky=NSEW)
@@ -653,9 +653,9 @@ class Calculator:
 
         elif figure == 'TkAgg':
             self.FullTextDisplay.destroy()
-            self.fig = Figure(figsize=(100, 1), facecolor='#F0F0F0')
-            self.axes = self.fig.subplots(ncols=1, nrows=0)
-            self.TkAggXY = ScrollableTkAggXY(figure=self.fig, master=self.win)
+            self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
+            self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
+            self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.win)
             self.TkAggXY.grid(row=3, column=1, rowspan=2, sticky=NSEW)
             self.TkAggXY.rowconfigure(0, weight=1)
             self.TkAggXY.columnconfigure(0, weight=1)
@@ -690,8 +690,8 @@ class Calculator:
         self.SecondStrVar.set('')
         self.iCursor(0)
         self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
-        self.Figure.clear()
-        self.CanvasFigure.draw()
+        self.FigureX.clear()
+        self.TkAggX.draw()
 
         if self.mode == 'Operation':
             self.VariableTXT('op >')
@@ -908,9 +908,9 @@ class Calculator:
     def DrawTexTk(self, la_text):
         mpl_white_rvb = (255. / 255., 255. / 255., 255. / 255.)
         try:
-            self.Figure.clear()
-            self.Figure.text(0, 0.4, la_text, color=mpl_white_rvb, fontsize=30)
-            self.CanvasFigure.draw()
+            self.FigureX.clear()
+            self.FigureX.text(0, 0.4, la_text, color=mpl_white_rvb, fontsize=30)
+            self.TkAggX.draw()
         except Exception:
             pass
 
@@ -1026,40 +1026,31 @@ class Calculator:
 
         self.iCursor(self.IndexCursor)
 
-    def ResetIndexCursor(self):
-        if self.mode == 'Operation':
-            pass
-        else:
-            self.expression = ''
-            self.store_expression = []
-            self.store_order = []
-            self.IndexCursor = 0
-
     def AggSwitchDraw(self, character):
-        self.fig.clear()
+        self.FigureXY.clear()
         self.mathext.append(character)
-        self.axes = self.fig.subplots(ncols=1, nrows=2)
+        self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
         self.AggDrawMultiLaTex()
 
     def MultiLaTexDraw(self, character):
-        self.fig.clear()
+        self.FigureXY.clear()
         self.mathext.append(character)
-        self.n_lines = len(self.mathext)
-        self.axes = self.fig.subplots(ncols=1, nrows=self.n_lines)
-        oldSize = self.fig.get_size_inches()
-        self.fig.set_size_inches([0.9 + s for s in oldSize])
-        self.AggDrawMultiLaTex()
+        n_lines = len(self.mathext)
+        self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=n_lines)
+        oldSize = self.FigureXY.get_size_inches()
+        # self.fig.set_size_inches((0.9 + s for s in oldSize))
+        self.FigureXY.set_size_inches(0.9 + oldSize[0], 0.9 + oldSize[1])
 
     def AggDrawMultiLaTex(self):
         i_line = 0
-        for ax in self.axes.flatten():
+        for ax in self.AxesXY.flatten():
             demo = self.mathext[i_line]
             ax.text(0, 0.5, demo, fontsize=20)
             ax.axis('off')
             ax.set_xticklabels("", visible=False)
             ax.set_yticklabels("", visible=False)
             i_line += 1
-        self.fig.tight_layout()  # pad=-1, h_pad=-3
+        self.FigureXY.tight_layout()  # pad=-1, h_pad=-3
         self.TkAggXY.Drawing()
 
     def VariableEQL(self, label_var, first_var):
@@ -1428,14 +1419,7 @@ class Calculator:
                         self.VariableEQL(f'f(x,y)₁ =', '')
                         self.full = None
 
-            self.iCursor(END)
-
-            self.ResetIndexCursor()
-
-            if self.mode == 'Operation' or self.mode == 'Solve' or self.mode == 'Matrices':
-                pass
-            else:
-                self.FullTextDisplay.see(END)
+            self.ApplyAfterEqual()
 
         except ValueError:
             self.SecondStrVar.set('ValueError')
@@ -1449,6 +1433,22 @@ class Calculator:
             self.SecondStrVar.set('OverflowMathRangeError')
         except IndexError:
             self.SecondStrVar.set('IndexError')
+
+    def ApplyAfterEqual(self):
+        self.iCursor(END)
+
+        if self.mode == 'Operation' or self.mode == 'Solve' or self.mode == 'Matrices':
+            self.AggDrawMultiLaTex()
+        else:
+            self.FullTextDisplay.see(END)
+
+        if self.mode == 'Operation':
+            pass
+        else:
+            self.expression = ''
+            self.store_expression = []
+            self.store_order = []
+            self.IndexCursor = 0
 
     def Exit(self):
         return self.win.destroy()
