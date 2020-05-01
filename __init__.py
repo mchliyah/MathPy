@@ -21,12 +21,10 @@ def fctrl(nbr):
 
 def DrawAfter(character):
     try:
-        simplify = sympify(character, rational=True, evaluate=True)
-        return LaTex(simplify)
-    except None:
-        pass
+      simplify = sympify(character, rational=True, evaluate=True)
+      return LaTex(simplify)
     except Exception:
-        pass
+        return character
 
 
 def DrawAfterNum(character):
@@ -149,6 +147,7 @@ class ManagedEntry(tk.Entry):
 
     def StringVariable(self, text):
         self.TextVariable.set(text)
+        self.icursor(self.index_cursor)
 
     def ClickCursor(self, event):
         self.index_cursor = int(self.index("@%d" % event.x))
@@ -251,14 +250,14 @@ class ManagedEntry(tk.Entry):
         else:
             self.expression = self.expression
 
-        self.MoreInsertionTool(str_to_insert)
+        self.AdditionalInsertionTools(str_to_insert)
         self.StringVariable(self.expression)
         return self.expression
 
-    def MoreInsertionTool(self, str_to_insert):
-        if str_to_insert[-1:] == '(':
+    def AdditionalInsertionTools(self, string):
+        if string[-1:] == '(':
             self.InsertIntoString(')'), self.DirectionCursor('Left')
-        if str_to_insert == ',-1':
+        if string == ',-1':
             self.DirectionCursor('Left')
 
     def FullReBuild(self, call_back):
@@ -301,13 +300,12 @@ class ManagedEntry(tk.Entry):
                 return self.answer
 
     def Clear(self):
-        self.StringVariable('')
-        self.icursor(0)
         self.expression = ''
         self.store_expression = []
         self.store_order = []
         self.index_cursor = int(self.index(tk.INSERT))
         self.index_cursor = 0
+        self.StringVariable('')
 
 
 class ScrollableTkAggX(tk.Canvas):
@@ -701,18 +699,12 @@ class SystemSolverEntry(tk.Canvas):
         if self.u == 3:
             for o in range(6):
                 self.entry[o].Clear()
-                self.entry[o].InsertIntoString('0')
-                self.entry[o].StringVariable('0')
         elif self.u == 2:
             for o in range(4):
                 self.entry[o].Clear()
-                self.entry[o].InsertIntoString('0')
-                self.entry[o].StringVariable('0')
         elif self.u == 1:
             for o in range(2):
                 self.entry[o].Clear()
-                self.entry[o].InsertIntoString('0')
-                self.entry[o].StringVariable('0')
 
 
 class FunctionEntry(tk.Canvas):
@@ -751,5 +743,59 @@ class FunctionEntry(tk.Canvas):
     def Clear(self):
         for s in range(2):
             self.entry[s].Clear()
-            self.entry[s].InsertIntoString('0')
-            self.entry[s].StringVariable('0')
+
+
+class DrawLaTeX:
+    def __init__(self):
+        self.last_good_Before = []
+        self.last_good_After = []
+        self.last_good_AfterNum = []
+
+    def LaTex(self, Math_Expression):
+        TEX = str('$') + latex(Math_Expression) + str('$')
+        # TEX = r"$%s$" % latex(Math_Expression)
+        # TEX = f'${latex(Math_Expression)}$'
+        return TEX
+
+    def Before(self, character):
+        try:
+            pik = str(character).replace('integrate', 'Integral').replace('diff', 'Derivative')
+            # expression = sympify(pik, rational=True, evaluate=False)
+            expression = parse_expr(pik, evaluate=False)
+            TEX = self.LaTex(expression)
+            self.last_good_Before.append(TEX)
+            return TEX
+        except Exception:
+            try:
+                return self.last_good_Before[-1]
+            except Exception:
+                return character
+
+    def After(self, character):
+        try:
+            simplify = sympify(character, rational=True, evaluate=True)
+            TEX = self.LaTex(simplify)
+            self.last_good_After.append(TEX)
+            return TEX
+        except Exception:
+            try:
+                return self.last_good_After[-1]
+            except Exception:
+                return character
+
+    def AfterNum(self, character):
+        try:
+            simplify = sympify(character, rational=True, evaluate=True).evalf()
+            TEX = self.LaTex(simplify)
+            self.last_good_AfterNum.append(TEX)
+            return TEX
+        except Exception:
+            try:
+                return self.last_good_AfterNum[-1]
+            except Exception:
+                return character
+
+    def Clear(self):
+        self.last_good_Before = []
+        self.last_good_After = []
+        self.last_good_AfterNum = []
