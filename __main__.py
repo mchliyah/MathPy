@@ -13,6 +13,7 @@ from tkinter import _cnfmerge as cnfmerge
 # optimize plotting environment globaly and by call two fonctions with differents colors
 # optimize text display by add scroll bar axe y
 # add button change color when mouse in or out
+# fix bugs
 class HoverButton(Button):
     def __init__(self, master=None, cnf=None, **kw):
         if cnf is None:
@@ -138,6 +139,7 @@ class Calculator:
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
+        self.switched = False
         self.equal = False
         self.clear = False
         self.full = False
@@ -246,7 +248,7 @@ class Calculator:
         self.btn[26].defaultActiveBack = '#FF5E00'
         self.btn[26].defaultBackGround = '#FF771F'
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
+        self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
         File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
@@ -256,16 +258,16 @@ class Calculator:
         File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=Exit)
-        Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
-        Mode.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
-        Mode.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation'))
-        Mode.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
+        Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation", True))
+        Mode.add_command(label='Function', command=lambda: self.SwitchFunction('Function', True))
+        Mode.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation', True))
+        Mode.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve', True))
         Mode.add_separator()
-        Mode.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot'))
-        Mode.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm'))
-        Mode.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D'))
-        Mode.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL'))
-        Mode.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS'))
+        Mode.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot', True))
+        Mode.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm', True))
+        Mode.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D', True))
+        Mode.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL', True))
+        Mode.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS', True))
         Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
         Switch.add_command(label='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(15)))
         Switch.add_command(label='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(12)))
@@ -288,7 +290,7 @@ class Calculator:
             for i in range(4):
                 self.btn_a.append(HoverButton(self.top_frame, **big_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i)
-                self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
+                self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 2nd
@@ -302,7 +304,7 @@ class Calculator:
                 self.btn_u[i].configure(text=Trigonometry_txt[i], command=lambda n=Trigonometry_pad[i]: self.Input(n))
 
             if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve':
-                self.SwitchFunction(self.mode)
+                self.SwitchFunction(self.mode, False)
 
         elif page == '2nd':
             # buttons that will be displayed on top frame ROW 0=========================================================
@@ -314,7 +316,7 @@ class Calculator:
             for i in range(5):
                 self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=i)
-                self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
+                self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 1st
@@ -329,15 +331,18 @@ class Calculator:
 
             if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == 'P3DPL' or self.mode == "Plot3D" or \
                     self.mode == 'P3DPS':
-                self.SwitchFunction(self.mode)
+                self.SwitchFunction(self.mode, False)
 
-    def SwitchFunction(self, passmode):
+    def SwitchFunction(self, passmode, doing):
         self.mode = passmode
-        self.FullTextDisplay.delete(1.0, END)
+        self.switched = doing
+        if self.switched:
+            self.FullTextDisplay.delete(1.0, END)
 
         if self.mode == 'Operation':
-            self.FullTextDisplay.insert(END, 'Mode Operation :')
-            self.FastTextVariable.set('')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Operation :')
+                self.FastTextVariable.set('')
             self.btn_a[0].config(bg='indian red', relief='sunken')
             self.btn_a[0].defaultBackGround = 'indian red'
             for i in range(1, 4):
@@ -350,8 +355,9 @@ class Calculator:
             self.btn_d[2].config(state=NORMAL)
 
         elif self.mode == 'Function':
-            self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
-            self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
+                self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.btn_a[0].config(bg='#292929', relief='raised')
             self.btn_a[0].defaultBackGround = '#292929'
             self.btn_a[1].config(bg='indian red', relief='sunken')
@@ -367,8 +373,9 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Equation':
-            self.FullTextDisplay.insert(END, 'Mode Simple Equation : aX² + bX + c = 0')
-            self.FastTextVariable.set('aX² + bX + c = 0')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Simple Equation : aX² + bX + c = 0')
+                self.FastTextVariable.set('aX² + bX + c = 0')
             for i in range(2):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].defaultBackGround = '#292929'
@@ -384,7 +391,8 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Solve':
-            self.FullTextDisplay.insert(END, 'Mode Equation :')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Equation :')
             for i in range(3):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].defaultBackGround = '#292929'
@@ -398,8 +406,9 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Plot':
-            self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
-            self.FastTextVariable.set(f'f(x)₁ = ')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
+                self.FastTextVariable.set(f'f(x)₁ = ')
             self.btn_b[0].config(bg='indian red', relief='sunken')
             self.btn_b[0].defaultBackGround = 'indian red'
             for i in range(1, 5):
@@ -413,8 +422,9 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Plot Prm':
-            self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
-            self.FastTextVariable.set(f'f(x)₁ = ')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
+                self.FastTextVariable.set(f'f(x)₁ = ')
             self.btn_b[0].config(bg='#292929', relief='raised')
             self.btn_b[0].defaultBackGround = '#292929'
             self.btn_b[1].config(bg='indian red', relief='sunken')
@@ -430,8 +440,9 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'P3DPL':
-            self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
-            self.FastTextVariable.set('f(x)₁ = ')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
+                self.FastTextVariable.set('f(x)₁ = ')
             for i in range(2):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
@@ -448,8 +459,9 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Plot3D':
-            self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
-            self.FastTextVariable.set(f'f(x,y)')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
+                self.FastTextVariable.set(f'f(x,y)')
             for i in range(3):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
@@ -465,7 +477,9 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'P3DPS':
-            self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
+            if self.switched:
+                self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
+                self.FastTextVariable.set(f'f(x,y)₁ = ')
             for i in range(4):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
@@ -478,7 +492,8 @@ class Calculator:
             self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        self.Delete()
+        if self.switched:
+            self.Delete()
 
     def SwitchDegRad(self, convert):
         switch = convert
