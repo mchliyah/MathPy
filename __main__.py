@@ -832,7 +832,7 @@ class Calculator:
         n = 0
         while n < how:
             real += str(str_order[n])
-            permit = False
+            permit = None
             if now == real:
                 permit = True
                 break
@@ -854,7 +854,7 @@ class Calculator:
                 if self.permit:
                     return str_to_remove[:pro] + str_to_remove[index:]
                 else:
-                    return str_to_remove
+                    pass
 
     def Remove(self):
         if self.clear:
@@ -871,7 +871,7 @@ class Calculator:
                 pass
 
         except IndexError:
-            self.SecondStrVar.set('IndexError')
+            pass
 
         self.ShowDirectText()
 
@@ -1016,31 +1016,24 @@ class Calculator:
         else:
             return string
 
-    def ResetIndexCursor(self):
-        if self.mode == 'Operation':
-            pass
-        else:
-            self.store_expression = []
-            self.store_order = []
-            self.IndexCursor = 0
-
     def Input(self, keyword):
         if self.clear:
             self.Delete()
 
         self.expression = self.InsertString(self.expression, keyword, self.IndexCursor, self.store_expression)
-        if self.permit is None:
-            print('insert self.permit is None')
-            pass
-        else:
+        if self.permit:
             if self.IndexCursor == 0:
                 self.store_expression.insert(0, str(keyword))
                 self.store_order.insert(0, len(str(keyword)))
+                self.IndexCursor += int(len(str(keyword)))
             else:
                 self.store_expression.insert(int(self.n) + 1, str(keyword))
                 self.store_order.insert(int(self.n) + 1, len(str(keyword)))
+                self.IndexCursor += int(len(str(keyword)))
+        else:
+            print('insert pass')
+            pass
 
-            self.IndexCursor += int(len(str(keyword)))
         print('cursor', self.IndexCursor)
 
         self.ShowDirectText()
@@ -1205,6 +1198,14 @@ class Calculator:
             pass
         self.FirstTextDisplay.icursor(self.IndexCursor)
         self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+
+    def ResetIndexCursor(self):
+        if self.mode == 'Operation':
+            pass
+        else:
+            self.store_expression = []
+            self.store_order = []
+            self.IndexCursor = 0
 
     def EQ(self, nbr_a, nbr_b, nbr_c):
         a = float(eval(nbr_a))
