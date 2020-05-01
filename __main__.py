@@ -1,3 +1,4 @@
+import sys
 import matplotlib
 
 # matplotlib.use('TkAgg')  # MUST BE CALLED BEFORE IMPORTING plot
@@ -24,7 +25,7 @@ class of calculator
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '6.3.0_b3.1'
+    __version__ = '6.3.0_b3.2'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
@@ -168,6 +169,9 @@ class Calculator:
         self.middle_canvas.columnconfigure(4, weight=1)
         # ROW 2 set canvas switching ScrollableTkAggXY & ScrolledListbox & FigureCanvasTkAgg & NavigationToolbar2Tk=====
         self.east_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0')
+        self.east_canvas.grid(row=2, column=1, rowspan=3, sticky=NSEW)
+        self.east_canvas.rowconfigure(0, weight=1)
+        self.east_canvas.columnconfigure(0, weight=1)
         # ROW 3 set canvas showing middle bottom buttons================================================================
         self.middle_bottom_canvas = Canvas(self.win, relief='flat')
         self.middle_bottom_canvas.grid(row=3, column=0, sticky=NSEW)
@@ -218,12 +222,15 @@ class Calculator:
             self.btn_b.append(HoverButton(self.middle_canvas, **self.big2_prm, text=big_txt[k]))
         # ROW 2 set canvas showing ScrolledListbox======================================================================
         self.FullTextDisplay = ScrolledListbox(self.east_canvas, width=52, height=8, **self.ent_prm)
+        self.FullTextDisplay.configure(font=('DejaVu Sans', 22))
+        self.FullTextDisplay.grid(row=0, column=0, sticky=NSEW)
         # ROW 2 set canvas showing ScrollableTkAggXY====================================================================
         self.FigureXY = FigureXY(figsize=(1, 1), fontsize=20, facecolor='#F0F0F0')
-
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
+        self.TkAggXY.grid(row=0, column=0, sticky=NSEW)
         # ROW 2 set canvas showing BackEndPlot==========================================================================
         self.BackEndPlot = BackEndPlot(master=self.east_canvas, figsize=(6, 3))
+        self.BackEndPlot.grid(row=0, column=0, sticky=NSEW)
         # buttons that will be displayed on middle bottom canvas ROW 0==================================================
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
@@ -333,7 +340,7 @@ class Calculator:
         File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
         File.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
         File.add_separator()
-        File.add_command(label="Close         Alt+F4", command=lambda: self.win.destroy())
+        File.add_command(label="Close         Alt+F4", command=lambda: sys.exit())
         Mode.add_command(label="Operation",
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchMode("Operation", True)])
         Mode.add_command(label='Function',
@@ -636,7 +643,7 @@ class Calculator:
             self.FullTextDisplay.grid(row=0, column=0, sticky=NSEW)
 
         elif figure == 'TkAgg':
-            self.FigureXY = FigureXY(figsize=(1, 1), fontsize=20, facecolor='#F0F0F0')
+            self.FigureXY.Clear()
             self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
             self.TkAggXY.grid(row=0, column=0, sticky=NSEW)
 
@@ -1123,22 +1130,27 @@ class Calculator:
                 elif self.full:
                     self.p = str(eval(self.TextDisplay.expression))
                     self.VariableEQL(f'eq > {self.q} = {self.p}')
+                    # try:
+                    #     self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
+                    #     print('complex')
+                    #     if self.SolutionOS is None:
+                    #         self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
+                    #         print('real')
+                    # except Exception:
                     try:
-                        self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
-                        if self.SolutionOS is None:
-                            self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
+                        self.SolutionOS = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
+                        print('all')
                     except Exception:
-                        try:
-                            self.SolutionOS = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
-                        except Exception:
-                            self.FigureX.DrawTexTk('Cannot Solve This Equation')
+                        self.FigureX.DrawTexTk('Cannot Solve This Equation')
                     self.FigureX.DrawTexTk(
                         f'eq > {DrawBefore(self.q)} = {DrawBefore(self.p)} > Solution : {DrawAfter(self.SolutionOS)}')
                     self.FigureXY.DrawLaTex(f'eq > {DrawBefore(self.q)} = {DrawBefore(self.p)}')
                     self.FigureXY.DrawLaTex(f'Solution : {DrawAfter(self.SolutionOS)}')
-                    for sl in range(len(self.SolutionOS)):
+                    much_x = len(self.SolutionOS)
+                    # print(str(much_x)[1:2])
+                    for sl in range(much_x):
                         self.FigureXY.DrawLaTex(
-                            f'> x{self.little_nbr[int(sl) + 1]} = {DrawAfter(self.SolutionOS[sl])}')
+                            f'> x{self.little_nbr[sl]} = {DrawAfter(self.SolutionOS[sl])}')
 
                     self.clear = True
                     self.full = None
