@@ -9,7 +9,7 @@ from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-from __jeep_v1__ import *
+from __jeep_v2__ import *
 
 """ 
 # version 6
@@ -17,10 +17,10 @@ from __jeep_v1__ import *
 # stop working switching Radians to Degree definition and delete it
 # add function LambertW
 # make writen more easy in logarithm & trigonometrical functions & dict constructor for right one
-# optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions
+# optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions *fix bugs {v,b}
 # new definition *Control-Cursor to improve moving cursor with optimize click insert 
 # new functions *integrate and *diff
-# optimize bind : add *integrate {i} and *diff {D,d} and ∞ {I}
+# optimize bind : add *integrate {i} and *diff {D,d} and change ∞ {i,I} to {I}
 # change colors of operations and of tktex
 # optimize size between First Text Display and Label Display to be more synchronise
 # fix unsolved equations of Equation Solver
@@ -156,7 +156,6 @@ class Calculator:
         self.canvaf.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         self.canvaf.rowconfigure(0, weight=1)
         self.canvaf.columnconfigure(1, weight=1)
-        self.canvaf.focus_set()
         # Label Text Display
         self.label = Label(self.canvaf, **ent_prm, textvariable=self.LabelStrVar)
         self.label.grid(row=0, column=0, sticky=NSEW)
@@ -167,7 +166,6 @@ class Calculator:
         self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), insertbackground='white', takefocus=True)
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
-        self.FirstTextDisplay.icursor(0)
         self.IndexCursor = 0
         # Second Canvas
         self.canvas = Canvas(self.win, relief='flat', bg='#666666', width=42)
@@ -181,11 +179,14 @@ class Calculator:
         SecondTextDisplay.grid(row=0, column=0, sticky=NSEW)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray',
                                     cursor="arrow")
-        # MathPlot LaTex Display, c='white'
+        # MathPlot LaTex Display
         self.Figure = Figure(figsize=(2, 1), facecolor='#708190')
         self.CanvasFigure = FigureCanvasTkAgg(self.Figure, master=self.canvas)
         self.TkAgg = self.CanvasFigure.get_tk_widget()
         self.TkAgg.grid(row=1, column=0, sticky=NSEW)
+        # self.CanvasFigure = TkFigureFrame(self.Figure, window=self.canvas)
+        # self.TkAgg = self.CanvasFigure.get_tk_widget()
+        # self.CanvasFigure.grid(row=1, column=0, sticky=NSEW)
         # Full Text Display
         self.FullTextDisplay = ScrolledListbox(self.canvas, width=52, height=10, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=0, sticky=NSEW)
@@ -251,18 +252,18 @@ class Calculator:
         # Answer Stored
         self.btn_m2[0].configure(bg='#20B645', activebackground='#00751E', font=('Segoe UI Symbol', 16, 'bold'),
                                  command=lambda: self.Input(str(self.callback[-1])))
-        self.btn_m2[0].ActiveBack = '#009C27'
-        self.btn_m2[0].DefaultBackGround = '#20B645'
+        self.btn_m2[0].ABG = '#009C27'
+        self.btn_m2[0].DBG = '#20B645'
         # Clear
         self.btn_m2[1].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 23),
                                  command=lambda: self.Delete())
-        self.btn_m2[1].ActiveBack = 'firebrick3'
-        self.btn_m2[1].DefaultBackGround = 'firebrick2'
+        self.btn_m2[1].ABG = 'firebrick3'
+        self.btn_m2[1].DBG = 'firebrick2'
         # Remove
         self.btn_m2[2].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
                                  command=lambda: self.Remove())
-        self.btn_m2[2].ActiveBack = 'Royalblue3'
-        self.btn_m2[2].DefaultBackGround = 'Royalblue2'
+        self.btn_m2[2].ABG = 'Royalblue3'
+        self.btn_m2[2].DBG = 'Royalblue2'
         # ========================Trigonometry==========================================================================
         self.btn_u = []
         for i3 in range(6):
@@ -300,35 +301,35 @@ class Calculator:
         # + - * / =  'slate gray'
         for l0 in range(3, 22, 6):
             self.btn[l0].configure(bg='light slate gray', activebackground='slate gray4')
-            self.btn[l0].ActiveBack = 'slate gray'
-            self.btn[l0].DefaultBackGround = 'light slate gray'
+            self.btn[l0].ABG = 'slate gray'
+            self.btn[l0].DBG = 'light slate gray'
         # equals
         self.btn[27].configure(command=lambda: self.ShowEqualText(), bg='#FF5E00', activebackground='#A74400')
-        self.btn[27].ActiveBack = '#CF4E00'
-        self.btn[27].DefaultBackGround = '#FF5E00'
+        self.btn[27].ABG = '#CF4E00'
+        self.btn[27].DBG = '#FF5E00'
         # seven four one zero
         for l1 in range(6, 25, 6):
             self.btn[l1].configure(bg='#212121', activebackground="#111111")
-            self.btn[l1].ActiveBack = '#161616'
-            self.btn[l1].DefaultBackGround = '#212121'
+            self.btn[l1].ABG = '#161616'
+            self.btn[l1].DBG = '#212121'
         # zero
         self.btn[24].grid(columnspan=2)
         self.btn[25].destroy()
         # eight five two
         for l2 in range(7, 20, 6):
             self.btn[l2].configure(bg='#212121', activebackground="#111111")
-            self.btn[l2].ActiveBack = '#161616'
-            self.btn[l2].DefaultBackGround = '#212121'
+            self.btn[l2].ABG = '#161616'
+            self.btn[l2].DBG = '#212121'
         # nine six three
         for l3 in range(8, 21, 6):
             self.btn[l3].configure(bg='#212121', activebackground="#111111")
-            self.btn[l3].ActiveBack = '#161616'
-            self.btn[l3].DefaultBackGround = '#212121'
+            self.btn[l3].ABG = '#161616'
+            self.btn[l3].DBG = '#212121'
         # x y z
         for l4 in range(11, 24, 6):
             self.btn[l4].configure(bg='#212121', activebackground="#111111")
-            self.btn[l4].ActiveBack = '#161616'
-            self.btn[l4].DefaultBackGround = '#212121'
+            self.btn[l4].ABG = '#161616'
+            self.btn[l4].DBG = '#212121'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True)
         # Switch Menu In Bare Display===================================================================================
@@ -371,7 +372,7 @@ class Calculator:
         self.win.columnconfigure(1, weight=1)
 
         self.win.bind_all('<Key>', self.KeyboardInput)
-
+        self.win.iconbitmap('Alecive-Flatwoken-Apps-Libreoffice-Math-B.ico')
         self.win.configure(menu=menubare, bg='#4d4d4d')
         self.win.geometry("1100x580")
         self.win.minsize(width=1100, height=580)
@@ -379,16 +380,18 @@ class Calculator:
         self.win.mainloop()
 
     def Info(self, event):
-        self.FirstTextDisplay.icursor("@%d" % event.x)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        # self.FirstTextDisplay.icursor("@%d" % event.x)
+        self.IndexCursor = int(self.FirstTextDisplay.index("@%d" % event.x))
         try:
             end = len(str(self.expression))
             if self.IndexCursor < end:
                 self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
         except Exception:
             pass
-        print('click cursor =', self.IndexCursor)
-        self.FirstTextDisplay.icursor(self.IndexCursor)
+        self.iCursor(self.IndexCursor)
+
+    def iCursor(self, cursor):
+        self.FirstTextDisplay.icursor(cursor)
 
     def ChangeDirectionCursor(self, key):
         if key == 'Right':
@@ -397,10 +400,10 @@ class Calculator:
                 try:
                     self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
                     self.IndexCursor += self.store_order[ExNbr + 1]
-                    self.FirstTextDisplay.icursor(self.IndexCursor)
+                    self.iCursor(self.IndexCursor)
                 except Exception:
                     self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
-                    self.FirstTextDisplay.icursor(self.IndexCursor)
+                    self.iCursor(self.IndexCursor)
             else:
                 pass
 
@@ -408,7 +411,7 @@ class Calculator:
             if self.IndexCursor > 0:
                 self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
                 self.IndexCursor -= self.store_order[ExNbr]
-                self.FirstTextDisplay.icursor(self.IndexCursor)
+                self.iCursor(self.IndexCursor)
             else:
                 pass
 
@@ -501,10 +504,10 @@ class Calculator:
                 self.btn[2].config(state=NORMAL)
 
             self.btn_a[0].config(bg='#80000B', relief='sunken')
-            self.btn_a[0].DefaultBackGround = '#80000B'
+            self.btn_a[0].DBG = '#80000B'
             for i in range(1, 5):
                 self.btn_a[i].config(bg='#212121', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#212121'
+                self.btn_a[i].DBG = '#212121'
 
         elif self.mode == 'Function':
             if self.switched:
@@ -516,12 +519,12 @@ class Calculator:
                 self.btn[23].config(state=DISABLED)
 
             self.btn_a[0].config(bg='#212121', relief='raised')
-            self.btn_a[0].DefaultBackGround = '#212121'
+            self.btn_a[0].DBG = '#212121'
             self.btn_a[1].config(bg='#80000B', relief='sunken')
-            self.btn_a[1].DefaultBackGround = '#80000B'
+            self.btn_a[1].DBG = '#80000B'
             for i in range(2, 5):
                 self.btn_a[i].config(bg='#212121', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#212121'
+                self.btn_a[i].DBG = '#212121'
 
         elif self.mode == 'Equation':
             if self.switched:
@@ -534,12 +537,12 @@ class Calculator:
 
             for i in range(2):
                 self.btn_a[i].config(bg='#212121', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#212121'
+                self.btn_a[i].DBG = '#212121'
             self.btn_a[2].config(bg='#80000B', relief='sunken')
-            self.btn_a[2].DefaultBackGround = '#80000B'
+            self.btn_a[2].DBG = '#80000B'
             for i in range(3, 5):
                 self.btn_a[i].config(bg='#212121', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#212121'
+                self.btn_a[i].DBG = '#212121'
 
         elif self.mode == 'Solve':
             if self.switched:
@@ -551,11 +554,11 @@ class Calculator:
 
             for i in range(3):
                 self.btn_a[i].config(bg='#212121', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#212121'
+                self.btn_a[i].DBG = '#212121'
             self.btn_a[3].config(bg='#80000B', relief='sunken')
-            self.btn_a[3].DefaultBackGround = '#80000B'
+            self.btn_a[3].DBG = '#80000B'
             self.btn_a[4].config(bg='#212121', relief='raised')
-            self.btn_a[4].DefaultBackGround = '#212121'
+            self.btn_a[4].DBG = '#212121'
 
         elif self.mode == 'Matrices':
             if self.switched:
@@ -567,9 +570,9 @@ class Calculator:
 
             for i in range(4):
                 self.btn_a[i].config(bg='#212121', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#212121'
+                self.btn_a[i].DBG = '#212121'
             self.btn_a[4].config(bg='#80000B', relief='sunken')
-            self.btn_a[4].DefaultBackGround = '#80000B'
+            self.btn_a[4].DBG = '#80000B'
 
         elif self.mode == 'Plot':
             if self.switched:
@@ -581,10 +584,10 @@ class Calculator:
                 self.btn[2]['state'] = ['disabled']
 
             self.btn_b[0].config(bg='#80000B', relief='sunken')
-            self.btn_b[0].DefaultBackGround = '#80000B'
+            self.btn_b[0].DBG = '#80000B'
             for i in range(1, 5):
                 self.btn_b[i].config(bg='#212121', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#212121'
+                self.btn_b[i].DBG = '#212121'
 
         elif self.mode == 'Plot Prm':
             if self.switched:
@@ -596,12 +599,12 @@ class Calculator:
                 self.btn[2]['state'] = ['disabled']
 
             self.btn_b[0].config(bg='#212121', relief='raised')
-            self.btn_b[0].DefaultBackGround = '#212121'
+            self.btn_b[0].DBG = '#212121'
             self.btn_b[1].config(bg='#80000B', relief='sunken')
-            self.btn_b[1].DefaultBackGround = '#80000B'
+            self.btn_b[1].DBG = '#80000B'
             for i in range(2, 5):
                 self.btn_b[i].config(bg='#212121', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#212121'
+                self.btn_b[i].DBG = '#212121'
 
         elif self.mode == 'P3DPL':
             if self.switched:
@@ -614,12 +617,12 @@ class Calculator:
 
             for i in range(2):
                 self.btn_b[i].config(bg='#212121', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#212121'
+                self.btn_b[i].DBG = '#212121'
             self.btn_b[2].config(bg='#80000B', relief='sunken')
-            self.btn_b[2].DefaultBackGround = '#80000B'
+            self.btn_b[2].DBG = '#80000B'
             for i in range(3, 5):
                 self.btn_b[i].config(bg='#212121', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#212121'
+                self.btn_b[i].DBG = '#212121'
 
         elif self.mode == 'Plot3D':
             if self.switched:
@@ -632,11 +635,11 @@ class Calculator:
 
             for i in range(3):
                 self.btn_b[i].config(bg='#212121', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#212121'
+                self.btn_b[i].DBG = '#212121'
             self.btn_b[3].config(bg='#80000B', relief='sunken')
-            self.btn_b[3].DefaultBackGround = '#80000B'
+            self.btn_b[3].DBG = '#80000B'
             self.btn_b[4].config(bg='#212121', relief='raised')
-            self.btn_b[4].DefaultBackGround = '#212121'
+            self.btn_b[4].DBG = '#212121'
 
         elif self.mode == 'P3DPS':
             if self.switched:
@@ -649,9 +652,9 @@ class Calculator:
 
             for i in range(4):
                 self.btn_b[i].config(bg='#212121', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#212121'
+                self.btn_b[i].DBG = '#212121'
             self.btn_b[4].config(bg='#80000B', relief='sunken')
-            self.btn_b[4].DefaultBackGround = '#80000B'
+            self.btn_b[4].DBG = '#80000B'
 
         if self.switched:
             self.Delete()
@@ -684,7 +687,7 @@ class Calculator:
         self.expression = ''
         self.FirstStrVar.set('')
         self.SecondStrVar.set('')
-        self.FirstTextDisplay.icursor(0)
+        self.iCursor(0)
         self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
         self.Figure.clear()
         self.CanvasFigure.draw()
@@ -747,10 +750,10 @@ class Calculator:
         put = keyword.keysym.lower()
         try:
             if self.mode == 'Operation':
-                if keyword.keysym == 'Return' or put == 'equal':
+                if keyword.keysym == 'Return' or put == 'equal' or keyword.keysym == '=':
                     self.ShowEqualText()
                 if self.clear:
-                    if keyword.keysym == 'Return' or put == 'equal':
+                    if keyword.keysym == 'Return' or put == 'equal' or keyword.keysym == '=':
                         pass
                     else:
                         self.Delete()
@@ -758,7 +761,7 @@ class Calculator:
                 if self.clear:
                     self.Delete()
                 else:
-                    if keyword.keysym == 'Return' or put == 'equal':
+                    if keyword.keysym == 'Return' or put == 'equal' or keyword.keysym == '=':
                         self.ShowEqualText()
 
             if keyword.keysym == 'BackSpace':
@@ -774,10 +777,10 @@ class Calculator:
                 self.Input('exp('), self.Input(')'), self.ChangeDirectionCursor('Left')
 
             elif put == 'v':
-                self.SwitchButtons("1st")
+                self.SwitchButtons("1st"), self.ShowDirectText()
 
             elif put == 'b':
-                self.SwitchButtons("2nd")
+                self.SwitchButtons("2nd"), self.ShowDirectText()
 
             elif put == 'slash':
                 self.Input('/')
@@ -798,7 +801,7 @@ class Calculator:
                 self.Input('.')
 
             elif put == 'parenleft':
-                self.Input('(')
+                self.Input('('), self.Input(')'), self.ChangeDirectionCursor('Left')
 
             elif put == 'parenright':
                 self.Input(')')
@@ -835,6 +838,9 @@ class Calculator:
 
             elif put == 'd':
                 self.Input('diff('), self.Input(')'), self.ChangeDirectionCursor('Left')
+
+            elif put == 'w':
+                self.Input('LambertW('), self.Input(')'), self.ChangeDirectionCursor('Left')
 
             elif put == 'j':
                 self.Input('1j')
@@ -880,6 +886,7 @@ class Calculator:
         try:
             answer = sympify(expression)
             LaTex = latex(answer)
+            print(LaTex)
             return r"$%s$" % LaTex
         except None:
             pass
@@ -1037,7 +1044,7 @@ class Calculator:
             self.SecondStrVar.set(oo)
         except Exception:
             pass
-        self.FirstTextDisplay.icursor(self.IndexCursor)
+        self.iCursor(self.IndexCursor)
         self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
 
     def ResetIndexCursor(self):
@@ -1084,6 +1091,7 @@ class Calculator:
                     except Exception:
                         self.SecondStrVar.set(f'After Equal ValueError or IndexError or SyntaxError')
 
+                self.iCursor(END)
                 self.callback.append(str(self.answer))
 
             elif self.mode == 'Function':
