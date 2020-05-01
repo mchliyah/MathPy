@@ -20,7 +20,7 @@ import __eci__ as eci
 make it for all modes, and add reset for
 # stop working ENG instantly
 # make equation as function "def"
-# @staticmethod : *Real-String-Insertion *Re-Build *Standard-Write
+# @staticmethod : 1*Standard-Write 2*Re-Build 3*Real-String-Insertion 4*DrawTexTk
 """
 
 btn_prm = {'padx': 18,
@@ -1066,11 +1066,12 @@ class Calculator:
         except Exception:
             pass
 
-    def DrawTexTk(self, text):
+    @staticmethod
+    def DrawTexTk(figure, tktex, text):
         try:
-            self.Figure.clear()
-            self.Figure.text(0.01, 0.4, text, fontsize=30)
-            self.CanvasFigure.draw()
+            figure.clear()
+            figure.text(0.01, 0.4, text, fontsize=30)
+            tktex.draw()
         except Exception:
             pass
 
@@ -1083,41 +1084,41 @@ class Calculator:
             if self.mode == 'Operation':
                 self.FirstStrVar.set(self.expression)
                 self.SecondStrVar.set(sympify(self.expression))
-                self.DrawTexTk(self.StandardWriteEqual(self.expression))
+                self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.expression))
 
             elif self.mode == 'Function':
                 if self.full is None:
                     self.VariableTXT('From :')
                     self.SecondStrVar.set(f'From : {self.expression} --> To : B')
-                    self.DrawTexTk(f'From : {self.StandardWriteEqual(self.expression)} --> To : B')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'From : {self.StandardWriteEqual(self.expression)} --> To : B')
 
                 elif not self.full:
                     self.VariableTXT('To :')
                     self.SecondStrVar.set(f'From : {self.v} --> To : {self.expression}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'From : {self.StandardWriteEqual(self.v)} --> To : {self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT('f(x) =')
                     self.SecondStrVar.set(f'f(x) = {self.expression}')
-                    self.DrawTexTk(f'f(x) = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x) = {self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == 'Equation':
                 if self.full is None:
                     self.VariableTXT('a =')
                     self.SecondStrVar.set(f'{self.expression}x² + bx + c = 0')
-                    self.DrawTexTk(f'{self.StandardWriteEqual(self.expression)}x² + bx + c = 0')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'{self.StandardWriteEqual(self.expression)}x² + bx + c = 0')
 
                 elif not self.full:
                     self.VariableTXT('b =')
                     self.SecondStrVar.set(f'{self.a}x² + ({self.expression})x + c = 0')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.expression)})x + c = 0')
 
                 elif self.full:
                     self.VariableTXT('c =')
                     self.SecondStrVar.set(f'{self.a}x² + ({self.b})x + ({self.expression}) = 0')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.b)})x + ({self.StandardWriteEqual(self.expression)}'
                         f') = 0')
 
@@ -1125,77 +1126,77 @@ class Calculator:
                 if self.full is None:
                     self.VariableTXT('eq >')
                     self.SecondStrVar.set(f'eq > {self.expression}')
-                    self.DrawTexTk(f'eq > {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq > {self.StandardWriteEqual(self.expression)}')
                 elif self.full:
                     self.VariableTXT(f'eq > {self.q} =')
                     self.SecondStrVar.set(f'eq > {self.q} = {self.expression}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'eq > {self.StandardWriteEqual(self.q)} = {self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == 'Matrices':
                 if self.full is None:
                     self.VariableTXT(f'eq₁ >')
                     self.SecondStrVar.set(f'eq₁ > {self.expression}')
-                    self.DrawTexTk(f'eq₁ > {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq₁ > {self.StandardWriteEqual(self.expression)}')
                 elif not self.full:
                     self.VariableTXT(f'eq₁ > {self.q} = ')
                     self.SecondStrVar.set(f'eq₁ > {self.q} = {self.expression}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'eq₁ > {self.StandardWriteEqual(self.q)} = {self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     if self.clear is None:
                         self.VariableTXT(f'eq₂ >')
                         self.SecondStrVar.set(f'eq₂ > {self.expression}')
-                        self.DrawTexTk(f'eq₂ > {self.StandardWriteEqual(self.expression)}')
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq₂ > {self.StandardWriteEqual(self.expression)}')
                     elif not self.clear and self.equal is None:
                         self.VariableTXT(f'eq₂ > {self.j} =')
                         self.SecondStrVar.set(f'eq₂ > {self.j} = {self.expression}')
-                        self.DrawTexTk(
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, 
                             f'eq₂ > {self.StandardWriteEqual(self.j)} = {self.StandardWriteEqual(self.expression)}')
 
                     elif not self.clear and not self.equal:
                         self.VariableTXT(f'eq₃ >')
                         self.SecondStrVar.set(f'eq₃ > {self.expression}')
-                        self.DrawTexTk(f'eq₃ > {self.StandardWriteEqual(self.expression)}')
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq₃ > {self.StandardWriteEqual(self.expression)}')
                     elif not self.clear and self.equal:
                         self.VariableTXT(f'eq₃ > {self.m} =')
                         self.SecondStrVar.set(f'eq₃ > {self.m} = {self.expression}')
-                        self.DrawTexTk(
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, 
                             f'eq₃ > {self.StandardWriteEqual(self.m)} = {self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == 'Plot':
                 self.VariableTXT(f'f(x) =')
                 self.SecondStrVar.set(f'f(x) = {self.expression}')
-                self.DrawTexTk(f'f(x) = {self.StandardWriteEqual(self.expression)}')
+                self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x) = {self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == "Plot Prm" or self.mode == "P3DPL":
                 if self.full is None:
                     self.VariableTXT(f'f(x)₁ =')
                     self.SecondStrVar.set(f'f(x)₁ = {self.expression}')
-                    self.DrawTexTk(f'f(x)₁ = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x)₁ = {self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT(f'f(x)₂ =')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = {self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == "Plot3D":
                 self.VariableTXT(f'f(x,y) =')
                 self.SecondStrVar.set(f'f(x,y) = {self.expression}')
-                self.DrawTexTk(f'f(x,y) = {self.StandardWriteEqual(self.expression)}')
+                self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x,y) = {self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == "P3DPS":
                 if self.full is None:
                     self.VariableTXT(f'f(x,y)₁ =')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.expression}')
-                    self.DrawTexTk(f'f(x,y)₁ = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x,y)₁ = {self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT(f'f(x,y)₂ =')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.fctx1} | f(x,y)₂ = {self.expression}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'f(x,y)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x,y)₂ = {self.StandardWriteEqual(self.expression)}')
 
         except ZeroDivisionError:
@@ -1214,7 +1215,7 @@ class Calculator:
         nb = neg(b)
         self.VariableTXT(f'a = {a} | b = {b} | c = {c}')
         self.SecondStrVar.set(f'{a}x² + ({b})x + ({c}) = 0')
-        self.DrawTexTk(
+        self.DrawTexTk(self.Figure, self.CanvasFigure, 
             f'{self.StandardWriteEqual(a)}x² + ({self.StandardWriteEqual(b)})x + ({self.StandardWriteEqual(c)}) = 0')
         if a > 0 or a < 0:
             self.FullTextDisplay.insert(END,
@@ -1290,7 +1291,7 @@ class Calculator:
                         self.answer = eval(self.expression)
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                         self.SecondStrVar.set(self.answer)
-                        self.DrawTexTk(self.StandardWriteEqual(self.answer))
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
                         self.equal = True
@@ -1301,7 +1302,7 @@ class Calculator:
                         self.answer = eval(self.expression)
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                         self.SecondStrVar.set(self.answer)
-                        self.DrawTexTk(self.StandardWriteEqual(self.answer))
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                 except Exception:
                     try:
@@ -1310,7 +1311,7 @@ class Calculator:
                             self.answer = eval(self.expression)
                             self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                             self.SecondStrVar.set(self.answer)
-                            self.DrawTexTk(self.StandardWriteEqual(self.answer))
+                            self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.answer))
                             self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         else:
                             self.SecondStrVar.set(f'Before Equal ValueError or IndexError or SyntaxError')
@@ -1333,7 +1334,7 @@ class Calculator:
                     self.expression = ""
                     self.VariableTXT(f'f(x) =')
                     self.SecondStrVar.set(f'f(x) = ')
-                    self.DrawTexTk(f'f(x) = ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x) = ')
                     self.full = True
 
                 elif self.full:
@@ -1389,7 +1390,7 @@ class Calculator:
                     self.expression = ""
                     self.VariableTXT(f'eq > {self.q} =')
                     self.SecondStrVar.set(f'eq > {self.q} = ')
-                    self.DrawTexTk(f'eq > {self.StandardWriteEqual(self.q)} = ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq > {self.StandardWriteEqual(self.q)} = ')
                     self.full = True
 
                 elif self.full:
@@ -1401,7 +1402,7 @@ class Calculator:
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.SecondStrVar.set(sol)
-                    self.DrawTexTk(self.StandardWriteEqual(sol))
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(sol))
                     for l in range(len(sol)):
                         self.FullTextDisplay.insert(END, f'> x{self.nb[int(l) + 1]} = {sol[l]}')
 
@@ -1420,7 +1421,7 @@ class Calculator:
                     self.expression = ""
                     self.VariableTXT('eq₂ >')
                     self.SecondStrVar.set('eq₂ > ')
-                    self.DrawTexTk('eq₂ > ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 'eq₂ > ')
                     self.FullTextDisplay.insert(END, 'New System :', f' eq₁ | {self.q} = {self.p}')
                     self.full = True
                     self.clear = None
@@ -1455,14 +1456,14 @@ class Calculator:
                                 if self.lslv[self.v] == 'z' or self.lslv == 'EmptySet':
                                     self.VariableTXT('eq₃ >')
                                     self.SecondStrVar.set('eq₃ > ')
-                                    self.DrawTexTk('eq₃ > ')
+                                    self.DrawTexTk(self.Figure, self.CanvasFigure, 'eq₃ > ')
                                     self.equal = False
                                     self.exist = True
                                     break
                                 self.v += 1
 
                             if not self.exist:
-                                self.DrawTexTk(self.StandardWriteEqual(self.lslv))
+                                self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
                                 self.SecondStrVar.set('System of Two Equations : {eq₁,eq₂}_[x,y]')
 
@@ -1506,10 +1507,10 @@ class Calculator:
                             if self.lslv == 'EmptySet':
                                 self.VariableTXT(self.lslv)
                                 self.SecondStrVar.set(self.lslv)
-                                self.DrawTexTk(self.StandardWriteEqual(self.lslv))
+                                self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.lslv))
 
                             else:
-                                self.DrawTexTk(self.StandardWriteEqual(self.lslv))
+                                self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
                                 self.SecondStrVar.set('System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
 
@@ -1556,7 +1557,7 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
-                    self.DrawTexTk(f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ =')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ =')
                     self.expression = ""
                     self.VariableTXT(f'f(x)₂ =')
                     self.full = True
@@ -1565,7 +1566,7 @@ class Calculator:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = {self.StandardWriteEqual(self.fctx2)}')
                     if not self.equal:
                         self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
@@ -1587,7 +1588,7 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
-                    self.DrawTexTk(f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = ')
                     self.expression = ""
                     self.VariableTXT(f'f(x)₂ =')
                     self.full = True
@@ -1596,7 +1597,7 @@ class Calculator:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = {self.StandardWriteEqual(self.fctx2)}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
@@ -1635,7 +1636,7 @@ class Calculator:
                     self.fctxy1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = ')
-                    self.DrawTexTk(f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = ')
                     self.expression = ""
                     self.VariableTXT(f'f(x,y)₂ = ')
                     self.full = True
@@ -1644,7 +1645,7 @@ class Calculator:
                     self.fctxy2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₂ = {self.fctxy2}')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
-                    self.DrawTexTk(
+                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
                         f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = {self.StandardWriteEqual(self.fctxy2)}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
