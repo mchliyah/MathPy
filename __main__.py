@@ -1,11 +1,10 @@
 from math import *
 from operator import *
 from tkinter import *
-from tkinter import _cnfmerge as cnfmerge
+from tkinter import ttk, _cnfmerge as cnfmerge
 
-# version 3.0.3
-# Add New Shortcut Keyboard Listening: {j, J}: 1j, {m, M}: m1(, {h, H}: h(, {f, !}: factorial, And Block Everything Else
-# Buttons Return and {=} Keyboard Bind don't work for second Click
+# version 3.0.4
+# Improve Shortcut Keyboard Listening
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -74,27 +73,27 @@ def aTan(arg):
 
 
 def Sinh(arg):
-    return sinh(arg * convert_constant)
+    return sinh(arg)
 
 
 def Cosh(arg):
-    return cosh(arg * convert_constant)
+    return cosh(arg)
 
 
 def Tanh(arg):
-    return tanh(arg * convert_constant)
+    return tanh(arg)
 
 
 def aSinh(arg):
-    return inverse_convert_constant * (asinh(arg))
+    return asinh(arg)
 
 
 def aCosh(arg):
-    return inverse_convert_constant * (acosh(arg))
+    return acosh(arg)
 
 
 def aTanh(arg):
-    return inverse_convert_constant * (atanh(arg))
+    return atanh(arg)
 
 
 class Calculator:
@@ -231,9 +230,9 @@ class Calculator:
         if page == '1st':
             # ROW 1
             # 2nd
-            secend = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
-            secend.grid(row=1, column=2)
-            secend.configure(fg='orange', activeforeground='indian red')
+            second = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
+            second.grid(row=1, column=2)
+            second.configure(fg='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
@@ -364,80 +363,62 @@ class Calculator:
             self.Clear()
         try:
             if keyword.keysym == 'BackSpace':
-                self.expression = str(self.expression).replace(self.store[-1], '')
-                self.store.remove(self.store[-1])
+                self.Remove()
 
             elif keyword.keysym == 'Delete':
                 self.Clear()
 
             elif put == 'slash':
-                self.store.append((str('/')))
-                self.expression += str('/')
+                self.Input('/')
 
             elif put == 'asterisk':
-                self.store.append((str('*')))
-                self.expression += str('*')
+                self.Input('*')
 
             elif put == 'minus':
-                self.store.append((str('-')))
-                self.expression += str('-')
+                self.Input('-')
 
             elif put == 'plus':
-                self.store.append((str('+')))
-                self.expression += str('+')
+                self.Input('+')
 
             elif put == 'period':
-                self.store.append((str('.')))
-                self.expression += str('.')
+                self.Input('.')
 
             elif put == 'parenleft':
-                self.store.append((str('(')))
-                self.expression += str('(')
+                self.Input('(')
 
             elif put == 'parenright':
-                self.store.append((str(')')))
-                self.expression += str(')')
+                self.Input(')')
 
             elif put == 'backslash':
-                self.store.append((str('sqrt(')))
-                self.expression += str('sqrt(')
+                self.Input('sqrt(')
 
             elif put == 's':
-                self.store.append((str('Sin')))
-                self.expression += str('Sin')
+                self.Input('Sin')
 
             elif put == 'c':
-                self.store.append((str('Cos')))
-                self.expression += str('Cos')
+                self.Input('Cos')
 
             elif put == 't':
-                self.store.append((str('Tan')))
-                self.expression += str('Tan')
+                self.Input('Tan')
 
             elif put == 'l':
-                self.store.append((str('log')))
-                self.expression += str('log')
+                self.Input('log')
 
             elif put == 'j':
-                self.store.append((str('1j')))
-                self.expression += str('1j')
+                self.Input('1j')
 
             elif put == 'f' or put == 'exclam':
-                self.store.append((str('factorial(')))
-                self.expression += str('factorial(')
+                self.Input('factorial(')
 
             elif put == 'm':
-                self.store.append((str('m1(')))
-                self.expression += str('m1(')
+                self.Input('m1(')
 
             elif put == 'h':
-                self.store.append((str('h(')))
-                self.expression += str('h(')
+                self.Input('h(')
 
             elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3'\
                     or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
-                self.store.append((str(put)))
-                self.expression += str(put)
+                self.Input(put)
 
             elif keyword.keysym == 'Return' or put == 'equal':
                 return self.InputEquals()
@@ -671,6 +652,8 @@ if __name__ == "__main__":
     menubare.add_cascade(label="File", menu=filemenu)
     # run calculator
     Calculator(win)
+    style = ttk.Style()
+    style.theme_use('alt')
     # Window configuration
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
