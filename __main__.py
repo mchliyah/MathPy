@@ -20,7 +20,8 @@ import __eci__ as eci
 make it for all modes, and add reset for
 # stop working ENG instantly
 # make equation as function "def"
-# @staticmethod : 1*Standard-Write 2*Re-Build 3*Real-String-Insertion 4*DrawTexTk
+# @staticmethod : 1*StandardWrite 2*ReBuild 3*RealStringInsertion 4*DrawTexTk 5*InsertIntoString 6*RemoveFromString
+7*TwoPlotColorOneFunc 8*TwoPlotColorTwoFunc
 """
 
 btn_prm = {'padx': 18,
@@ -69,6 +70,7 @@ ent_prm = {'fg': 'white',
 π = pi
 convert_constant = 1
 inverse_convert_constant = 1
+text = ''
 permit = None
 n = int
 v = int
@@ -143,6 +145,108 @@ def Fact(arg):
     return factorial(arg)
 
 
+def RealStringInsertion(str_now, index, str_order):
+    global permit, n
+    how = len(str_order)
+    now = str(str_now[:index])
+    real = ''
+    n = 0
+    while n < how:
+        real += str(str_order[n])
+        permit = None
+        if now == real:
+            permit = True
+            break
+        n += 1
+    return permit, n
+
+
+def RemoveFromString(str_to_remove, index, nbr_order, str_order):
+    global text, permit, n
+    end = len(str(str_to_remove))
+    permit, n = RealStringInsertion(str_to_remove, index, str_order)
+    pro = index - nbr_order[n]
+    if index == 0:
+        pass
+    else:
+        if end == index and permit:
+            text = str_to_remove[:-nbr_order[n]]
+            index -= nbr_order[int(n)]
+            str_order.pop(int(n))
+            nbr_order.pop(int(n))
+        elif pro == 0 and permit:
+            text = str_to_remove[nbr_order[n]:]
+            index -= nbr_order[int(n)]
+            str_order.pop(int(n))
+            nbr_order.pop(int(n))
+        else:
+            if permit:
+                text = str_to_remove[:pro] + str_to_remove[index:]
+                index -= nbr_order[int(n)]
+                str_order.pop(int(n))
+                nbr_order.pop(int(n))
+            else:
+                pass
+        return text, index
+
+
+def InsertIntoString(string, str_to_insert, index, nbr_order, str_order):
+    global text, permit, n
+    end = len(str(string))
+    permit, n = RealStringInsertion(string, index, str_order)
+    if index == 0:
+        text = string[:index] + str_to_insert + string[index:]
+        str_order.insert(0, str(str_to_insert))
+        nbr_order.insert(0, len(str(str_to_insert)))
+        index += int(len(str(str_to_insert)))
+    elif index == end or permit:
+        text = string[:index] + str_to_insert + string[index:]
+        str_order.insert(int(n) + 1, str(str_to_insert))
+        nbr_order.insert(int(n) + 1, len(str(str_to_insert)))
+        index += int(len(str(str_to_insert)))
+    else:
+        text = string
+    return text, index
+
+
+def ReBuild(str_order):
+    global v, w
+    try:
+        expression = ''
+        v = int(len(str_order)) - 1
+        w = int(len(str_order))
+        while True:
+            operation = str(str_order[v])
+            if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
+                    or operation == '^':
+                for y in range(v, w):
+                    expression += str(str_order[y])
+                return expression
+            v -= 1
+    except Exception:
+        pass
+
+
+def TwoPlotColorTwoFunc(PlotFirstFunc, PlotAddFunc, callback_function):
+    PlotFirstFunc.append(PlotAddFunc[0])
+    s = int((len(callback_function) / 2) - 1)
+    RD = randint(1048576, 16777000)
+    HX = hex(RD)
+    HX = HX[2:8].upper()
+    PlotFirstFunc[s].line_color = str('#') + str(HX)
+    PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
+
+
+def TwoPlotColorOneFunc(PlotFirstFunc, PlotAddFunc, callback_function):
+    PlotFirstFunc.append(PlotAddFunc[0])
+    s = int(len(callback_function) - 1)
+    RD = randint(1048576, 16777000)
+    HX = hex(RD)
+    HX = HX[2:8].upper()
+    PlotFirstFunc[s].line_color = str('#') + str(HX)
+    PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
+
+
 class Calculator:
     def __init__(self):
         self.win = Tk()
@@ -155,7 +259,6 @@ class Calculator:
         # store expressions & order
         self.store_expression = []
         self.store_order = []
-        self.n = 0
         # answer of operation
         self.answer = ''
         # store answers of operation
@@ -190,9 +293,8 @@ class Calculator:
         self.fctxy = ''
         self.fctxy1 = ''
         self.fctxy2 = ''
-        self.P3d = ''
-        self.PA = ''
-        self.P3dps = ''
+        self.PlotFirstFunc = ''
+        self.PlotAddFunc = ''
         # store functions
         self.callback_function = []
         # used to switch between modes of Operation, Equation and Function
@@ -768,9 +870,8 @@ class Calculator:
         self.fctxy = ''
         self.fctxy1 = ''
         self.fctxy2 = ''
-        self.PA = ''
-        self.P3d = ''
-        self.P3dps = ''
+        self.PlotAddFunc = ''
+        self.PlotFirstFunc = ''
         self.store_expression = []
         self.store_order = []
         self.callback_function = []
@@ -823,53 +924,14 @@ class Calculator:
         self.exist = None
         self.permit = None
 
-    @staticmethod
-    def RealStringInsertion(str_now, index, str_order):
-        global permit, n
-        how = len(str_order)
-        now = str(str_now[:index])
-        real = ''
-        n = 0
-        while n < how:
-            real += str(str_order[n])
-            permit = None
-            if now == real:
-                permit = True
-                break
-            n += 1
-        return permit, n
-
-    def RemoveFromString(self, str_to_remove, index, order, str_order):
-        end = len(str(str_to_remove))
-        self.permit, self.n = self.RealStringInsertion(str_to_remove, index, str_order)
-        pro = index - order[self.n]
-        if index == 0:
-            pass
-        else:
-            if end == index and self.permit:
-                return str_to_remove[:-order[self.n]]
-            elif pro == 0 and self.permit:
-                return str_to_remove[order[self.n]:]
-            else:
-                if self.permit:
-                    return str_to_remove[:pro] + str_to_remove[index:]
-                else:
-                    pass
-
     def Remove(self):
         if self.clear:
             self.Delete()
 
         try:
-            self.expression = self.RemoveFromString(self.expression, self.IndexCursor, self.store_order,
-                                                    self.store_expression)
-            if self.permit:
-                self.IndexCursor -= self.store_order[int(self.n)]
-                self.store_expression.pop(int(self.n))
-                self.store_order.pop(int(self.n))
-            else:
-                pass
-
+            self.expression, self.IndexCursor = RemoveFromString(self.expression, self.IndexCursor, self.store_order,
+                                                                 self.store_expression)
+            print(self.IndexCursor, self.store_expression, self.store_order)
         except IndexError:
             pass
 
@@ -1007,34 +1069,14 @@ class Calculator:
         except IndexError:
             self.SecondStrVar.set('IndexError')
 
-    def InsertString(self, string, str_to_insert, index, str_order):
-        end = len(str(string))
-        self.permit, self.n = self.RealStringInsertion(string, index, str_order)
-        if index == end or index == 0 or self.permit:
-            self.permit = True
-            return string[:index] + str_to_insert + string[index:]
-        else:
-            return string
-
     def Input(self, keyword):
         if self.clear:
             self.Delete()
 
-        self.expression = self.InsertString(self.expression, keyword, self.IndexCursor, self.store_expression)
-        if self.permit:
-            if self.IndexCursor == 0:
-                self.store_expression.insert(0, str(keyword))
-                self.store_order.insert(0, len(str(keyword)))
-                self.IndexCursor += int(len(str(keyword)))
-            else:
-                self.store_expression.insert(int(self.n) + 1, str(keyword))
-                self.store_order.insert(int(self.n) + 1, len(str(keyword)))
-                self.IndexCursor += int(len(str(keyword)))
-        else:
-            print('insert pass')
-            pass
+        self.expression, self.IndexCursor = InsertIntoString(self.expression, keyword, self.IndexCursor,
+                                                             self.store_order, self.store_expression)
 
-        print('cursor', self.IndexCursor)
+        print(self.IndexCursor, self.store_expression, self.store_order)
 
         self.ShowDirectText()
 
@@ -1068,8 +1110,8 @@ class Calculator:
         except Exception:
             pass
 
-    def VariableTXT(self, first):
-        self.LabelStrVar.set(first)
+    def VariableTXT(self, strvar):
+        self.LabelStrVar.set(strvar)
         self.FirstStrVar.set(self.expression)
 
     def ShowDirectText(self):
@@ -1083,13 +1125,15 @@ class Calculator:
                 if self.full is None:
                     self.VariableTXT('From :')
                     self.SecondStrVar.set(f'From : {self.expression} --> To : B')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'From : {self.StandardWriteEqual(self.expression)} --> To : B')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'From : {self.StandardWriteEqual(self.expression)} --> To : B')
 
                 elif not self.full:
                     self.VariableTXT('To :')
                     self.SecondStrVar.set(f'From : {self.v} --> To : {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'From : {self.StandardWriteEqual(self.v)} --> To : {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'From : {self.StandardWriteEqual(self.v)} --> To : '
+                                   f'{self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT('f(x) =')
@@ -1100,20 +1144,22 @@ class Calculator:
                 if self.full is None:
                     self.VariableTXT('a =')
                     self.SecondStrVar.set(f'{self.expression}x² + bx + c = 0')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'{self.StandardWriteEqual(self.expression)}x² + bx + c = 0')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'{self.StandardWriteEqual(self.expression)}x² + bx + c = 0')
 
                 elif not self.full:
                     self.VariableTXT('b =')
                     self.SecondStrVar.set(f'{self.a}x² + ({self.expression})x + c = 0')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.expression)})x + c = 0')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.expression)}'
+                                   f')x + c = 0')
 
                 elif self.full:
                     self.VariableTXT('c =')
                     self.SecondStrVar.set(f'{self.a}x² + ({self.b})x + ({self.expression}) = 0')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.b)})x + ({self.StandardWriteEqual(self.expression)}'
-                        f') = 0')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'{self.StandardWriteEqual(self.a)}x² + ({self.StandardWriteEqual(self.b)})x + ('
+                                   f'{self.StandardWriteEqual(self.expression)}) = 0')
 
             elif self.mode == 'Solve':
                 if self.full is None:
@@ -1123,8 +1169,9 @@ class Calculator:
                 elif self.full:
                     self.VariableTXT(f'eq > {self.q} =')
                     self.SecondStrVar.set(f'eq > {self.q} = {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'eq > {self.StandardWriteEqual(self.q)} = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'eq > {self.StandardWriteEqual(self.q)} = '
+                                   f'{self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == 'Matrices':
                 if self.full is None:
@@ -1134,29 +1181,34 @@ class Calculator:
                 elif not self.full:
                     self.VariableTXT(f'eq₁ > {self.q} = ')
                     self.SecondStrVar.set(f'eq₁ > {self.q} = {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'eq₁ > {self.StandardWriteEqual(self.q)} = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'eq₁ > {self.StandardWriteEqual(self.q)} = '
+                                   f'{self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     if self.clear is None:
                         self.VariableTXT(f'eq₂ >')
                         self.SecondStrVar.set(f'eq₂ > {self.expression}')
-                        self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq₂ > {self.StandardWriteEqual(self.expression)}')
+                        self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                       f'eq₂ > {self.StandardWriteEqual(self.expression)}')
                     elif not self.clear and self.equal is None:
                         self.VariableTXT(f'eq₂ > {self.j} =')
                         self.SecondStrVar.set(f'eq₂ > {self.j} = {self.expression}')
-                        self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                            f'eq₂ > {self.StandardWriteEqual(self.j)} = {self.StandardWriteEqual(self.expression)}')
+                        self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                       f'eq₂ > {self.StandardWriteEqual(self.j)} = '
+                                       f'{self.StandardWriteEqual(self.expression)}')
 
                     elif not self.clear and not self.equal:
                         self.VariableTXT(f'eq₃ >')
                         self.SecondStrVar.set(f'eq₃ > {self.expression}')
-                        self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq₃ > {self.StandardWriteEqual(self.expression)}')
+                        self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                       f'eq₃ > {self.StandardWriteEqual(self.expression)}')
                     elif not self.clear and self.equal:
                         self.VariableTXT(f'eq₃ > {self.m} =')
                         self.SecondStrVar.set(f'eq₃ > {self.m} = {self.expression}')
-                        self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                            f'eq₃ > {self.StandardWriteEqual(self.m)} = {self.StandardWriteEqual(self.expression)}')
+                        self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                       f'eq₃ > {self.StandardWriteEqual(self.m)} = '
+                                       f'{self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == 'Plot':
                 self.VariableTXT(f'f(x) =')
@@ -1167,13 +1219,15 @@ class Calculator:
                 if self.full is None:
                     self.VariableTXT(f'f(x)₁ =')
                     self.SecondStrVar.set(f'f(x)₁ = {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x)₁ = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x)₁ = {self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT(f'f(x)₂ =')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = '
+                                   f'{self.StandardWriteEqual(self.expression)}')
 
             elif self.mode == "Plot3D":
                 self.VariableTXT(f'f(x,y) =')
@@ -1184,13 +1238,15 @@ class Calculator:
                 if self.full is None:
                     self.VariableTXT(f'f(x,y)₁ =')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x,y)₁ = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x,y)₁ = {self.StandardWriteEqual(self.expression)}')
 
                 elif self.full:
                     self.VariableTXT(f'f(x,y)₂ =')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.fctx1} | f(x,y)₂ = {self.expression}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'f(x,y)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x,y)₂ = {self.StandardWriteEqual(self.expression)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x,y)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x,y)₂ = '
+                                   f'{self.StandardWriteEqual(self.expression)}')
 
         except ZeroDivisionError:
             self.SecondStrVar.set(oo)
@@ -1216,8 +1272,9 @@ class Calculator:
         nb = neg(b)
         self.VariableTXT(f'a = {a} | b = {b} | c = {c}')
         self.SecondStrVar.set(f'{a}x² + ({b})x + ({c}) = 0')
-        self.DrawTexTk(self.Figure, self.CanvasFigure, 
-            f'{self.StandardWriteEqual(a)}x² + ({self.StandardWriteEqual(b)})x + ({self.StandardWriteEqual(c)}) = 0')
+        self.DrawTexTk(self.Figure, self.CanvasFigure,
+                       f'{self.StandardWriteEqual(a)}x² + ({self.StandardWriteEqual(b)})x + ('
+                       f'{self.StandardWriteEqual(c)}) = 0')
         if a > 0 or a < 0:
             self.FullTextDisplay.insert(END,
                                         f'The Equation Have Two Solutions For x :',
@@ -1265,24 +1322,6 @@ class Calculator:
                                             f'  x = {neg(c)} / {b}',
                                             f'  x = {neg(c) / b}')
 
-    @staticmethod
-    def ReBuild(str_order):
-        global v, w
-        try:
-            expression = ''
-            v = int(len(str_order)) - 1
-            w = int(len(str_order))
-            while True:
-                operation = str(str_order[v])
-                if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
-                        or operation == '^':
-                    for y in range(v, w):
-                        expression += str(str_order[y])
-                    return expression
-                v -= 1
-        except Exception:
-            pass
-
     def ShowEqualText(self):
         self.callback_function.append(str(self.expression))
         try:
@@ -1298,7 +1337,7 @@ class Calculator:
                         self.equal = True
 
                     elif self.equal:
-                        self.expression = self.ReBuild(self.store_expression)
+                        self.expression = ReBuild(self.store_expression)
                         self.expression = str(self.callback[-1]) + str(self.expression)
                         self.answer = eval(self.expression)
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
@@ -1347,7 +1386,7 @@ class Calculator:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
                             else:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
-                        self.P3d = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
+                        self.PlotFirstFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
                         self.expression = ""
                         self.VariableTXT(f'f(x) =')
                         self.equal = True
@@ -1360,8 +1399,9 @@ class Calculator:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
                             else:
                                 self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
-                        self.PA = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
-                        self.ColorGraphOneF()
+                        self.PlotAddFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
+                        TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        self.expression = ""
                         self.VariableTXT(f'f(x) =')
 
             elif self.mode == 'Equation':
@@ -1541,7 +1581,7 @@ class Calculator:
                 if self.full is None:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                    self.P3d = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10))
+                    self.PlotFirstFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10))
                     self.expression = ""
                     self.VariableTXT(f'f(x) =')
                     self.full = True
@@ -1549,8 +1589,9 @@ class Calculator:
                 elif self.full:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                    self.PA = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
-                    self.ColorGraphOneF()
+                    self.PlotAddFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
+                    TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                    self.expression = ""
                     self.VariableTXT(f'f(x) =')
 
             elif self.mode == 'Plot Prm':
@@ -1558,7 +1599,8 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ =')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ =')
                     self.expression = ""
                     self.VariableTXT(f'f(x)₂ =')
                     self.full = True
@@ -1567,20 +1609,22 @@ class Calculator:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = {self.StandardWriteEqual(self.fctx2)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = '
+                                   f'{self.StandardWriteEqual(self.fctx2)}')
                     if not self.equal:
-                        self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
-                                                   xlim=(-10, 10))
+                        self.PlotFirstFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
+                                                             xlim=(-10, 10))
                         self.expression = ""
                         self.VariableTXT(f'f(x)₁ =')
                         self.equal = True
                         self.full = None
 
                     elif self.equal:
-                        self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
-                                                  xlim=(-10, 10), show=False)
-                        self.ColorGraphTwoF()
+                        self.PlotAddFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
+                                                           xlim=(-10, 10), show=False)
+                        TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        self.expression = ""
                         self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
@@ -1589,7 +1633,8 @@ class Calculator:
                     self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = ')
                     self.expression = ""
                     self.VariableTXT(f'f(x)₂ =')
                     self.full = True
@@ -1598,20 +1643,22 @@ class Calculator:
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.SecondStrVar.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = {self.StandardWriteEqual(self.fctx2)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x)₁ = {self.StandardWriteEqual(self.fctx1)} | f(x)₂ = '
+                                   f'{self.StandardWriteEqual(self.fctx2)}')
                     if not self.equal:
-                        self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
-                                                          ylim=(-10, 10), xlim=(-10, 10))
+                        self.PlotFirstFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
+                                                                    ylim=(-10, 10), xlim=(-10, 10))
                         self.expression = ""
                         self.VariableTXT(f'f(x)₁ =')
                         self.equal = True
                         self.full = None
 
                     elif self.equal:
-                        self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
-                                                         ylim=(-10, 10), xlim=(-10, 10), show=False)
-                        self.ColorGraphTwoF()
+                        self.PlotAddFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
+                                                                  ylim=(-10, 10), xlim=(-10, 10), show=False)
+                        TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        self.expression = ""
                         self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
@@ -1619,7 +1666,7 @@ class Calculator:
                 if self.full is None:
                     self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
-                    self.P3d = plot3d(sympify(self.fctxy))
+                    self.PlotFirstFunc = plot3d(sympify(self.fctxy))
                     self.expression = ""
                     self.VariableTXT(f'f(x,y) =')
                     self.full = True
@@ -1627,9 +1674,10 @@ class Calculator:
                 elif self.full:
                     self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
-                    self.PA = plot3d(sympify(self.fctxy), show=False)
+                    self.PlotAddFunc = plot3d(sympify(self.fctxy), show=False)
 
-                    self.ColorGraphOneF()
+                    TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                    self.expression = ""
                     self.VariableTXT(f'f(x,y) =')
 
             elif self.mode == 'P3DPS':
@@ -1637,7 +1685,8 @@ class Calculator:
                     self.fctxy1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = ')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = ')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = ')
                     self.expression = ""
                     self.VariableTXT(f'f(x,y)₂ = ')
                     self.full = True
@@ -1646,20 +1695,22 @@ class Calculator:
                     self.fctxy2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₂ = {self.fctxy2}')
                     self.SecondStrVar.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
-                    self.DrawTexTk(self.Figure, self.CanvasFigure, 
-                        f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = {self.StandardWriteEqual(self.fctxy2)}')
+                    self.DrawTexTk(self.Figure, self.CanvasFigure,
+                                   f'f(x,y)₁ = {self.StandardWriteEqual(self.fctxy1)} | f(x,y)₂ = '
+                                   f'{self.StandardWriteEqual(self.fctxy2)}')
                     if not self.equal:
-                        self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
-                                                             self.x - self.y)
+                        self.PlotFirstFunc = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
+                                                                       self.x - self.y)
                         self.expression = ""
                         self.VariableTXT(f'f(x)₁ =')
                         self.equal = True
                         self.full = None
 
                     elif self.equal:
-                        self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y,
-                                                            show=False)
-                        self.ColorGraphTwoF()
+                        self.PlotAddFunc = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2),
+                                                                     self.x - self.y, show=False)
+                        TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        self.expression = ""
                         self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
@@ -1683,26 +1734,6 @@ class Calculator:
         self.ResetIndexCursor()
 
         self.FullTextDisplay.see(END)
-
-    def ColorGraphTwoF(self):
-        self.P3d.append(self.PA[0])
-        s = int((len(self.callback_function) / 2) - 1)
-        RD = randint(1048576, 16777000)
-        HX = hex(RD)
-        HX = HX[2:8].upper()
-        self.P3d[s].line_color = str('#') + str(HX)
-        PlotGrid(1, 2, self.P3d, self.PA)
-        self.expression = ""
-
-    def ColorGraphOneF(self):
-        self.P3d.append(self.PA[0])
-        s = int(len(self.callback_function) - 1)
-        RD = randint(1048576, 16777000)
-        HX = hex(RD)
-        HX = HX[2:8].upper()
-        self.P3d[s].line_color = str('#') + str(HX)
-        PlotGrid(1, 2, self.P3d, self.PA)
-        self.expression = ""
 
     def Exit(self):
         return self.win.destroy()
