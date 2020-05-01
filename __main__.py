@@ -3,14 +3,16 @@ __author__ = 'Achraf'
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from sympy.abc import y, z
-from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
+from sympy.plotting import plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
 from __jeep_v3__ import *
 
-""" 
-# version 6.0.1
+"""
+# version 6.0.1 
 # Optimize and generalise ReBuild of re-click Equal on operation
+# Optimize operation: *applying 'evalf' to block float on 16 numbers *improve 'eval' by 'sympfy' that solve problem
+ZeroDivisionError, and delete the exception of that error
 """
 
 btn_prm = {'padx': 18,
@@ -897,7 +899,7 @@ class Calculator:
         try:
             if self.mode == 'Operation':
                 self.FirstStrVar.set(self.expression)
-                self.SecondStrVar.set(eval(self.expression))
+                self.SecondStrVar.set(sympify(eval(self.expression)))
                 self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(eval(self.expression)))
 
             elif self.mode == 'Function':
@@ -1027,8 +1029,6 @@ class Calculator:
                                    f'f(x,y)₁ = {self.StandardWrite(self.fctx1)} | f(x,y)₂ = '
                                    f'{self.StandardWrite(self.expression)}')
 
-        except ZeroDivisionError:
-            self.SecondStrVar.set(oo)
         except Exception:
             pass
         self.iCursor(self.IndexCursor)
@@ -1046,9 +1046,18 @@ class Calculator:
         self.callback_function.append(str(self.expression))
         try:
             if self.mode == 'Operation':
-                try:
-                    if not self.equal:
-                        self.answer = eval(self.expression)
+                if not self.equal:
+                    self.answer = sympify(eval(self.expression))
+                    intro = len(str(self.answer))
+                    if intro <= 16:
+                        self.FirstStrVar.set(f'{self.expression} = {self.answer}')
+                        self.SecondStrVar.set(self.answer)
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.answer))
+                        self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
+                        self.clear = True
+                        self.equal = True
+                    else:
+                        self.answer = sympify(str(self.answer)).evalf()
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                         self.SecondStrVar.set(self.answer)
                         self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.answer))
@@ -1056,17 +1065,21 @@ class Calculator:
                         self.clear = True
                         self.equal = True
 
-                    elif self.equal:
-                        self.answer, self.expression = FullReBuild(self.store_expression, self.callback)
+                elif self.equal:
+                    self.answer, self.expression = FullReBuild(self.store_expression, self.callback)
+                    self.answer = sympify(self.answer)
+                    intro = len(str(self.answer))
+                    if intro <= 16:
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                         self.SecondStrVar.set(self.answer)
                         self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
-                except Exception:
-                    self.SecondStrVar.set('ValueError or IndexError or SyntaxError in Re_Build')
-                    pass
-
-                self.iCursor(END)
+                    else:
+                        self.answer = sympify(str(self.answer)).evalf()
+                        self.FirstStrVar.set(f'{self.expression} = {self.answer}')
+                        self.SecondStrVar.set(self.answer)
+                        self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.answer))
+                        self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                 self.callback.append(str(self.answer))
 
             elif self.mode == 'Function':
@@ -1430,8 +1443,6 @@ class Calculator:
                         self.VariableTXT(f'f(x)₁ =')
                         self.full = None
 
-        except ZeroDivisionError:
-            self.SecondStrVar.set(oo)
         except ValueError:
             self.SecondStrVar.set('ValueError')
         except SyntaxError:
@@ -1444,6 +1455,7 @@ class Calculator:
             self.SecondStrVar.set('OverflowMathRangeError')
         except IndexError:
             self.SecondStrVar.set('IndexError')
+        self.iCursor(END)
 
         self.ResetIndexCursor()
 
