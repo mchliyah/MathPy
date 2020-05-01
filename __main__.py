@@ -150,7 +150,7 @@ class Calculator:
         self.LabelStrVar = StringVar()
         # Self Display ROW 0============================================================================================
         # First Canvas
-        self.canvaf = Canvas(self.win, relief='flat', bg='#666666', width=42)
+        self.canvaf = Canvas(self.win, relief='flat', bg='#4d4d4d', width=42)
         self.canvaf.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         self.canvaf.rowconfigure(0, weight=1)
         self.canvaf.columnconfigure(1, weight=1)
