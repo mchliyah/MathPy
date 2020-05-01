@@ -9,11 +9,8 @@ from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line
 from sympy.solvers.solveset import solvify
 
 
-# version 5.0.3
-# optimize plotting environment globally and by call two functions with different colors
-# optimize text display by add scroll bar axe y
-# new button option, when the mouse hovers over the button, it changes color
-# fix bugs
+# version 5.0.4
+# change text display to list box, it optimized by vertical scroll bar axe y
 class HoverButton(Button):
     def __init__(self, master=None, cnf=None, **kw):
         if cnf is None:
@@ -30,6 +27,29 @@ class HoverButton(Button):
 
     def Leave(self, event):
         self['bg'] = self.DefaultBackGround
+class ScrolledListbox(Listbox):
+    def __init__(self, master=None, **kw):
+        self.frame = Frame(master)
+        self.vbar = Scrollbar(self.frame)
+        self.vbar.pack(side=RIGHT, fill=Y)
+
+        kw.update({'yscrollcommand': self.vbar.set})
+        Listbox.__init__(self, self.frame, **kw)
+        self.pack(side=LEFT, fill=BOTH, expand=True)
+        self.vbar['command'] = self.yview
+
+        # Copy geometry methods of self.frame without overriding Listbox
+        # methods -- hack!
+        text_meths = vars(Listbox).keys()
+        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
+        methods = methods.difference(text_meths)
+
+        for m in methods:
+            if m[0] != '_' and m != 'config' and m != 'configure':
+                setattr(self, m, getattr(self.frame, m))
+
+    def __str__(self):
+        return str(self.frame)
 
 
 btn_prm = {'padx': 18,
@@ -84,11 +104,10 @@ big2_prm = {'padx': 14,
             'activeback': '#49000A',
             'activebackground': '#80000B',
             'activeforeground': "white"}
-ent_prm = {'bd': 1,
-           'fg': 'white',
+ent_prm = {'fg': 'white',
            'bg': '#4d4d4d',
-           'font': ('Segoe UI Symbol', 15),
-           'relief': 'flat'}
+           'font': ('Segoe UI Symbol', 17),
+           'relief': 'flat',}
 π = pi
 convert_constant = 1
 inverse_convert_constant = 1
@@ -154,17 +173,16 @@ class Calculator:
         FirstTextDisplay.grid(row=0, column=0, columnspan=2)
         FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), readonlybackground='#4d4d4d')
         FirstTextDisplay.bind('<Key>', self.KeyboardInput)
-        FirstTextDisplay.focus_set()
         # Second Text Display
         SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
         SecondTextDisplay.grid(row=1, column=1)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
         SecondTextDisplay.bind('<Key>', self.KeyboardInput)
         # Full Text Display
-        self.FullTextDisplay = ScrolledText(master, width=52, height=15, **ent_prm)
+        self.FullTextDisplay = ScrolledListbox(master, width=48, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
-        self.FullTextDisplay.config(undo=False, wrap='word')
         self.FullTextDisplay.bind('<Key>', self.KeyboardInput)
+        self.FullTextDisplay.focus_set()
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(master, relief='flat', bg='slate gray')
         self.top_frame.grid(row=1, column=0)
@@ -345,7 +363,7 @@ class Calculator:
         self.mode = passmode
         self.switched = doing
         if self.switched:
-            self.FullTextDisplay.delete(1.0, END)
+            self.FullTextDisplay.delete(0, END)
 
         if self.mode == 'Operation':
             if self.switched:
@@ -1273,5 +1291,5 @@ if __name__ == "__main__":
     # Window configuration
     win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v5.0.3")
+    win.title("PyMathon v5.0.4")
     win.mainloop()
