@@ -2,8 +2,8 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 2.1.1
-# fix Size Between First Text Display And Second Text Display And Full Text Display
+# version 2.2.0
+# Equation and Function in Second Entry First Text Display
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -196,6 +196,7 @@ class Calculator:
 
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
+            self.FastText.set('aX² + bX + c = 0')
             self.Equation['bg'] = 'indian red'
             self.Function['bg'] = 'dark slate gray'
             self.Operation['bg'] = 'dark slate gray'
@@ -205,6 +206,7 @@ class Calculator:
 
         elif self.mode == 'Function':
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
+            self.FastText.set(f'From : A --> To : B | f(x) = Function')
             self.Function['bg'] = 'indian red'
             self.Equation['bg'] = 'dark slate gray'
             self.Operation['bg'] = 'dark slate gray'
@@ -270,22 +272,28 @@ class Calculator:
             elif self.mode == 'Equation':
                 if not self.full and not self.half:
                     self.TextInput.set(f'a = {self.expression}')
+                    self.FastText.set(f'{self.expression}X² + bX + c = 0')
 
                 elif not self.full and self.half:
                     self.TextInput.set(f'b = {self.expression}')
+                    self.FastText.set(f'{self.a}X² + ({self.expression})X + c = 0')
 
                 elif self.full:
                     self.TextInput.set(f'c = {self.expression}')
+                    self.FastText.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
 
             elif self.mode == "Function":
                 if not self.full and not self.half:
                     self.TextInput.set(f'From : {self.expression}')
+                    self.FastText.set(f'From : {self.expression} --> To : B | f(x) = Function')
 
                 elif not self.full and self.half:
                     self.TextInput.set(f'To : {self.expression}')
+                    self.FastText.set(f'From : {self.v} --> To : {self.expression} | f(x) = Function')
 
                 elif self.full:
                     self.TextInput.set(f'f(x) = {self.expression}')
+                    self.FastText.set(f'From : {self.v} --> To : {int(self.w)-1} | f(x) = {self.expression}')
 
             elif self.mode == 'Complex':
                 self.TextInput.set(self.expression)
