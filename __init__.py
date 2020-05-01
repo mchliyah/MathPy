@@ -549,43 +549,6 @@ class BackEndPlot(tk.Canvas):
         self.Figure = Figure(figsize=self.FigSize, facecolor='#F0F0F0')
         self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
         self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
-class BackEndPlotpp(tk.Canvas):
-    def __init__(self, master, figsize, **kw):
-        self.FigSize = figsize
-        super(BackEndPlot, self).__init__(master, **kw)
-        self.grid(row=0, column=0, sticky=tk.NSEW)
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
-
-        self.Figure = Figure(figsize=self.FigSize, facecolor='#F0F0F0')
-        self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
-        self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
-
-    def Plot(self, function_to_plot):
-        FunctionToPlot = function_to_plot
-        # PlotBackEnd = FunctionToPlot.backend(FunctionToPlot)
-        PlotBackEnd = plot_backends['matplotlib'](FunctionToPlot)
-        self.Figure = PlotBackEnd.fig
-
-        self.TkAgg.destroy()
-        self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
-        self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
-
-        PlotBackEnd.process_series()
-
-        # PlotBackEnd.process_series._process_series.Axes3D.mouse_init()
-        # PlotBackEnd._process_series.Axes3D.mouse_init()
-
-        self.Figure.set_size_inches(self.FigSize)
-        self.Figure.tight_layout()
-
-        self.TkAgg.Draw()
-
-    def Clear(self):
-        self.TkAgg.destroy()
-        self.Figure = Figure(figsize=self.FigSize, facecolor='#F0F0F0')
-        self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
-        self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
 
 
 class SmallNumbers:
@@ -766,19 +729,26 @@ class FunctionEntry(tk.Canvas):
     def __init__(self, master, height, **kwargs):
         self.height = height
         super(FunctionEntry, self).__init__(master, height=self.height, **kwargs)
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
-        self.columnconfigure(1, weight=1)
         self.entry = []
-        self.widget = []
         self.label = []
+        self.widget = []
 
     def __call__(self, *args, **kwargs):
         return self.widget
 
-    def CreateGrid(self, **kwargs):
+    def CreateGrid(self, line, **kwargs):
+        self.v = int(line)
+        if self.v == 2:
+            self.rowconfigure(0, weight=1)
+            self.rowconfigure(1, weight=1)
+            self.columnconfigure(1, weight=1)
+        elif self.v == 3:
+            self.rowconfigure(0, weight=1)
+            self.rowconfigure(1, weight=1)
+            self.rowconfigure(2, weight=1)
+            self.columnconfigure(1, weight=1)
         self.entry = []
-        for p in range(2):
+        for p in range(self.v):
             self.entry.append(ManagedEntry(self, width=16, **kwargs))
             self.entry[p].grid(row=p, column=1, sticky=tk.NSEW)
             self.entry[p].bind('<Button-1>', self.Press, add="+")
@@ -786,7 +756,7 @@ class FunctionEntry(tk.Canvas):
         self.widget = self.entry[0]
 
         self.label = []
-        for q in range(2):
+        for q in range(self.v):
             self.label.append(tk.Label(self, **kwargs))
             self.label[q].grid(row=q, column=0, sticky=tk.NSEW)
 
@@ -796,7 +766,7 @@ class FunctionEntry(tk.Canvas):
         self.widget = event.widget
 
     def Clear(self):
-        for s in range(2):
+        for s in range(self.v):
             self.entry[s].Clear()
 
 

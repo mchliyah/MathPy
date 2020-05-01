@@ -1,7 +1,7 @@
 from __init__ import *
 from tkinter import *
 from sympy import *
-from sympy.abc import x, y, z
+from sympy.abc import x, y, z, u, v
 import sympy.plotting as plt
 
 """
@@ -87,14 +87,12 @@ class MathPy:
         self.answer = ''
         # store answers of operation
         self.callback = []
-        # float numbers of equation
-        self.a = ''
-        self.b = ''
-        self.c = ''
         # equation solver parameter
         self.x = x
         self.y = y
         self.z = z
+        self.u = u
+        self.v = v
         self.q = ''
         self.p = ''
         self.SolutionOS = ''
@@ -107,8 +105,8 @@ class MathPy:
         self.yexp = ''
         self.zexp = ''
         # int range numbers of function
-        self.v = ''
-        self.w = ''
+        self.nbrv = ''
+        self.nbrw = ''
         # functions
         self.fctx = ''
         self.fctx1 = ''
@@ -116,6 +114,7 @@ class MathPy:
         self.fctxy = ''
         self.fctxy1 = ''
         self.fctxy2 = ''
+        self.fctxy3 = ''
         self.PlotFirstFunc = ''
         self.PlotSecondFunc = ''
         self.PlotAddFunc = ''
@@ -313,13 +312,13 @@ class MathPy:
             self.btn[l3].configure(bg='#212121', activebackground="#111111")
             self.btn[l3].ABG = '#161616'
             self.btn[l3].DBG = '#212121'
-        # x y z
+        # (x y z) or (u v z) or (u y z)
         for l4 in range(11, 24, 6):
             self.btn[l4].configure(bg='#212121', activebackground="#111111")
             self.btn[l4].ABG = '#161616'
             self.btn[l4].DBG = '#212121'
 
-        # =================================================================================
+        # ==============================================================================================================
         self.DLTX = []
         for l5 in range(6):
             self.DLTX.append(DrawLaTeX())
@@ -422,10 +421,7 @@ class MathPy:
                 self.SwitchEntryWidget('MultiEntry')
 
         elif self.mode == 'PP2D3DL' or self.mode == "P3DPS":
-            if pass_mode == 'PP2D3DL' or pass_mode == "P3DPS":
-                pass
-            else:
-                self.SwitchEntryWidget('DoubleEntry')
+            self.SwitchEntryWidget('DoubleEntry')
 
         else:
             if pass_mode == 'Operation' or pass_mode == 'Plot' or pass_mode == 'Plot3D':
@@ -436,8 +432,14 @@ class MathPy:
         # Switching Modes ==============================================================================================
         if self.mode == 'Operation':
             self.FigureXY.DrawLaTex(f'Mode Operation : ')
-            self.btn[17]['state'] = ['disabled']
-            self.btn[23].config(state=DISABLED)
+            # x v --> u y
+            self.btn[11].configure(text=self.x, command=lambda: self.Input('x'))
+            self.btn[17].configure(text=self.y, command=lambda: self.Input('y'))
+            # x
+            self.btn[11]['state'] = ['normal']
+            # y z
+            for i5 in range(17, 24, 6):
+                self.btn[i5].config(state=DISABLED)
 
             self.btn_a[0].config(bg='#80000B', relief='sunken')
             self.btn_a[0].DBG = '#80000B'
@@ -447,8 +449,12 @@ class MathPy:
 
         elif self.mode == 'SystemSolver':
             self.FigureXY.DrawLaTex('Mode System Equation Solver :')
-            self.btn[17].config(state=NORMAL)
-            self.btn[23].config(state=NORMAL)
+            # x v --> u y
+            self.btn[11].configure(text=self.x, command=lambda: self.Input('x'))
+            self.btn[17].configure(text=self.y, command=lambda: self.Input('y'))
+            # x y z
+            for i5 in range(11, 24, 6):
+                self.btn[i5].config(state=NORMAL)
 
             self.btn_a[0].config(bg='#212121', relief='raised')
             self.btn_a[0].DBG = '#212121'
@@ -459,8 +465,14 @@ class MathPy:
                 self.btn_a[i].DBG = '#212121'
 
         elif self.mode == 'Plot':
-            self.btn[17]['state'] = ['disabled']
-            self.btn[23].config(state=DISABLED)
+            # x v --> u y
+            self.btn[11].configure(text=self.x, command=lambda: self.Input('x'))
+            self.btn[17].configure(text=self.y, command=lambda: self.Input('y'))
+            # x
+            self.btn[11]['state'] = ['normal']
+            # y z
+            for i5 in range(17, 24, 6):
+                self.btn[i5].config(state=DISABLED)
 
             for i in range(2):
                 self.btn_a[i].config(bg='#212121', relief='raised')
@@ -472,7 +484,13 @@ class MathPy:
                 self.btn_a[i].DBG = '#212121'
 
         elif self.mode == 'Plot3D':
-            self.btn[17]['state'] = ['normal']
+            # x v --> u y
+            self.btn[11].configure(text=self.x, command=lambda: self.Input('x'))
+            self.btn[17].configure(text=self.y, command=lambda: self.Input('y'))
+            # x y
+            for i5 in range(11, 18, 6):
+                self.btn[i5].config(state=NORMAL)
+            # z
             self.btn[23].config(state=DISABLED)
 
             for i in range(3):
@@ -485,8 +503,14 @@ class MathPy:
                 self.btn_a[i].DBG = '#212121'
 
         elif self.mode == 'PP2D3DL':
-            self.btn[17]['state'] = ['disabled']
-            self.btn[23].config(state=DISABLED)
+            # x v --> u y
+            self.btn[11].configure(text=self.u, command=lambda: self.Input('u'))
+            self.btn[17].configure(text=self.y, command=lambda: self.Input('y'))
+            # x
+            self.btn[11].config(state=NORMAL)
+            # y z
+            for i5 in range(17, 24, 6):
+                self.btn[i5].config(state=DISABLED)
 
             for i in range(4):
                 self.btn_a[i].config(bg='#212121', relief='raised')
@@ -497,7 +521,13 @@ class MathPy:
             self.btn_a[5].DBG = '#212121'
 
         elif self.mode == 'P3DPS':
-            self.btn[17]['state'] = ['normal']
+            # x y --> u v
+            self.btn[11].configure(text=self.u, command=lambda: self.Input('u'))
+            self.btn[17].configure(text=self.v, command=lambda: self.Input('v'))
+            # u v
+            for i5 in range(11, 18, 6):
+                self.btn[i5].config(state=NORMAL)
+            # z
             self.btn[23].config(state=DISABLED)
 
             for i in range(5):
@@ -570,7 +600,10 @@ class MathPy:
 
             self.FE = FunctionEntry(self.win, height=267)
             self.FE.grid(row=0, column=0, rowspan=2, sticky=NSEW)
-            self.FE.CreateGrid(**self.mlt_ent_prm)
+            if self.mode == 'PP2D3DL':
+                self.FE.CreateGrid(line=2 ,**self.mlt_ent_prm)
+            elif self.mode == "P3DPS":
+                self.FE.CreateGrid(line=3 ,**self.mlt_ent_prm)
 
             self.middle_top_canvas = Canvas(self.win, relief='flat', background='#212121', height=267)
             self.middle_top_canvas.grid(row=0, column=1, columnspan=1, rowspan=2, sticky=NSEW)
@@ -610,9 +643,7 @@ class MathPy:
             self.FigureX.fontsize = 32
 
     def Delete(self):
-        self.a = ''
-        self.b = ''
-        self.c = ''
+
         self.q = ''
         self.p = ''
         self.j = ''
@@ -630,6 +661,7 @@ class MathPy:
         self.fctxy = ''
         self.fctxy1 = ''
         self.fctxy2 = ''
+        self.fctxy3 = ''
         self.PlotAddFunc = ''
         self.PlotFirstFunc = ''
         self.equal = False
@@ -674,17 +706,18 @@ class MathPy:
         elif self.mode == "PP2D3DL":
             self.FE.Clear()
             self.BackEndPlot.Clear()
-            self.FE.label[0]['text'] = 'f(x)₁ = '
-            self.FE.label[1]['text'] = 'f(x)₂ = '
-            self.FigureX.DrawBiLaTex('f(x)₁ =', 'f(x)₂ =')
+            self.FE.label[0]['text'] = 'x = '
+            self.FE.label[1]['text'] = 'y = '
+            self.FigureX.DrawBiLaTex('x =', 'y =')
             self.FE().focus_set()
 
         elif self.mode == "P3DPS":
             self.FE.Clear()
             self.BackEndPlot.Clear()
-            self.FE.label[0]['text'] = 'f(x,y)₁ = '
-            self.FE.label[1]['text'] = 'f(x,y)₂ = '
-            self.FigureX.DrawBiLaTex('f(x,y)₁ =', 'f(x,y)₂ =')
+            self.FE.label[0]['text'] = 'x = '
+            self.FE.label[1]['text'] = 'y = '
+            self.FE.label[2]['text'] = 'z = '
+            self.FigureX.DrawTriLaTex('x =', 'y =', 'z =')
             self.FE().focus_set()
 
         self.FigureX.Draw(self.TkAggX)
@@ -743,7 +776,7 @@ class MathPy:
             elif keyword.keysym == 'e':
                 self.Input('exp(')
 
-            elif put == 'v':
+            elif put == 'n':
                 self.SwitchButtons("1st"), self.ShowInput()
 
             elif put == 'b':
@@ -821,8 +854,8 @@ class MathPy:
             elif put == 'p':
                 self.Input('pi')
 
-            elif put == 'a' or put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or \
-                    put == '3' or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
+            elif put == 'a' or put == '1' or put == '2' or put == '3' or put == '4' or put == '5' or put == '6' or \
+                    put == '7' or put == '8' or put == '9':
                 self.Input(put)
 
             else:
@@ -835,6 +868,26 @@ class MathPy:
                         self.FE().StringVariable()
                     else:
                         self.TextDisplay.StringVariable()
+
+            if self.mode == 'Operation' or self.mode == 'Plot':
+                if put == 'x':
+                    self.Input(put)
+
+            elif self.mode == 'SystemSolver':
+                if put == 'x' or put == 'y' or put == 'z':
+                    self.Input(put)
+
+            elif self.mode == 'Plot3D':
+                if put == 'x' or put == 'y':
+                    self.Input(put)
+
+            elif self.mode == "PP2D3DL":
+                if put == 'u':
+                    self.Input(put)
+
+            elif self.mode == "P3DPS":
+                if put == 'u' or put == 'v':
+                    self.Input(put)
 
         except IndexError:
             self.ErrorStrVar.set('IndexError')
@@ -898,12 +951,13 @@ class MathPy:
                 self.FigureX.DrawOneLaTex(f'f(x,y) = {self.DLTX[0].After(self.TextDisplay.expression)}')
 
             elif self.mode == "PP2D3DL":
-                self.FigureX.DrawBiLaTex(f'f(x)₁ = {self.DLTX[0].After(self.FE.entry[0].expression)}',
-                                         f'f(x)₂ = {self.DLTX[1].After(self.FE.entry[1].expression)}')
+                self.FigureX.DrawBiLaTex(f'x = {self.DLTX[0].After(self.FE.entry[0].expression)}',
+                                         f'y = {self.DLTX[1].After(self.FE.entry[1].expression)}')
 
             elif self.mode == "P3DPS":
-                self.FigureX.DrawBiLaTex(f'f(x,y)₁ = {self.DLTX[0].After(self.FE.entry[0].expression)}',
-                                         f'f(x,y)₂ = {self.DLTX[1].After(self.FE.entry[1].expression)}')
+                self.FigureX.DrawTriLaTex(f'x = {self.DLTX[0].After(self.FE.entry[0].expression)}',
+                                         f'y = {self.DLTX[1].After(self.FE.entry[1].expression)}',
+                                         f'z = {self.DLTX[2].After(self.FE.entry[2].expression)}')
 
             self.ErrorStrVar.set('')
 
@@ -1030,19 +1084,19 @@ class MathPy:
                             try:
                                 sol = str(self.SolutionTT[11:-2])
 
-                                self.w = int(len(sol))
-                                self.v = 0
-                                while self.v < self.w:
-                                    self.xexp = str(self.xexp) + str(sol[self.v])
-                                    self.v += 1
-                                    if sol[self.v] == ',':
-                                        while self.v < self.w:
-                                            self.yexp = str(self.yexp) + str(sol[self.v])
-                                            self.v += 1
-                                            if sol[self.v] == ',':
-                                                while self.v < self.w:
-                                                    self.zexp = str(self.zexp) + str(sol[self.v])
-                                                    self.v += 1
+                                self.nbrw = int(len(sol))
+                                self.nbrv = 0
+                                while self.nbrv < self.nbrw:
+                                    self.xexp = str(self.xexp) + str(sol[self.nbrv])
+                                    self.nbrv += 1
+                                    if sol[self.nbrv] == ',':
+                                        while self.nbrv < self.nbrw:
+                                            self.yexp = str(self.yexp) + str(sol[self.nbrv])
+                                            self.nbrv += 1
+                                            if sol[self.nbrv] == ',':
+                                                while self.nbrv < self.nbrw:
+                                                    self.zexp = str(self.zexp) + str(sol[self.nbrv])
+                                                    self.nbrv += 1
 
                                 self.yexp = str(self.yexp).replace(', ', '')
                                 self.zexp = str(self.zexp).replace(', ', '')
@@ -1119,15 +1173,15 @@ class MathPy:
                             try:
                                 sol = str(self.SolutionTT[11:-2])
 
-                                self.w = int(len(sol))
-                                self.v = 0
-                                while self.v < self.w:
-                                    self.xexp = str(self.xexp) + str(sol[self.v])
-                                    self.v += 1
-                                    if sol[self.v] == ',':
-                                        while self.v < self.w:
-                                            self.yexp = str(self.yexp) + str(sol[self.v])
-                                            self.v += 1
+                                self.nbrw = int(len(sol))
+                                self.nbrv = 0
+                                while self.nbrv < self.nbrw:
+                                    self.xexp = str(self.xexp) + str(sol[self.nbrv])
+                                    self.nbrv += 1
+                                    if sol[self.nbrv] == ',':
+                                        while self.nbrv < self.nbrw:
+                                            self.yexp = str(self.yexp) + str(sol[self.nbrv])
+                                            self.nbrv += 1
 
                                 self.yexp = str(self.yexp).replace(', ', '')
                             except Exception:
@@ -1208,12 +1262,12 @@ class MathPy:
             elif self.mode == 'PP2D3DL':
                 self.fctx1 = str(eval(self.FE.entry[0].expression))
                 self.fctx2 = str(eval(self.FE.entry[1].expression))
-                self.FigureX.DrawBiLaTex(f'f(x)₁ = {DrawAfter(self.fctx1)}', f'f(x)₂ = {DrawAfter(self.fctx2)}')
+                self.FigureX.DrawBiLaTex(f'x = {DrawAfter(self.fctx1)}', f'y = {DrawAfter(self.fctx2)}')
                 if not self.equal:
                     self.PlotFirstFunc = plt.plot_parametric(sympify(self.fctx1), sympify(self.fctx2), legend=True,
                                                              ylim=(-10, 10), xlim=(-10, 10), show=False)
                     self.PlotSecondFunc = plt.plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2),
-                                                                     self.x, legend=True, show=False)
+                                                                     self.u, legend=True, show=False)
                     self.PlotFirstFunc = FirstPlotLaTex(self.PlotFirstFunc, (self.fctx1, self.fctx2))
                     self.PlotSecondFunc = FirstPlotLaTex(self.PlotSecondFunc, (self.fctx1, self.fctx2))
                     MIX = PlotGrid(1, 2, self.PlotFirstFunc, self.PlotSecondFunc, legend=True, show=False)
@@ -1224,7 +1278,7 @@ class MathPy:
                     self.PlotAddFunc = plt.plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                            xlim=(-10, 10), legend=True, show=False)
                     self.PlotAdd2Func = plt.plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2),
-                                                                   self.x, legend=True, show=False)
+                                                                   self.u, legend=True, show=False)
                     MIX = MultiPlot2D3D(self.PlotFirstFunc, self.PlotAddFunc, self.PlotSecondFunc, self.PlotAdd2Func,
                                         (self.fctx1, self.fctx2))
                     self.BackEndPlot.Plot(MIX)
@@ -1232,17 +1286,22 @@ class MathPy:
             elif self.mode == 'P3DPS':
                 self.fctxy1 = str(eval(self.FE.entry[0].expression))
                 self.fctxy2 = str(eval(self.FE.entry[1].expression))
-                self.FigureX.DrawBiLaTex(f'f(x)₁ = {DrawAfter(self.fctxy1)}', f'f(x)₂ = {DrawAfter(self.fctxy2)}')
+                self.fctxy3 = str(eval(self.FE.entry[2].expression))
+                self.FigureX.DrawTriLaTex(f'x = {DrawAfter(self.fctxy1)}',
+                                          f'y = {DrawAfter(self.fctxy2)}',
+                                          f'z = {DrawAfter(self.fctxy3)}')
                 if not self.equal:
-                    self.PlotFirstFunc = plt.plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
-                                                                       self.x - self.y, show=False)
+                    self.PlotFirstFunc = plt.plot3d_parametric_surface(sympify(self.fctxy1),
+                                                                       sympify(self.fctxy2),
+                                                                       sympify(self.fctxy3), show=False)
                     self.BackEndPlot.Plot(self.PlotFirstFunc)
                     self.VariableEQL(f'f(x,y)₁ =')
                     self.equal = True
 
                 elif self.equal:
-                    self.PlotAddFunc = plt.plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
-                                                                       self.x - self.y, show=False)
+                    self.PlotAddFunc = plt.plot3d_parametric_surface(sympify(self.fctxy1),
+                                                                     sympify(self.fctxy2),
+                                                                     sympify(self.fctxy3), show=False)
                     FIN = MultiPlot3D(self.PlotFirstFunc, self.PlotAddFunc)
                     self.BackEndPlot.Plot(FIN)
                     self.VariableEQL(f'f(x,y)₁ =')
