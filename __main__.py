@@ -91,9 +91,9 @@ def aTan(arg):
     return inverse_convert_constant * (atan(arg))
 
 
-class Calculator(Tk):
+class Calculator:
     def __init__(self):
-        Tk.__init__(self)
+        self.win = Tk()
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
         self.ENG = 16
         self.btn_u = []
@@ -159,29 +159,29 @@ class Calculator(Tk):
         self.FastTextVariable = StringVar()
         self.FastVariable = StringVar()
         # Self Display ROW 0============================================================================================
-        self.FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable)
+        self.FirstTextDisplay = Entry(self.win, width=43, **ent_prm, textvariable=self.TextVariable)
         self.FirstTextDisplay.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32))
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
         self.IndexCursor = int(self.FirstTextDisplay.index(0))
         # Second Text Display
-        SecondTextDisplay = Entry(self, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
+        SecondTextDisplay = Entry(self.win, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
         SecondTextDisplay.grid(row=1, column=1, sticky=NSEW)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
         # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(self, width=52, height=13, **ent_prm)
+        self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2, sticky=NSEW)
         self.FullTextDisplay.rowconfigure(0, weight=1)
         self.FullTextDisplay.columnconfigure(0, weight=1)
 
-        self.LabelDisplay = Label(self, width=1, height=1, **ent_prm, textvariable=self.FastVariable)
+        self.LabelDisplay = Label(self.win, width=1, height=1, **ent_prm, textvariable=self.FastVariable)
         self.LabelDisplay.grid(row=4, column=0, columnspan=3, sticky=NSEW)
         self.LabelDisplay.configure(font=('Segoe UI Symbol', 30), bg='white', fg='black')
         self.LabelDisplay.rowconfigure(0, weight=1)
         self.LabelDisplay.columnconfigure(0, weight=1)
         # ROW 1 set frame showing top buttons
-        self.top_frame = Frame(self, relief='flat', bg='#212121')
+        self.top_frame = Frame(self.win, relief='flat', bg='#212121')
         self.top_frame.grid(row=1, column=0, sticky=NSEW)
         self.top_frame.rowconfigure(0, weight=1)
         self.top_frame.columnconfigure(0, weight=1)
@@ -190,7 +190,7 @@ class Calculator(Tk):
         self.top_frame.columnconfigure(3, weight=1)
         self.top_frame.columnconfigure(4, weight=1)
         # ROW 2 set frame showing middle buttons
-        self.middle_frame = Frame(self, relief='flat', bg='#666666')
+        self.middle_frame = Frame(self.win, relief='flat', bg='#666666')
         self.middle_frame.grid(row=2, column=0, sticky=NSEW)
         self.middle_frame.rowconfigure(0, weight=1)
         self.middle_frame.rowconfigure(1, weight=1)
@@ -202,7 +202,7 @@ class Calculator(Tk):
         self.middle_frame.columnconfigure(4, weight=1)
         self.middle_frame.columnconfigure(5, weight=1)
         # ROW 3 set frame showing bottom buttons
-        self.bottom_frame = Frame(self, relief='flat', bg='#4d4d4d')
+        self.bottom_frame = Frame(self.win, relief='flat', bg='#4d4d4d')
         self.bottom_frame.grid(row=3, column=0, sticky=NSEW)
         self.bottom_frame.rowconfigure(0, weight=1)
         self.bottom_frame.rowconfigure(1, weight=1)
@@ -306,7 +306,7 @@ class Calculator(Tk):
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
-        menubare = Menu(self)
+        menubare = Menu(self.win)
         File = Menu(menubare, tearoff=0)
         Mode = Menu(menubare, tearoff=0)
         Switch = Menu(menubare, tearoff=0)
@@ -350,21 +350,21 @@ class Calculator(Tk):
         Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
         # Master Display ===============================================================================================
         # Window configuration
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
-        self.rowconfigure(3, weight=1)
-        self.rowconfigure(4, weight=1)
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
+        self.win.rowconfigure(0, weight=1)
+        self.win.rowconfigure(1, weight=1)
+        self.win.rowconfigure(2, weight=1)
+        self.win.rowconfigure(3, weight=1)
+        self.win.rowconfigure(4, weight=1)
+        self.win.columnconfigure(0, weight=1)
+        self.win.columnconfigure(1, weight=1)
 
-        self.bind_all('<Key>', self.KeyboardInput)
+        self.win.bind_all('<Key>', self.KeyboardInput)
 
-        self.configure(menu=menubare, bg='#4d4d4d')
-        self.geometry("1100x580")
-        self.minsize(width=1100, height=580)
-        self.title("PyMathon v5.2.0")
-        self.mainloop()
+        self.win.configure(menu=menubare, bg='#4d4d4d')
+        self.win.geometry("1100x580")
+        self.win.minsize(width=1100, height=580)
+        self.win.title("PyMathon v5.2.0")
+        self.win.mainloop()
 
     def Info(self, event):
         self.FirstTextDisplay.icursor("@%d" % event.x)
@@ -1588,7 +1588,7 @@ class Calculator(Tk):
         self.FullTextDisplay.see(END)
 
     def Exit(self):
-        return self.destroy()
+        return self.win.destroy()
 
 
 if __name__ == "__main__":
