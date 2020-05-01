@@ -2,8 +2,9 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 1.2
-# Short Writing Buttons with Bool For
+# version 2.0
+# Fast Answer in Second Entry
+# Use btn_prm in place of nbr_prm
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -14,16 +15,6 @@ btn_prm = {'padx': 16,
            'height': 1,
            'relief': 'flat',
            'activebackground': "#666666"}
-nbr_prm = {'padx': 16,
-           'pady': 1,
-           'bd': 4,
-           'fg': 'white',
-           'bg': '#4d4d4d',
-           'font': ('Segoe UI Symbol', 16),
-           'width': 2,
-           'height': 1,
-           'relief': 'flat',
-           'activebackground': "#4d4d4d"}
 big_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -67,14 +58,20 @@ class Calculator:
         self.half = False
         # create string for text input
         self.TextInput = StringVar()
+        self.FastText = StringVar()
 
-        # ROW 0 TextDisplay
-        self.TextDisplay = Entry(master, width=41, **ent_prm, textvariable=self.TextInput)
-        self.TextDisplay.grid(row=0, column=0, columnspan=2)
-        self.TextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 36))
-        # FullTextDisplay
-        self.FullTextDisplay = Text(master, width=50, height=15, **ent_prm)
-        self.FullTextDisplay.grid(row=1, column=1, rowspan=3)
+        # Master Display ROW 0==========================================================================================
+        # First Text Display
+        self.FirstTextDisplay = Entry(master, width=41, **ent_prm, textvariable=self.TextInput)
+        self.FirstTextDisplay.grid(row=0, column=0, columnspan=2)
+        self.FirstTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 36))
+        # Second Text Display
+        self.SecondTextDisplay = Entry(master, width=34, **ent_prm, textvariable=self.FastText)
+        self.SecondTextDisplay.grid(row=1, column=1)
+        self.SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 26), justify='right')
+        # Full Text Display
+        self.FullTextDisplay = Text(master, width=50, height=13, **ent_prm)
+        self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         # ROW 1 set frame showing top buttons
         top_frame = Frame(master, relief='flat', bg='dark slate gray')
         top_frame.grid(row=1, column=0)
@@ -84,7 +81,7 @@ class Calculator:
         # ROW 3 set frame showing bottom buttons
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
-        # buttons that will be displayed on top frame ROW 0
+        # buttons that will be displayed on top frame ROW 0=============================================================
         # Operation
         self.Operation = Button(top_frame, **big_prm, text="Operation",
                                 command=lambda: self.SwitchFunction("Operation"))
@@ -103,7 +100,7 @@ class Calculator:
         self.Complex.grid(row=0, column=6, columnspan=2)
         self.Complex.configure(bg='dark slate gray', activebackground='dark slate gray')
 
-        # buttons that will be displayed on middle frame ROW 0
+        # buttons that will be displayed on middle frame ROW 0==========================================================
         # left
         Button(self.middle_frame, **btn_prm, text="(", command=lambda: self.Input('(')).grid(row=1, column=1)
         # right
@@ -127,7 +124,7 @@ class Calculator:
             btn[i].grid(row=3, column=k)
             btn[i]["command"] = lambda n=Logarithm_pad[i]: self.Input(n)
             i += 1
-        # buttons that will be displayed on bottom frame ROW 0
+        # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
         number_pad = ["7", "8", "9", "+", self.ans, 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
                       'e', '0', ".", "=", "/", "factorial(", 'pi']
@@ -137,13 +134,14 @@ class Calculator:
         i = 0
         for j in range(4):
             for k in range(6):
-                self.btn.append(Button(bottom_frame, **nbr_prm, text=number_txt[i]))
+                self.btn.append(Button(bottom_frame, **btn_prm, text=number_txt[i]))
                 self.btn[i].grid(row=j, column=k)
-                self.btn[i]["command"] = lambda n=number_pad[i]: self.Input(n)
+                self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d",
+                                      command=lambda n=number_pad[i]: self.Input(n))
                 i += 1
         # Equals
         self.btn[20].configure(bg='#ff9980', activebackground='#ff9980', command=self.InputEquals)
-        # run button switcher and display switcher mode
+        # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation')
 
     def SwitchButtons(self, side):
@@ -196,7 +194,7 @@ class Calculator:
             self.Complex['bg'] = 'dark slate gray'
             self.btn[5]['state'] = ['disabled']
             self.btn[11]['state'] = ['disabled']
-            
+
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
             self.Equation['bg'] = 'indian red'
@@ -265,7 +263,20 @@ class Calculator:
 
     def Click(self):
         if self.mode == 'Operation':
-            self.TextInput.set(self.expression)
+            try:
+                self.TextInput.set(self.expression)
+                self.FastText.set(eval(self.expression))
+
+            except ZeroDivisionError:
+                pass
+            except ValueError:
+                pass
+            except SyntaxError:
+                pass
+            except NameError:
+                pass
+            except TypeError:
+                pass
 
         elif self.mode == 'Equation':
             if not self.full and not self.half:
@@ -288,12 +299,25 @@ class Calculator:
                 self.TextInput.set(f'f(x) = {self.expression}')
 
         elif self.mode == 'Complex':
-            self.TextInput.set(self.expression)
+            try:
+                self.TextInput.set(self.expression)
+                self.FastText.set(eval(self.expression))
+
+            except ZeroDivisionError:
+                pass
+            except ValueError:
+                pass
+            except SyntaxError:
+                pass
+            except NameError:
+                pass
+            except TypeError:
+                pass
 
     def InputEquals(self):
         try:
             if self.mode == 'Operation':
-                # self.expression = str(self.TextDisplay.get()).lower()
+                # self.expression = str(self.FirstTextDisplay.get()).lower()
                 self.ans = eval(self.expression)
                 self.TextInput.set(f'{self.expression} = {self.ans}')
                 self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
@@ -393,12 +417,14 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                 if not self.full:
                     if not self.half:
                         self.v = int(self.expression)
+                        self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
                         self.expression = ""
                         self.TextInput.set(f'To : ')
                         self.half = True
 
                     elif self.half:
                         self.w = int(self.expression) + 1
+                        self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
                         self.expression = ""
                         self.TextInput.set(f'f(x) = ')
                         self.full = True
@@ -413,7 +439,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.half = False
 
             elif self.mode == 'Complex':
-                self.expression = str(self.TextDisplay.get()).lower()
+                self.expression = str(self.FirstTextDisplay.get()).lower()
                 self.ans = eval(str(complex(self.expression)))
                 self.TextInput.set(f'{self.expression} = {self.ans}')
                 self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
@@ -432,7 +458,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
 
 win = Tk()
-win.title("Scientific Calculator v1.2")
+win.title("Scientific Calculator v2.0")
 # win.configure(bg='#666666')
 win.configure(bg='#4d4d4d')
 win.resizable(False, False)
