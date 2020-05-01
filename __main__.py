@@ -6,9 +6,8 @@ from sympy import *
 from sympy.abc import x
 from sympy.solvers.solveset import solvify
 
-# version 4.1.1
-# Add New Button Control Numerical Evaluation
-# eval() to sympify() in solvify
+# version 4.1.2
+# Improve Control Numerical Evaluation in All Modes
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -257,7 +256,8 @@ class Calculator:
         self.btn[26].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
 
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians'), self.SwitchENG(int(16))
+        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians'), self.SwitchENG(
+            int(16))
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
@@ -392,8 +392,7 @@ class Calculator:
 
         self.equal = False
         self.clear = False
-        self.full = False
-        self.half = False
+        self.full = None
 
     def Remove(self):
         if self.clear:
@@ -572,13 +571,15 @@ class Calculator:
                 self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
                 self.FastTextVariable.set(N(eval(self.expression), self.ENG))
+                if self.ENG == 16:
+                    self.FastTextVariable.set(eval(self.expression))
 
             elif self.mode == 'Equation 2nd':
-                if not self.full and not self.half:
+                if self.full is None:
                     self.TextVariable.set(f'a = {self.expression}')
                     self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
 
-                elif not self.full and self.half:
+                elif not self.full:
                     self.TextVariable.set(f'b = {self.expression}')
                     self.FastTextVariable.set(f'{self.a}X² + ({self.expression})X + c = 0')
 
@@ -587,11 +588,11 @@ class Calculator:
                     self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
 
             elif self.mode == "Function":
-                if not self.full and not self.half:
+                if self.full is None:
                     self.TextVariable.set(f'From : {self.expression}')
                     self.FastTextVariable.set(f'From : {self.expression} --> To : B | f(x) = Function')
 
-                elif not self.full and self.half:
+                elif not self.full:
                     self.TextVariable.set(f'To : {self.expression}')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {self.expression} | f(x) = Function')
 
@@ -600,7 +601,7 @@ class Calculator:
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
 
             elif self.mode == 'Equation':
-                if not self.full:
+                if self.full is None:
                     self.TextVariable.set(self.expression)
                     self.FastTextVariable.set(self.expression)
                 elif self.full:
@@ -624,9 +625,10 @@ class Calculator:
         global z
         try:
             if self.mode == 'Operation':
-
                 if not self.equal:
                     self.answer = N(eval(self.expression), self.ENG)
+                    if self.ENG == 16:
+                        self.answer = eval(self.expression)
                     self.FastTextVariable.set('')
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -645,6 +647,8 @@ class Calculator:
                                 z += 1
                             self.expression = str(self.callback[-1]) + str(self.expression)
                             self.answer = N(eval(self.expression), self.ENG)
+                            if self.ENG == 16:
+                                self.answer = eval(self.expression)
                             self.FastTextVariable.set(self.answer)
                             self.TextVariable.set(f'{self.expression} = {self.answer}')
                             self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -652,22 +656,21 @@ class Calculator:
                         z -= 1
 
             elif self.mode == 'Equation 2nd':
-                if not self.full:
-                    if not self.half:
-                        self.a = N(eval(self.expression), self.ENG)
-                        self.expression = ""
-                        self.TextVariable.set(f'b = ')
-                        self.half = True
+                if self.full is None:
+                    self.a = N(eval(self.expression), 3)
+                    self.expression = ""
+                    self.TextVariable.set(f'b = ')
+                    self.full = False
 
-                    elif self.half:
-                        self.b = N(eval(self.expression), self.ENG)
-                        self.expression = ""
-                        self.TextVariable.set(f'c = ')
-                        self.full = True
+                elif not self.full:
+                    self.b = N(eval(self.expression), 3)
+                    self.expression = ""
+                    self.TextVariable.set(f'c = ')
+                    self.full = True
 
                 elif self.full:
-                    c = N(eval(self.expression), self.ENG)
-                    d = N((self.b ** 2) - 4 * self.a * c, self.ENG)
+                    c = N(eval(self.expression), 3)
+                    d = N((self.b ** 2) - 4 * self.a * c, 3)
                     nd = neg(d)
                     nb = neg(self.b)
                     self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
@@ -681,42 +684,42 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
   ∆ =  b² - 4ac
 
   ∆ = {self.b}² - (4 x ({self.a}) x ({c})) 
-      = {N(self.b ** 2, self.ENG)} - ({N(4 * self.a * c, self.ENG)}) 
+      = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)}) 
       = {d}''')
                         if d == 0:
                             self.FullTextDisplay.insert(INSERT, f'''\n 
 ∆=0 : X = -b / 2a
 
-    X[1] = X[2] = ({N(neg(self.b), self.ENG)}) / (2 x {self.a})
-    X[1] = X[2] = {neg(self.b)} / ({N(2 * self.a, self.ENG)})''')
+    X[1] = X[2] = ({N(neg(self.b), 3)}) / (2 x {self.a})
+    X[1] = X[2] = {neg(self.b)} / ({N(2 * self.a, 3)})''')
                         elif d >= 0:
                             self.FullTextDisplay.insert(INSERT, f'''\n
 ∆>0 : X = (-b ± √∆) / 2a
 
  X[1] = ({nb} + √{d}) / (2 x {self.a})
-       = ({nb} + √{d}) / ({N(2 * self.a, self.ENG)})
-       = {nb} / ({N(2 * self.a, self.ENG)}) + √({d}) / ({N(2 * self.a, self.ENG)})
+       = ({nb} + √{d}) / ({N(2 * self.a, 3)})
+       = {nb} / ({N(2 * self.a, 3)}) + √({d}) / ({N(2 * self.a, 3)})
 
  X[2] = ({nb} - √{d}) / (2 x {self.a})
        = ({nb} - √{d}) / ({2 * self.a})
-       = {nb} / ({N(2 * self.a, self.ENG)}) - √({d}) / ({N(2 * self.a, self.ENG)})''')
+       = {nb} / ({N(2 * self.a, 3)}) - √({d}) / ({N(2 * self.a, 3)})''')
                         elif d <= 0:
                             self.FullTextDisplay.insert(INSERT, f'''\n      = {nd}i²
 
 ∆<0 : X = (-b ± i√∆) / 2a
 
  X[1] = ({nb} + i√({nd})) / (2 x {self.a})
-       = ({nb} + i√({nd})) / ({N(2 * self.a, self.ENG)})
-       = {nb} / ({N(2 * self.a, self.ENG)}) + i√({nd}) / ({N(2 * self.a, self.ENG)})
+       = ({nb} + i√({nd})) / ({N(2 * self.a, 3)})
+       = {nb} / ({N(2 * self.a, 3)}) + i√({nd}) / ({N(2 * self.a, 3)})
 
  X[2] = ({nb} - i√({nd})) / (2 x {self.a})
-       = ({nb} - i√({nd})) / ({N(2 * self.a, self.ENG)})
-       = {nb} / ({N(2 * self.a, self.ENG)}) - i√({nd}) / ({N(2 * self.a, self.ENG)})
+       = ({nb} - i√({nd})) / ({N(2 * self.a, 3)})
+       = {nb} / ({N(2 * self.a, 3)}) - i√({nd}) / ({N(2 * self.a, 3)})
 
   z = a ± ib
 
-   a = {nb} / ({N(2 * self.a, self.ENG)})
-   b = ± √{nd} / ({N(2 * self.a, self.ENG)})''')
+   a = {nb} / ({N(2 * self.a, 3)})
+   b = ± √{nd} / ({N(2 * self.a, 3)})''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{∅}}")
@@ -737,27 +740,25 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
   {self.b}X = {neg(c)}    
   X = {neg(c)} / {self.b}
-  X = {neg(c) / self.b}''')
+  X = {N(eval(neg(c) / self.b), 3)}''')
 
                     self.clear = True
-                    self.full = False
-                    self.half = False
+                    self.full = None
 
             elif self.mode == 'Function':
-                if not self.full:
-                    if not self.half:
-                        self.v = int(self.expression)
-                        self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
-                        self.expression = ""
-                        self.TextVariable.set(f'To : ')
-                        self.half = True
+                if self.full is None:
+                    self.v = int(self.expression)
+                    self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
+                    self.expression = ""
+                    self.TextVariable.set(f'To : ')
+                    self.full = False
 
-                    elif self.half:
-                        self.w = int(self.expression) + 1
-                        self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
-                        self.expression = ""
-                        self.TextVariable.set(f'f(x) = ')
-                        self.full = True
+                elif not self.full:
+                    self.w = int(self.expression) + 1
+                    self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x) = ')
+                    self.full = True
 
                 elif self.full:
                     self.FullTextDisplay.insert(INSERT, f'\nf(x) = {sympify(self.expression)}')
@@ -765,11 +766,10 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                         self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
 
                     self.clear = True
-                    self.full = False
-                    self.half = False
+                    self.full = None
 
             elif self.mode == 'Equation':
-                if not self.full:
+                if self.full is None:
                     self.q = str(eval(self.expression))
                     self.expression = ""
                     self.TextVariable.set(f'{self.q} = ')
@@ -780,10 +780,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.TextVariable.set(f'\n{self.q} = {self.p}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
-                    print(0)
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
-                        print(1)
                     self.FastTextVariable.set(sol)
                     m = 1
                     for l in range(len(sol)):
@@ -791,7 +789,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                         m += 1
 
                     self.clear = True
-                    self.full = False
+                    self.full = None
 
         except ZeroDivisionError:
             self.FastTextVariable.set(oo)
@@ -805,6 +803,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                 if self.mode == 'Operation' and self.equal:
                     self.expression = str(self.callback[-1])
                     self.answer = N(eval(self.expression), self.ENG)
+                    if self.ENG == 16:
+                        self.answer = eval(self.expression)
                     self.FastTextVariable.set(self.answer)
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -822,6 +822,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                 if self.mode == 'Operation' and self.equal:
                     self.expression = str(self.callback[-1])
                     self.answer = N(eval(self.expression), self.ENG)
+                    if self.ENG == 16:
+                        self.answer = eval(self.expression)
                     self.FastTextVariable.set(self.answer)
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -842,5 +844,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v4.1.1")
+    win.title("PyMathon v4.1.2")
     win.mainloop()
