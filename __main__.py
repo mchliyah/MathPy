@@ -3,8 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import ttk, _cnfmerge as cnfmerge
 
-# version 3.1.0
-# Improve Re-Click Equal Button, still Don't work in Keyboard Bind
+# version 3.2.0
+# Hide Some Global Call , Make Lot Of Self Call, Last Time I Make Bad Decision
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -101,11 +101,11 @@ class Calculator:
         # expression that will be displayed on screen
         self.expression = ''
         # store expressions by order
-        self.store = []
+        self.store_expression = []
         # answer of operation
-        self.ans = ''
+        self.answer = ''
         # store last answer of operation
-        self.storeans = ['']
+        self.callback = ['']
         # float numbers of equation
         self.a = ''
         self.b = ''
@@ -113,9 +113,6 @@ class Calculator:
         # int range numbers of function
         self.v = ''
         self.w = ''
-        # used to switch between buttons those will be displayed on screen
-        self.first = ''
-        self.secend = ''
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
@@ -129,14 +126,14 @@ class Calculator:
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        self.FirstTextDisplay = EntryBox(master, width=44, **ent_prm, textvariable=self.TextVariable)
-        self.FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        self.FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 32))
-        self.FirstTextDisplay.bind('<Key>', self.KeyboardInput)
+        FirstTextDisplay = EntryBox(master, width=44, **ent_prm, textvariable=self.TextVariable)
+        FirstTextDisplay.grid(row=0, column=0, columnspan=2)
+        FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 32))
+        FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
-        self.SecondTextDisplay = Entry(master, width=33, **ent_prm, textvariable=self.FastTextVariable)
-        self.SecondTextDisplay.grid(row=1, column=1)
-        self.SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 25), justify='right')
+        SecondTextDisplay = Entry(master, width=33, **ent_prm, textvariable=self.FastTextVariable)
+        SecondTextDisplay.grid(row=1, column=1)
+        SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 25), justify='right')
         # Full Text Display
         self.FullTextDisplay = Text(master, width=54, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
@@ -176,7 +173,7 @@ class Calculator:
             i += 1
         # Answer Stored
         btn[3].configure(bg='SeaGreen3', activebackground='SeaGreen3',
-                         command=lambda: self.Input(str(self.storeans[-1])))
+                         command=lambda: self.Input(str(self.callback[-1])))
         # Clear
         btn[4].configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23),
                          command=lambda: self.Clear())
@@ -226,7 +223,7 @@ class Calculator:
 
     def SwitchButtons(self, side):
         page = side
-        # buttons that will be Switched on middle frame
+        # buttons to switch between buttons those will be displayed on middle frame
         if page == '1st':
             # ROW 1
             # 2nd
@@ -317,7 +314,7 @@ class Calculator:
             Rad_Deg.configure(fg='orange', activeforeground='indian red')
 
     def Clear(self):
-        self.store = []
+        self.store_expression = []
         self.expression = ''
         self.TextVariable.set('')
         self.FastTextVariable.set('')
@@ -340,8 +337,8 @@ class Calculator:
             self.Clear()
 
         try:
-            self.expression = str(self.expression).replace(self.store[-1], '')
-            self.store.remove(self.store[-1])
+            self.expression = str(self.expression).replace(self.store_expression[-1], '')
+            self.store_expression.remove(self.store_expression[-1])
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -352,7 +349,7 @@ class Calculator:
         if self.clear:
             self.Clear()
 
-        self.store.append((str(keyword)))
+        self.store_expression.append((str(keyword)))
         self.expression += str(keyword)
 
         self.Click()
@@ -481,28 +478,28 @@ class Calculator:
             if self.mode == 'Operation':
 
                 if not self.equal:
-                    self.ans = eval(self.expression)
+                    self.answer = eval(self.expression)
                     self.FastTextVariable.set('')
-                    self.TextVariable.set(f'{self.expression} = {self.ans}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                    self.TextVariable.set(f'{self.expression} = {self.answer}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
                     self.clear = True
                     self.equal = True
 
                 elif self.equal:
                     self.expression = ''
-                    z = int(len(self.store)) - 1
-                    g = int(len(self.store)) - 1
+                    z = int(len(self.store_expression)) - 1
+                    g = int(len(self.store_expression)) - 1
                     while True:
-                        trs = str(self.store[z])
+                        trs = str(self.store_expression[z])
                         if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**':
                             while z <= g:
-                                self.expression += str(self.store[z])
+                                self.expression += str(self.store_expression[z])
                                 z += 1
-                            self.expression = str(self.storeans[-1]) + str(self.expression)
-                            self.ans = eval(self.expression)
-                            self.FastTextVariable.set(self.ans)
-                            self.TextVariable.set(f'{self.expression} = {self.ans}')
-                            self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                            self.expression = str(self.callback[-1]) + str(self.expression)
+                            self.answer = eval(self.expression)
+                            self.FastTextVariable.set(self.answer)
+                            self.TextVariable.set(f'{self.expression} = {self.answer}')
+                            self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
                             break
                         z -= 1
 
@@ -636,8 +633,17 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             self.FastTextVariable.set('TypeError')
         except IndexError:
             self.FastTextVariable.set('IndexError')
+            try:
+                if self.mode == 'Operation' and self.equal:
+                    self.expression = str(self.callback[-1])
+                    self.answer = eval(self.expression)
+                    self.FastTextVariable.set(self.answer)
+                    self.TextVariable.set(f'{self.expression} = {self.answer}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
+            except IndexError:
+                self.FastTextVariable.set('IndexError')
 
-        self.storeans.append(str(self.ans))
+        self.callback.append(str(self.answer))
 
 
 if __name__ == "__main__":
@@ -653,5 +659,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.1.0")
+    win.title("Scientific Calculator v3.2.0")
     win.mainloop()
