@@ -3,8 +3,9 @@ from operator import *
 from tkinter import *
 from tkinter import _cnfmerge as cnfmerge
 
-# version 3.0.2
-# Add Shortcut Keyboard Listening: {s, S}: Sin, {c, C}: Cos, {t, T}: Tan, {p, P}: p, {\}: sqrt
+# version 3.0.3
+# Add New Shortcut Keyboard Listening: {j, J}: 1j, {m, M}: m1(, {h, H}: h(, {f, !}: factorial, And Block Everything Else
+# Buttons Return and {=} Keyboard Bind don't work for second Click
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -34,7 +35,7 @@ ent_prm = {'bd': 4,
            'relief': 'flat'}
 
 
-class EntryBox(Entry, Widget, XView):
+class EntryBox(Entry):
     def __init__(self, master=None, cnf=None, **kw):
         if cnf is None:
             cnf = {}
@@ -197,11 +198,9 @@ class Calculator:
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
         btn = ["7", "8", "9", "+", '**2', 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*",
-               "sqrt(", 'e', '0',
-               ".", "=", "/", "factorial(", 'pi']
+               "sqrt(", 'e', '0', ".", "=", "/", "factorial(", 'pi']
         btn_txt = ["7", "8", "9", "+", u'n\u00B2', 'x', "4", "5", "6", "-", "nˣ", "j", "1", "2", "3",
-                   "*", "√n", 'e',
-                   '0', ".", "=", "/", "!n", 'π']
+                   "*", "√n", 'e', '0', ".", "=", "/", "!n", 'π']
         self.btn = []
         i = 0
         for j in range(4):
@@ -360,6 +359,7 @@ class Calculator:
         self.Click()
 
     def KeyboardInput(self, keyword):
+        put = keyword.keysym.lower()
         if self.clear:
             self.Clear()
         try:
@@ -370,63 +370,80 @@ class Calculator:
             elif keyword.keysym == 'Delete':
                 self.Clear()
 
-            elif keyword.keysym == 'slash':
+            elif put == 'slash':
                 self.store.append((str('/')))
                 self.expression += str('/')
 
-            elif keyword.keysym == 'asterisk':
+            elif put == 'asterisk':
                 self.store.append((str('*')))
                 self.expression += str('*')
 
-            elif keyword.keysym == 'minus':
+            elif put == 'minus':
                 self.store.append((str('-')))
                 self.expression += str('-')
 
-            elif keyword.keysym == 'plus':
+            elif put == 'plus':
                 self.store.append((str('+')))
                 self.expression += str('+')
 
-            elif keyword.keysym == 'period':
+            elif put == 'period':
                 self.store.append((str('.')))
                 self.expression += str('.')
 
-            elif keyword.keysym == 'parenleft':
+            elif put == 'parenleft':
                 self.store.append((str('(')))
                 self.expression += str('(')
 
-            elif keyword.keysym == 'parenright':
+            elif put == 'parenright':
                 self.store.append((str(')')))
                 self.expression += str(')')
 
-            elif keyword.keysym == 'backslash':
+            elif put == 'backslash':
                 self.store.append((str('sqrt(')))
                 self.expression += str('sqrt(')
 
-            elif keyword.keysym == 'S' or keyword.keysym == 's':
+            elif put == 's':
                 self.store.append((str('Sin')))
                 self.expression += str('Sin')
 
-            elif keyword.keysym == 'C' or keyword.keysym == 'c':
+            elif put == 'c':
                 self.store.append((str('Cos')))
                 self.expression += str('Cos')
 
-            elif keyword.keysym == 'T' or keyword.keysym == 't':
+            elif put == 't':
                 self.store.append((str('Tan')))
                 self.expression += str('Tan')
 
-            elif keyword.keysym == 'P' or keyword.keysym == 'p':
-                self.store.append((str('pi')))
-                self.expression += str('pi')
+            elif put == 'l':
+                self.store.append((str('log')))
+                self.expression += str('log')
 
-            elif keyword.keysym == 'Return' or keyword.keysym == 'equal':
+            elif put == 'j':
+                self.store.append((str('1j')))
+                self.expression += str('1j')
+
+            elif put == 'f' or put == 'exclam':
+                self.store.append((str('factorial(')))
+                self.expression += str('factorial(')
+
+            elif put == 'm':
+                self.store.append((str('m1(')))
+                self.expression += str('m1(')
+
+            elif put == 'h':
+                self.store.append((str('h(')))
+                self.expression += str('h(')
+
+            elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3'\
+                    or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
+                self.store.append((str(put)))
+                self.expression += str(put)
+
+            elif keyword.keysym == 'Return' or put == 'equal':
                 return self.InputEquals()
 
-            elif keyword.keysym == 'Shift_R' or keyword.keysym == 'Shift_L':
-                pass
-
             else:
-                self.store.append((str(keyword.keysym)))
-                self.expression += str(keyword.keysym)
+                pass
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -546,7 +563,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
        = ({nb} - {sqrt(d)}) / ({2 * self.a})
        = {(nb - sqrt(d)) / (2 * self.a)}''')
                         elif d <= 0:
-                            self.FullTextDisplay.insert(INSERT, f'''\n       = {nd}j²
+                            self.FullTextDisplay.insert(INSERT, f'''\n      = {nd}j²
 
 ∆<0 : X = (-b ± j√∆) / 2a
 
@@ -658,5 +675,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.0.2")
+    win.title("Scientific Calculator v3.0.3")
     win.mainloop()
