@@ -1,8 +1,8 @@
 import matplotlib
 
-matplotlib.use('TkAgg')  # MUST BE CALLED BEFORE IMPORTING plot
-# matplotlib.use('Qt5Agg')  # MUST BE CALLED BEFORE IMPORTING plot
-from __jeep_v5__ import *
+# matplotlib.use('TkAgg')  # MUST BE CALLED BEFORE IMPORTING plot
+matplotlib.use('Qt5Agg')  # MUST BE CALLED BEFORE IMPORTING plot
+from __jeep_v6__ import *
 from tkinter import *
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
@@ -13,16 +13,18 @@ from sympy.plotting import plot3d, plot3d_parametric_line, plot3d_parametric_sur
 from sympy.solvers.solveset import solvify
 
 __author__ = 'Achraf Najmi'
-__version__ = '6.2.0_b1'
+__version__ = '6.2.0_b2'
 __name__ = 'MathPy'
 """
 # version 6.2
 # other improvements
 # plotting environment plotted new case of her in window {beta testing}
 # add logo in TkAgg_XY
-# more improving of getting and setting the result in system equation solver 
+# more improving of getting and setting the result in system equation solver
 # more improving of setting the result in TkAgg_XY
 # DrawBefore and DrawAfter move them to jeep v5 as @staticmethod
+# create class of TextManager by resembling all features were making to modify the Entry(): {ControlCursor, ResetClear,
+RealStringInsertion, RemoveFromString, InsertIntoString, FullReBuild}
 """
 # noinspection NonAsciiCharacters
 π = pi
@@ -93,9 +95,6 @@ class Calculator:
         self.mathext = []
         # expression that will be displayed on screen
         self.expression = ''
-        # store expressions & order
-        self.store_expression = []
-        self.store_order = []
         # answer of operation
         self.answer = ''
         # store answers of operation
@@ -146,6 +145,8 @@ class Calculator:
         self.TextStrVar = StringVar()
         self.ErrorStrVar = StringVar()
         self.LabelStrVar = StringVar()
+        # Text Manager
+        self.TextManager = TextManager()
         # ROW 0 top canvas==============================================================================================
         top_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0', width=42)
         top_canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
@@ -204,7 +205,7 @@ class Calculator:
         self.TextDisplay = Entry(top_canvas, **ent_prm, textvariable=self.TextStrVar, insertwidth=2)
         self.TextDisplay.grid(row=0, column=1, sticky=NSEW)
         self.TextDisplay.configure(takefocus=True)
-        self.TextDisplay.bind("<Button-1>", self.Info)
+        self.TextDisplay.bind("<Button-1>", self.ClickCursor)
         self.IndexCursor = 0
         # Error Label Display, cursor="arrow"
         ErrorLabelDisplay = Label(top_canvas, **ent_prm, textvariable=self.ErrorStrVar)
@@ -231,8 +232,8 @@ class Calculator:
             self.btn_m1.append(HoverButton(self.middle_bottom_canvas, **btn_dif, text=txta[i1]))
             self.btn_m1[i1].grid(row=0, column=i1, sticky=NSEW)
         # Cursor Disposition
-        self.btn_m1[0]['command'] = lambda: self.ChangeDirectionCursor('Left')
-        self.btn_m1[1]['command'] = lambda: self.ChangeDirectionCursor('Right')
+        self.btn_m1[0]['command'] = lambda: self.DirectionCursor('Left')
+        self.btn_m1[1]['command'] = lambda: self.DirectionCursor('Right')
 
         txtb = ['ANS', 'r', 'Õ']
         self.btn_m2 = []
@@ -271,7 +272,7 @@ class Calculator:
             self.btn_d[i4].grid(row=2, column=i4, sticky=NSEW)
             self.btn_d[i4].configure(
                 command=lambda f0=logarithm_pad[i4]: [self.Input(f0), self.Input(')'),
-                                                      self.ChangeDirectionCursor('Left')])
+                                                      self.DirectionCursor('Left')])
         # buttons that will be displayed on bottom canvas ROW 0=========================================================
         btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
                "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", 'e', "oo"]
@@ -287,7 +288,7 @@ class Calculator:
                 self.btn[i5].configure(command=lambda f1=btn[i5]: self.Input(f1))
                 i5 += 1
         # (
-        self.btn[4]['command'] = lambda f2=btn[4]: [self.Input(f2), self.Input(')'), self.ChangeDirectionCursor('Left')]
+        self.btn[4]['command'] = lambda f2=btn[4]: [self.Input(f2), self.Input(')'), self.DirectionCursor('Left')]
         # + - * / =  'slate gray'
         for l0 in range(3, 22, 6):
             self.btn[l0].configure(bg='light slate gray', activebackground='slate gray4')
@@ -321,7 +322,7 @@ class Calculator:
             self.btn[l4].ABG = '#161616'
             self.btn[l4].DBG = '#212121'
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation', True)
+        self.SwitchButtons('1st'), self.SwitchMode('Operation', True)
         # Switch Menu In Bare Display===================================================================================
         menubare = Menu(self.win)
         File = Menu(menubare, tearoff=0)
@@ -333,25 +334,25 @@ class Calculator:
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=self.Exit)
         Mode.add_command(label="Operation",
-                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction("Operation", True)])
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchMode("Operation", True)])
         Mode.add_command(label='Function',
-                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Function', True)])
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchMode('Function', True)])
         Mode.add_command(label="Simple Line Equation",
-                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Equation', True)])
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchMode('Equation', True)])
         Mode.add_command(label='Line Equation Solver',
-                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchMode('Solve', True)])
         Mode.add_command(label='System Equation Solver',
-                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Matrices', True)])
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchMode('Matrices', True)])
         Mode.add_separator()
-        Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot', True)])
+        Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchMode('Plot', True)])
         Mode.add_command(label='Plot Parametric',
-                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot Prm', True)])
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchMode('Plot Prm', True)])
         Mode.add_command(label='Plot 3D',
-                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot3D', True)])
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchMode('Plot3D', True)])
         Mode.add_command(label='Plot 3D Parametric Line',
-                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchMode('P3DPL', True)])
         Mode.add_command(label='Plot 3D Parametric Surface',
-                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchMode('P3DPS', True)])
         # Configuration Master Display==================================================================================
         self.win.rowconfigure(1, weight=1)
         self.win.columnconfigure(1, weight=1)
@@ -368,34 +369,34 @@ class Calculator:
     def iCursor(self, cursor):
         self.TextDisplay.icursor(cursor)
 
-    def Info(self, event):
+    def ClickCursor(self, event):
         self.IndexCursor = int(self.TextDisplay.index("@%d" % event.x))
         try:
             end = len(str(self.expression))
             if self.IndexCursor < end:
-                self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
+                self.IndexCursor, ExNbr = self.TextManager.ControlCursor(self.IndexCursor)
         except Exception:
             pass
         self.iCursor(self.IndexCursor)
 
-    def ChangeDirectionCursor(self, key):
+    def DirectionCursor(self, key):
         if key == 'Right':
             end = len(str(self.expression))
             if self.IndexCursor < end:
                 try:
-                    self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
-                    self.IndexCursor += self.store_order[ExNbr + 1]
+                    self.IndexCursor, ExNbr = self.TextManager.ControlCursor(self.IndexCursor)
+                    self.IndexCursor += self.TextManager.store_order[ExNbr + 1]
                     self.iCursor(self.IndexCursor)
                 except Exception:
-                    self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
+                    self.IndexCursor, ExNbr = self.TextManager.ControlCursor(self.IndexCursor)
                     self.iCursor(self.IndexCursor)
             else:
                 pass
 
         elif key == 'Left':
             if self.IndexCursor > 0:
-                self.IndexCursor, ExNbr = ControlCursor(self.IndexCursor, self.store_order)
-                self.IndexCursor -= self.store_order[ExNbr]
+                self.IndexCursor, ExNbr = self.TextManager.ControlCursor(self.IndexCursor)
+                self.IndexCursor -= self.TextManager.store_order[ExNbr]
                 self.iCursor(self.IndexCursor)
             else:
                 pass
@@ -414,7 +415,7 @@ class Calculator:
             for i in range(5):
                 self.btn_a.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
-                self.btn_a[i]["command"] = lambda f3=big_pad[i]: self.SwitchFunction(f3, True)
+                self.btn_a[i]["command"] = lambda f3=big_pad[i]: self.SwitchMode(f3, True)
 
             # buttons that will be displayed on middle bottom canvas ROW 0==============================================
             # 2nd
@@ -428,21 +429,21 @@ class Calculator:
                 self.btn_u[i].configure(
                     text=Trigonometry_txt[i],
                     command=lambda f4=Trigonometry_pad[i]: [self.Input(f4), self.Input(')'),
-                                                            self.ChangeDirectionCursor('Left')])
+                                                            self.DirectionCursor('Left')])
 
             self.btn_d[3].configure(
                 text='∫f(x)',
-                command=lambda: [self.Input('integrate('), self.Input(')'), self.ChangeDirectionCursor('Left')])
+                command=lambda: [self.Input('integrate('), self.Input(')'), self.DirectionCursor('Left')])
 
             self.btn_d[2].configure(
                 text='W₀',
-                command=lambda: [self.Input('LambertW('), self.Input(')'), self.ChangeDirectionCursor('Left')])
+                command=lambda: [self.Input('LambertW('), self.Input(')'), self.DirectionCursor('Left')])
 
             self.btn[28].configure(text='10ˣ', command=lambda: self.Input('e+'))
 
             if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve' \
                     or self.mode == 'Matrices':
-                self.SwitchFunction(self.mode, False)
+                self.SwitchMode(self.mode, False)
 
         elif page == '2nd':
             # buttons that will be displayed on middle canvas ROW 0=====================================================
@@ -455,7 +456,7 @@ class Calculator:
             for i in range(5):
                 self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
-                self.btn_b[i]["command"] = lambda f5=big_pad[i]: self.SwitchFunction(f5, True)
+                self.btn_b[i]["command"] = lambda f5=big_pad[i]: self.SwitchMode(f5, True)
 
             # buttons that will be displayed on middle bottom canvas ROW 0==============================================
             # 1st
@@ -469,23 +470,23 @@ class Calculator:
                 self.btn_u[i].configure(
                     text=Trigonometry_txt[i],
                     command=lambda f6=Trigonometry_pad[i]: [self.Input(f6), self.Input(')'),
-                                                            self.ChangeDirectionCursor('Left')])
+                                                            self.DirectionCursor('Left')])
 
             self.btn_d[3].configure(
                 text='d/dx',
-                command=lambda: [self.Input('diff('), self.Input(')'), self.ChangeDirectionCursor('Left')])
+                command=lambda: [self.Input('diff('), self.Input(')'), self.DirectionCursor('Left')])
 
             self.btn_d[2].configure(
                 text='W₋₁',
-                command=lambda: [self.Input('LambertW('), self.Input(',-1)'), self.ChangeDirectionCursor('Left')])
+                command=lambda: [self.Input('LambertW('), self.Input(',-1)'), self.DirectionCursor('Left')])
 
             self.btn[28].configure(text='10¯ˣ', command=lambda: self.Input('e-'))
 
             if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == 'P3DPL' or self.mode == "Plot3D" or \
                     self.mode == 'P3DPS':
-                self.SwitchFunction(self.mode, False)
+                self.SwitchMode(self.mode, False)
 
-    def SwitchFunction(self, passmode, do_it):
+    def SwitchMode(self, passmode, do_it):
         self.mode = passmode
         self.switched = do_it
         if self.switched:
@@ -733,8 +734,6 @@ class Calculator:
         self.fctxy2 = ''
         self.PlotAddFunc = ''
         self.PlotFirstFunc = ''
-        self.store_expression = []
-        self.store_order = []
         self.expression = ''
         self.TextStrVar.set('')
         self.ErrorStrVar.set('')
@@ -742,6 +741,7 @@ class Calculator:
         self.IndexCursor = int(self.TextDisplay.index(INSERT))
         self.FigureX.clear()
         self.TkAggX.draw()
+        self.TextManager.ResetClear()
 
         if self.mode == 'Operation':
             self.VariableTXT('op >')
@@ -791,8 +791,7 @@ class Calculator:
             self.Delete()
 
         try:
-            self.expression, self.IndexCursor = RemoveFromString(self.expression, self.IndexCursor, self.store_order,
-                                                                 self.store_expression)
+            self.expression, self.IndexCursor = self.TextManager.RemoveFromString(self.expression, self.IndexCursor)
         except IndexError:
             pass
 
@@ -826,7 +825,7 @@ class Calculator:
                 self.Input('E')
 
             elif keyword.keysym == 'e':
-                self.Input('exp('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('exp('), self.Input(')'), self.DirectionCursor('Left')
 
             elif put == 'v':
                 self.SwitchButtons("1st"), self.ShowInput()
@@ -853,55 +852,55 @@ class Calculator:
                 self.Input('.')
 
             elif put == 'parenleft':
-                self.Input('('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('('), self.Input(')'), self.DirectionCursor('Left')
 
             elif put == 'parenright':
                 self.Input(')')
 
             elif put == 'backslash' or put == 'bar':
-                self.Input('sqrt('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('sqrt('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 's':
-                self.Input('sin('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('sin('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'c':
-                self.Input('cos('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('cos('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 't':
-                self.Input('tan('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('tan('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'S':
-                self.Input('sinh('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('sinh('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'C':
-                self.Input('cosh('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('cosh('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'T':
-                self.Input('tanh('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('tanh('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'l':
-                self.Input('log('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('log('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'I':
                 self.Input('oo')
 
             elif keyword.keysym == 'i':
-                self.Input('integrate('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('integrate('), self.Input(')'), self.DirectionCursor('Left')
 
             elif put == 'd':
-                self.Input('diff('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('diff('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'w':
-                self.Input('LambertW('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('LambertW('), self.Input(')'), self.DirectionCursor('Left')
 
             elif keyword.keysym == 'W':
-                self.Input('LambertW('), self.Input(',-1)'), self.ChangeDirectionCursor('Left')
+                self.Input('LambertW('), self.Input(',-1)'), self.DirectionCursor('Left')
 
             elif put == 'j':
                 self.Input('1j')
 
             elif put == 'exclam' or put == 'f':
-                self.Input('fctrl('), self.Input(')'), self.ChangeDirectionCursor('Left')
+                self.Input('fctrl('), self.Input(')'), self.DirectionCursor('Left')
 
             elif put == 'p':
                 self.Input('π')
@@ -911,10 +910,10 @@ class Calculator:
                 self.Input(put)
 
             elif keyword.keysym == 'Right':
-                self.ChangeDirectionCursor('Right')
+                self.DirectionCursor('Right')
 
             elif keyword.keysym == 'Left':
-                self.ChangeDirectionCursor('Left')
+                self.DirectionCursor('Left')
 
             else:
                 if keyword.keysym == 'Return' or put == 'equal':
@@ -929,8 +928,7 @@ class Calculator:
         if self.clear:
             self.Delete()
 
-        self.expression, self.IndexCursor = InsertIntoString(self.expression, keyword, self.IndexCursor,
-                                                             self.store_order, self.store_expression)
+        self.expression, self.IndexCursor = self.TextManager.InsertIntoString(self.expression, keyword, self.IndexCursor)
 
         self.ShowInput()
 
@@ -1121,7 +1119,7 @@ class Calculator:
                     self.equal = True
 
                 elif self.equal:
-                    self.answer, self.expression = FullReBuild(self.store_expression, self.callback)
+                    self.answer, self.expression = self.TextManager.FullReBuild(self.callback)
                     self.answer = sympify(self.answer)
                     self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                     self.DrawTexTk(f'op > {DrawBefore(self.expression)} = {DrawAfter(self.answer)}')
@@ -1539,9 +1537,8 @@ class Calculator:
             pass
         else:
             self.expression = ''
-            self.store_expression = []
-            self.store_order = []
             self.IndexCursor = 0
+            self.TextManager.ResetClear()
 
     def Exit(self):
         return self.win.destroy()
