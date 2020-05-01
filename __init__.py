@@ -1,8 +1,10 @@
 import tkinter as tk
+import itertools
 from operator import neg
 from random import randint
 from sympy import *
 from sympy.abc import x, y, z
+from sympy.parsing.sympy_parser import parse_expr
 from sympy.plotting import PlotGrid, plot_backends
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -17,7 +19,17 @@ def fctrl(nbr):
 
 def DrawAfter(character):
     try:
-        simplify = sympify(character, rational=True)
+        simplify = sympify(character, rational=True, evaluate=True)
+        return LaTex(simplify)
+    except None:
+        pass
+    except Exception:
+        pass
+
+
+def DrawAfterNum(character):
+    try:
+        simplify = sympify(character, rational=True, evaluate=True).evalf()
         return LaTex(simplify)
     except None:
         pass
@@ -28,8 +40,9 @@ def DrawAfter(character):
 def DrawBefore(character):
     try:
         pik = str(character).replace('integrate', 'Integral').replace('diff', 'Derivative')
-        simplify = sympify(pik, rational=True, evaluate=False)
-        return LaTex(simplify)
+        # expression = sympify(pik, rational=True, evaluate=False)
+        expression = parse_expr(pik, evaluate=False)
+        return LaTex(expression)
     except None:
         pass
     except Exception:
@@ -37,8 +50,10 @@ def DrawBefore(character):
 
 
 def LaTex(Math_Expression):
-    # return r"$%s$" % latex(Math_Expression)
-    return f'${latex(Math_Expression)}$'
+    TEX = str('$') + latex(Math_Expression) + str('$')
+    # TEX = r"$%s$" % latex(Math_Expression)
+    # TEX = f'${latex(Math_Expression)}$'
+    return TEX
 
 
 def TwoPlotMultiColor(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
@@ -64,7 +79,7 @@ def MultiPlot2D(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
 
 def OnePlotLaTex(Plot_First_Func, FunctionTX):
     Plot_First_Func[-1].label = LaTex(sympify(FunctionTX))
-    Plot_First_Func.show()
+    return Plot_First_Func.show()
 
 
 def FirstPlotLaTex(Plot_First_Func, FunctionTX):
@@ -137,6 +152,57 @@ def EQT(nbr_a, nbr_b, nbr_c):
                 f'  x = {neg(c)} / {b}',
                 f'  x = {neg(c) / b}')
     return delf
+
+
+class HoverButton(tk.Button):
+    def __init__(self, master=None, cnf=None, **kwargs):
+        if cnf is None:
+            cnf = {}
+        cnf = tk._cnfmerge((cnf, kwargs))
+        super(HoverButton, self).__init__(master=master, cnf=cnf, **kwargs)
+        self.DBG = kwargs['background']
+        self.ABG = kwargs['activeback']
+        self.bind_class(self, "<Enter>", self.Enter)
+        self.bind_class(self, "<Leave>", self.Leave)
+
+    def Enter(self, event):
+        self['bg'] = self.ABG
+
+    def Leave(self, event):
+        self['bg'] = self.DBG
+
+
+class ScrolledListbox(tk.Listbox):
+    def __init__(self, master, *args, **kwargs):
+        self.canvas = tk.Canvas(master)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.columnconfigure(0, weight=1)
+
+        tk.Listbox.__init__(self, self.canvas, *args, **kwargs)
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+
+        self.vbar = tk.Scrollbar(self.canvas, orient=tk.VERTICAL)
+        self.hbar = tk.Scrollbar(self.canvas, orient=tk.HORIZONTAL)
+
+        self.configure(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
+
+        self.vbar.grid(row=0, column=1, sticky=tk.NS)
+        self.vbar.configure(command=self.yview)
+        self.hbar.grid(row=1, column=0, sticky=tk.EW)
+        self.hbar.configure(command=self.xview)
+
+        # Copy geometry methods of self.canvas without overriding Listbox
+        # methods -- hack!
+        listbox_meths = vars(tk.Listbox).keys()
+        methods = vars(tk.Pack).keys() | vars(tk.Grid).keys() | vars(tk.Place).keys()
+        methods = methods.difference(listbox_meths)
+
+        for m in methods:
+            if m[0] != '_' and m != 'config' and m != 'configure':
+                setattr(self, m, getattr(self.canvas, m))
+
+    def __str__(self):
+        return str(self.canvas)
 
 
 class ManagedEntry(tk.Entry):
@@ -314,71 +380,14 @@ class ManagedEntry(tk.Entry):
                 self.answer = eval(self.expression)
                 return self.answer
 
-    def Reset(self):
-        self.icursor(0)
-        self.expression = ''
-        self.store_expression = []
-        self.store_order = []
-        self.index_cursor = int(self.index(tk.INSERT))
-
-    def Clear(self):
+    def ResetClear(self):
         self.StringVariable('')
         self.icursor(0)
         self.expression = ''
         self.store_expression = []
         self.store_order = []
+        self.index_cursor = int(self.index(tk.INSERT))
         self.index_cursor = 0
-
-
-class HoverButton(tk.Button):
-    def __init__(self, master=None, cnf=None, *args, **kwargs):
-        if cnf is None:
-            cnf = {}
-        kw = tk._cnfmerge((kwargs, cnf))
-        self.DBG = kw['background']
-        self.ABG = kw['activeback']
-        super(HoverButton, self).__init__(master=master, *args, **kwargs)
-        self.bind_class(self, "<Enter>", self.Enter)
-        self.bind_class(self, "<Leave>", self.Leave)
-
-    def Enter(self, event):
-        self['bg'] = self.ABG
-
-    def Leave(self, event):
-        self['bg'] = self.DBG
-
-
-class ScrolledListbox(tk.Listbox):
-    def __init__(self, master, *args, **kwargs):
-        self.canvas = tk.Canvas(master)
-        self.canvas.rowconfigure(0, weight=1)
-        self.canvas.columnconfigure(0, weight=1)
-
-        tk.Listbox.__init__(self, self.canvas, *args, **kwargs)
-        self.grid(row=0, column=0, sticky=tk.NSEW)
-
-        self.vbar = tk.Scrollbar(self.canvas, orient=tk.VERTICAL)
-        self.hbar = tk.Scrollbar(self.canvas, orient=tk.HORIZONTAL)
-
-        self.configure(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
-
-        self.vbar.grid(row=0, column=1, sticky=tk.NS)
-        self.vbar.configure(command=self.yview)
-        self.hbar.grid(row=1, column=0, sticky=tk.EW)
-        self.hbar.configure(command=self.xview)
-
-        # Copy geometry methods of self.canvas without overriding Listbox
-        # methods -- hack!
-        listbox_meths = vars(tk.Listbox).keys()
-        methods = vars(tk.Pack).keys() | vars(tk.Grid).keys() | vars(tk.Place).keys()
-        methods = methods.difference(listbox_meths)
-
-        for m in methods:
-            if m[0] != '_' and m != 'config' and m != 'configure':
-                setattr(self, m, getattr(self.canvas, m))
-
-    def __str__(self):
-        return str(self.canvas)
 
 
 class ScrollableTkAggX(tk.Canvas):
@@ -426,8 +435,8 @@ class ScrollableTkAggX(tk.Canvas):
 
     def Draw(self, width):
         self.on_configure_x(width)
-        self.xview_moveto(0)
         self.TkAgg.draw()
+        self.xview_moveto(0)
 
 
 class FigureX(Figure):
@@ -440,9 +449,12 @@ class FigureX(Figure):
     def DrawTexTk(self, la_text):
         self.clear()
         Text = self.text(0, 0.4, la_text, color=self.mpl_rgb, fontsize=self.fontsize)
+
         Renderer = self.canvas.get_renderer()
         bb = Text.get_window_extent(renderer=Renderer)
-        self.width = bb.width
+        self.width = int(bb.width)
+
+        self.tight_layout(renderer=Renderer)
 
     def Draw(self, TkAggX):
         TkAggX.Draw(width=self.width)
@@ -479,7 +491,7 @@ class ScrollableTkAggXY(tk.Canvas):
     # expand canvas_frame when canvas changes its size
     def on_configure(self, width, height):
         # when all widgets are in canvas
-        self.itemconfigure(self.canvas_frame, width=width + 20, height=height + 20)
+        self.itemconfigure(self.canvas_frame, width=width, height=height)
         # update scrollregion after starting 'mainloop'
         self.configure(scrollregion=self.bbox(tk.ALL))
         self.yview_moveto(1)
@@ -508,12 +520,12 @@ class FigureXY(Figure):
         n_lines = len(self.latex_math)
         # Gap between lines in axes coords
         self.Axes = self.add_subplot(1, 1, 1)
+        self.Axes.set_ylim((0, n_lines))
         self.Axes.axis('off')
         self.Axes.set_xticklabels("", visible=False)
         self.Axes.set_yticklabels("", visible=False)
-        self.Axes.set_ylim((0, n_lines))
 
-        # Plotting features demonstration formulae
+        # Plotting features formulae
         for i_line in range(0, n_lines):
             baseline = n_lines - i_line
             demo = self.latex_math[i_line]
@@ -521,16 +533,24 @@ class FigureXY(Figure):
 
         Renderer = self.canvas.get_renderer()
         bb = self.Text.get_window_extent(renderer=Renderer)
-        self.size_w.append((int(bb.width) + 45))
-        self.size_h += (int(bb.height) * 1.5)
+        self.size_w.append((int(bb.width) + 65))
+        self.size_h += (float(bb.height) * 2) + 20
 
         self.width = max(self.size_w)
         self.height = float(self.size_h)
-
-        self.tight_layout(renderer=Renderer)
+        try:
+            self.tight_layout(renderer=Renderer)
+        except Exception:
+            pass
 
     def Draw(self, TkAggXY):
         TkAggXY.Draw(width=self.width, height=self.height)
+
+    def Clear(self):
+        self.clear()
+        self.latex_math = []
+        self.size_w = [0]
+        self.size_h = 0
 
 
 class TkFigurePlot(tk.Frame):
@@ -584,3 +604,29 @@ class BackEndPlot(tk.Canvas):
         self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
         self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
         self.TkAgg.Draw()
+
+
+class SmallNumbers:
+    def __init__(self, how_much_numbers):
+        self.how_much_numbers = int(how_much_numbers)
+        self.work_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+        self.generated_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+        start = 10
+        end = 100
+        for cmb in range(2, len(str(self.how_much_numbers)) + 1):
+            self.ListOfCombinations(is_upper_then=start, is_under_then=end, combinations=cmb)
+            start *= 10
+            end *= 10
+
+    def __call__(self, call_number, *args, **kwargs):
+        return self.generated_list[call_number]
+
+    def ListOfCombinations(self, is_upper_then, is_under_then, combinations):
+        multi_work_list = eval(str('self.work_list,') * combinations)
+        nbr = 0
+        for subset in itertools.product(*multi_work_list):
+            if is_upper_then <= nbr < is_under_then:
+                self.generated_list.append(''.join(subset))
+                if self.how_much_numbers == nbr:
+                    break
+            nbr += 1
