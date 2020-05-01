@@ -362,6 +362,7 @@ class Calculator:
             # Degree -> Radians
             self.btn_m[0].configure(text='DEG', command=lambda: self.SwitchDegRad('Radians'), fg='orange',
                                     activeforeground='indian red')
+            self.btn[0]['state'] = ['disabled']
 
         elif switch == 'Radians':
             convert_constant = 1
@@ -369,6 +370,7 @@ class Calculator:
             # Radians -> Degree
             self.btn_m[0].configure(text='RAD', command=lambda: self.SwitchDegRad('Degree'), fg='orange',
                                     activeforeground='indian red')
+            self.btn[0]['state'] = ['normal']
 
     def Clear(self):
         self.a = ''
