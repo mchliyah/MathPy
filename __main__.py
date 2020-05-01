@@ -1,4 +1,4 @@
-from __jeep_v10_1__ import *
+from __jeep_v10_2__ import *
 from tkinter import *
 from sympy import *
 from sympy.abc import x, y, z
@@ -15,6 +15,7 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 # set the primary entry static height
 # switching modes are more organized for call widgets
 # reduce conditions in definition of delete and switch mode
+# fix the setting zero in Equation Solver
 """
 # noinspection NonAsciiCharacters
 π = pi
@@ -22,7 +23,7 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '7.0.0_beta2.0'
+    __version__ = '7.0.0 beta 2.1'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
@@ -204,7 +205,6 @@ class Calculator:
         self.FigureX = FigureX(figsize=(1, 1), facecolor='#212121', rgbcolor=mpl_white_rgb, fontsize=32)
         self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.win, height=211)
         self.TkAggX.configure(relief='flat', background='#212121')
-        # self.TkAggX.grid(row=1, column=0, columnspan=2, rowspan=1, sticky=NSEW)
 
         # ROW 2 set canvas showing BackEndPlot==========================================================================
         self.BackEndPlot = BackEndPlot(master=self.east_canvas, figsize=(6, 3))
@@ -316,6 +316,12 @@ class Calculator:
             self.btn[l4].configure(bg='#212121', activebackground="#111111")
             self.btn[l4].ABG = '#161616'
             self.btn[l4].DBG = '#212121'
+
+        # =================================================================================
+        self.DLTX = []
+        for l5 in range(6):
+            self.DLTX.append(DrawLaTeX())
+
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchMode('Operation')
         # Switch Menu In Bare Display===================================================================================
@@ -628,24 +634,26 @@ class Calculator:
         self.clear = False
         self.ErrorStrVar.set('')
         self.FigureX.clear()
+        for l5 in range(6):
+            self.DLTX[l5].Clear()
 
         if self.mode == 'Operation':
             self.TextDisplay.Clear()
             self.LabelStrVar.set('op>')
             self.FigureX.DrawOneLaTex('op>')
-            self.TextDisplay.focus_set()
             self.FigureXY.Draw(self.TkAggXY)
+            self.TextDisplay.focus_set()
 
         elif self.mode == 'SystemSolver':
             self.SSE.Clear()
             if self.SSE.u == 3:
-                self.FigureX.DrawTriLaTex('eq₁> 0 = 0 ', 'eq₂> 0 = 0 ', 'eq₃> 0 = 0 ')
+                self.FigureX.DrawTriLaTex('eq₁>  =', 'eq₂>  =', 'eq₃>  =')
             elif self.SSE.u == 2:
-                self.FigureX.DrawBiLaTex('eq₁> 0 = 0 ', 'eq₂> 0 = 0 ')
+                self.FigureX.DrawBiLaTex('eq₁>  =', 'eq₂>  =')
             elif self.SSE.u == 1:
-                self.FigureX.DrawOneLaTex('eq₁> 0 = 0 ')
-            self.SSE().focus_set()
+                self.FigureX.DrawOneLaTex('eq₁>  =')
             self.FigureXY.Draw(self.TkAggXY)
+            self.SSE().focus_set()
 
         elif self.mode == 'Plot':
             self.TextDisplay.Clear()
@@ -666,7 +674,7 @@ class Calculator:
             self.BackEndPlot.Clear()
             self.FE.label[0]['text'] = 'f(x)₁ = '
             self.FE.label[1]['text'] = 'f(x)₂ = '
-            self.FigureX.DrawBiLaTex('f(x)₁ = 0', 'f(x)₂ = 0')
+            self.FigureX.DrawBiLaTex('f(x)₁ =', 'f(x)₂ =')
             self.FE().focus_set()
 
         elif self.mode == "P3DPS":
@@ -674,7 +682,7 @@ class Calculator:
             self.BackEndPlot.Clear()
             self.FE.label[0]['text'] = 'f(x,y)₁ = '
             self.FE.label[1]['text'] = 'f(x,y)₂ = '
-            self.FigureX.DrawBiLaTex('f(x,y)₁ = 0', 'f(x,y)₂ = 0')
+            self.FigureX.DrawBiLaTex('f(x,y)₁ =', 'f(x,y)₂ =')
             self.FE().focus_set()
 
         self.FigureX.Draw(self.TkAggX)
@@ -843,9 +851,9 @@ class Calculator:
                 self.LabelStrVar.set('op>')
                 self.answer = sympify(self.TextDisplay.expression, evaluate=True)
 
-                expr_str = DrawBefore(self.TextDisplay.expression)
-                result_expr = DrawAfter(self.answer)
-                result_num = DrawAfterNum(self.answer)
+                expr_str = self.DLTX[0].Before(self.TextDisplay.expression)
+                result_expr = self.DLTX[1].After(self.answer)
+                result_num = self.DLTX[2].AfterNum(self.answer)
                 dot_zero = str(result_num).replace('.0', '')
 
                 if expr_str == result_expr and str('log') in str(self.TextDisplay.expression) \
@@ -859,33 +867,36 @@ class Calculator:
 
             elif self.mode == 'SystemSolver':
                 if self.SSE.u == 3:
-                    self.FigureX.DrawTriLaTex(
-                        f'eq₁> {DrawAfter(self.SSE.entry[0].expression)} = {DrawAfter(self.SSE.entry[1].expression)} ',
-                        f'eq₂> {DrawAfter(self.SSE.entry[2].expression)} = {DrawAfter(self.SSE.entry[3].expression)} ',
-                        f'eq₃> {DrawAfter(self.SSE.entry[4].expression)} = {DrawAfter(self.SSE.entry[5].expression)} ')
+                    self.FigureX.DrawTriLaTex(f'eq₁> {self.DLTX[0].After(self.SSE.entry[0].expression)}'
+                                              f' = {self.DLTX[1].After(self.SSE.entry[1].expression)}',
+                                              f'eq₂> {self.DLTX[2].After(self.SSE.entry[2].expression)}'
+                                              f' = {self.DLTX[3].After(self.SSE.entry[3].expression)}',
+                                              f'eq₃> {self.DLTX[4].After(self.SSE.entry[4].expression)}'
+                                              f' = {self.DLTX[5].After(self.SSE.entry[5].expression)}')
                 elif self.SSE.u == 2:
-                    self.FigureX.DrawBiLaTex(
-                        f'eq₁> {DrawAfter(self.SSE.entry[0].expression)} = {DrawAfter(self.SSE.entry[1].expression)} ',
-                        f'eq₂> {DrawAfter(self.SSE.entry[2].expression)} = {DrawAfter(self.SSE.entry[3].expression)} ')
+                    self.FigureX.DrawBiLaTex(f'eq₁> {self.DLTX[0].After(self.SSE.entry[0].expression)}'
+                                             f' = {self.DLTX[1].After(self.SSE.entry[1].expression)}',
+                                             f'eq₂> {self.DLTX[2].After(self.SSE.entry[2].expression)}'
+                                             f' = {self.DLTX[3].After(self.SSE.entry[3].expression)}')
                 elif self.SSE.u == 1:
-                    self.FigureX.DrawOneLaTex(
-                        f'eq₁> {DrawAfter(self.SSE.entry[0].expression)} = {DrawAfter(self.SSE.entry[1].expression)} ')
+                    self.FigureX.DrawOneLaTex(f'eq₁> {self.DLTX[0].After(self.SSE.entry[0].expression)}'
+                                              f' = {self.DLTX[1].After(self.SSE.entry[1].expression)}')
 
             elif self.mode == 'Plot':
                 self.LabelStrVar.set(f'f(x) =')
-                self.FigureX.DrawOneLaTex(f'f(x) = {DrawAfter(self.TextDisplay.expression)}')
+                self.FigureX.DrawOneLaTex(f'f(x) = {self.DLTX[0].After(self.TextDisplay.expression)}')
 
             elif self.mode == "Plot3D":
                 self.LabelStrVar.set(f'f(x,y) =')
-                self.FigureX.DrawOneLaTex(f'f(x,y) = {DrawAfter(self.TextDisplay.expression)}')
+                self.FigureX.DrawOneLaTex(f'f(x,y) = {self.DLTX[0].After(self.TextDisplay.expression)}')
 
             elif self.mode == "PP2D3DL":
-                self.FigureX.DrawBiLaTex(f'f(x)₁ = {DrawAfter(self.FE.entry[0].expression)}',
-                                         f'f(x)₂ = {DrawAfter(self.FE.entry[1].expression)}')
+                self.FigureX.DrawBiLaTex(f'f(x)₁ = {self.DLTX[0].After(self.FE.entry[0].expression)}',
+                                         f'f(x)₂ = {self.DLTX[1].After(self.FE.entry[1].expression)}')
 
             elif self.mode == "P3DPS":
-                self.FigureX.DrawBiLaTex(f'f(x,y)₁ = {DrawAfter(self.FE.entry[0].expression)}',
-                                         f'f(x,y)₂ = {DrawAfter(self.FE.entry[1].expression)}')
+                self.FigureX.DrawBiLaTex(f'f(x,y)₁ = {self.DLTX[0].After(self.FE.entry[0].expression)}',
+                                         f'f(x,y)₂ = {self.DLTX[1].After(self.FE.entry[1].expression)}')
 
             self.ErrorStrVar.set('')
 
