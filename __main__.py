@@ -15,12 +15,15 @@ import __eci__ as eci
 
 """ 
 # version 6
-# stop working ENG function and delete it
-# stop working switching Radians to Degree function and delete it
+# stop working ENG definition and delete it
+# stop working switching Radians to Degree definition and delete it
 # add LambertW
 # make writen more easy in logarithm & trigonometrical functions
 # optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions
-# new function *Control-Cursor to improve moving cursor with optimize click insert 
+# new definition *Control-Cursor to improve moving cursor with optimize click insert 
+# new functions *integrate and *diff
+# optimize bind : add *integrate {i} and *diff {D,d} and ∞ {I}
+# change colors of operations
 """
 
 btn_prm = {'padx': 18,
@@ -36,6 +39,19 @@ btn_prm = {'padx': 18,
            'activeback': '#555555',
            'activebackground': '#444444',
            'activeforeground': "white"}
+btn_dif = {'padx': 18,
+           'pady': 2,
+           'bd': 1,
+           'background': '#666666',
+           'fg': '#FF9950',
+           'bg': '#666666',
+           'font': ('Wingdings', 21),
+           'width': 1,
+           'height': 1,
+           'relief': 'raised',
+           'activeback': '#555555',
+           'activebackground': '#444444',
+           'activeforeground': 'orange'}
 btnb_prm = {'padx': 18,
             'pady': 2,
             'bd': 1,
@@ -327,8 +343,8 @@ class Calculator:
         self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
         self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), insertbackground='white')
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
-        self.FirstTextDisplay.focus_set()
         self.FirstTextDisplay.icursor(0)
+        self.FirstTextDisplay.focus_set()
         self.IndexCursor = 0
         # Second Canvas
         self.canvas = Canvas(self.win, relief='flat', bg='#666666', width=42)
@@ -393,29 +409,37 @@ class Calculator:
         for k in range(5):
             self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
-        txt = ['<-', '->', '1ST', 'ANS', 'r', 'Õ']
-        self.btn_m = []
-        for i in range(6):
-            self.btn_m.append(eci.HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
-            self.btn_m[i].grid(row=0, column=i, sticky=NSEW)
-        #
-        self.btn_m[0].configure(command=lambda: self.CHDR('Left'), fg='#FF9950', activeforeground='orange')
-        self.btn_m[1].configure(command=lambda: self.CHDR('Right'), fg='#FF9950', activeforeground='orange')
+        txta = ['Û', 'Ü', '1ST']
+        self.btn_m1 = []
+        for i1 in range(3):
+            self.btn_m1.append(eci.HoverButton(self.middle_frame, **btn_dif, text=txta[i1]))
+            self.btn_m1[i1].grid(row=0, column=i1, sticky=NSEW)
+        # Cursor Disposition
+        self.btn_m1[0]['command'] = lambda: self.CHDR('Left')
+        self.btn_m1[1]['command'] = lambda: self.CHDR('Right')
+
+        txtb = ['ANS', 'r', 'Õ']
+        self.btn_m2 = []
+        i2b = 3
+        for i2a in range(3):
+            self.btn_m2.append(eci.HoverButton(self.middle_frame, **btn_prm, text=txtb[i2a]))
+            self.btn_m2[i2a].grid(row=0, column=i2b, sticky=NSEW)
+            i2b += 1
         # Answer Stored
-        self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
-                                command=lambda: self.Input(str(self.callback[-1])))
-        self.btn_m[3].ActiveBack = '#009C27'
-        self.btn_m[3].DefaultBackGround = '#20B645'
+        self.btn_m2[0].configure(bg='#20B645', activebackground='#00751E', font=('Segoe UI Symbol', 16, 'bold'),
+                                 command=lambda: self.Input(str(self.callback[-1])))
+        self.btn_m2[0].ActiveBack = '#009C27'
+        self.btn_m2[0].DefaultBackGround = '#20B645'
         # Clear
-        self.btn_m[4].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 23),
-                                command=lambda: self.Delete())
-        self.btn_m[4].ActiveBack = 'firebrick3'
-        self.btn_m[4].DefaultBackGround = 'firebrick2'
+        self.btn_m2[1].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 23),
+                                 command=lambda: self.Delete())
+        self.btn_m2[1].ActiveBack = 'firebrick3'
+        self.btn_m2[1].DefaultBackGround = 'firebrick2'
         # Remove
-        self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
-                                command=lambda: self.Remove())
-        self.btn_m[5].ActiveBack = 'Royalblue3'
-        self.btn_m[5].DefaultBackGround = 'Royalblue2'
+        self.btn_m2[2].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
+                                 command=lambda: self.Remove())
+        self.btn_m2[2].ActiveBack = 'Royalblue3'
+        self.btn_m2[2].DefaultBackGround = 'Royalblue2'
         # ========================Trigonometry==========================================================================
         self.btn_u = []
         for i in range(6):
@@ -423,8 +447,8 @@ class Calculator:
             self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
-        logarithm_pad = ['log(', 'exp(', 'LambertW(', '', 'sqrt(', "factorial("]
-        logarithm_txt = ['log', 'exp', 'W', "", '√n', "n!"]
+        logarithm_pad = ['log(', 'exp(', 'LambertW(', 'integrate(', 'sqrt(', "factorial("]
+        logarithm_txt = ['log', 'exp', 'W', "∫f(x)", '√n', "n!"]
         self.btn_d = []
         for i in range(6):
             self.btn_d.append(eci.HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i]))
@@ -447,13 +471,15 @@ class Calculator:
                 self.btn[i].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
-        # + - * / =
-        for l in range(3, 28, 6):
-            self.btn[l].configure(bg='#FF5E00', activebackground='#A74400')
-            self.btn[l].ActiveBack = '#CF4E00'
-            self.btn[l].DefaultBackGround = '#FF5E00'
+        # + - * / =  'slate gray'
+        for l in range(3, 22, 6):
+            self.btn[l].configure(bg='light slate gray', activebackground='slate gray4')
+            self.btn[l].ActiveBack = 'slate gray'
+            self.btn[l].DefaultBackGround = 'light slate gray'
         # equals
-        self.btn[27].configure(command=lambda: self.ShowEqualText())
+        self.btn[27].configure(command=lambda: self.ShowEqualText(), bg='#FF5E00', activebackground='#A74400')
+        self.btn[27].ActiveBack = '#CF4E00'
+        self.btn[27].DefaultBackGround = '#FF5E00'
         # seven four one zero
         for l in range(6, 25, 6):
             self.btn[l].configure(bg='#212121', activebackground="#111111")
@@ -578,8 +604,8 @@ class Calculator:
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 2nd
-            self.btn_m[2].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='#FF9950',
-                                    activeforeground='orange')
+            self.btn_m1[2].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"),
+                                     font=('Segoe UI Symbol', 16, 'bold'))
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['cos(', 'sin(', "tan(", 'cosh(', 'sinh(', "tanh("]
@@ -588,6 +614,10 @@ class Calculator:
                 self.btn_u[i].configure(
                     text=Trigonometry_txt[i],
                     command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
+
+            self.btn_d[3].configure(
+                    text='∫f(x)',
+                    command=lambda: [self.Input('integrate('), self.Input(')'), self.CHDR('Left')])
 
             if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve' \
                     or self.mode == 'Matrices':
@@ -608,8 +638,8 @@ class Calculator:
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 1st
-            self.btn_m[2].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='#FF9950',
-                                    activeforeground='orange')
+            self.btn_m1[2].configure(text="2ND", command=lambda: self.SwitchButtons("1st"),
+                                     font=('Segoe UI Symbol', 16, 'bold'))
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['acos(', 'asin(', "atan(", 'acosh(', 'asinh(', "atanh("]
@@ -618,6 +648,10 @@ class Calculator:
                 self.btn_u[i].configure(
                     text=Trigonometry_txt[i],
                     command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
+
+            self.btn_d[3].configure(
+                text='d/dx',
+                command=lambda: [self.Input('diff('), self.Input(')'), self.CHDR('Left')])
 
             if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == 'P3DPL' or self.mode == "Plot3D" or \
                     self.mode == 'P3DPS':
@@ -633,7 +667,7 @@ class Calculator:
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Operation :')
                 self.SecondStrVar.set('')
-                self.btn[11]['state'] = ['disabled']
+                self.btn[11].config(state=NORMAL)
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2].config(state=NORMAL)
@@ -965,8 +999,14 @@ class Calculator:
             elif keyword.keysym == 'l':
                 self.Input('log('), self.Input(')'), self.CHDR('Left')
 
-            elif put == 'i':
+            elif keyword.keysym == 'I':
                 self.Input('oo')
+
+            elif keyword.keysym == 'i':
+                self.Input('integrate('), self.Input(')'), self.CHDR('Left')
+
+            elif put == 'd':
+                self.Input('diff('), self.Input(')'), self.CHDR('Left')
 
             elif put == 'j':
                 self.Input('1j')
