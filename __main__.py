@@ -2,11 +2,12 @@ from math import log2, log10
 from operator import *
 from tkinter import *
 from tkinter.scrolledtext import *
+from tkinter import _cnfmerge as cnfmerge
 from sympy import *
 from sympy.abc import x, y
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
-from tkinter import _cnfmerge as cnfmerge
+# from sympy import init_session, init_printing
 
 
 # version 5.0.3
@@ -42,8 +43,8 @@ btn_prm = {'padx': 18,
            'width': 2,
            'height': 1,
            'relief': 'raised',
-           'activeback': '#4d4d4d',
-           'activebackground': '#4d4d4d',
+           'activeback': '#555555',
+           'activebackground': '#555555',
            'activeforeground': "white"}
 btnb_prm = {'padx': 18,
             'pady': 2,
@@ -55,8 +56,8 @@ btnb_prm = {'padx': 18,
             'width': 2,
             'height': 1,
             'relief': 'raised',
-            'activeback': '#292929',
-            'activebackground': '#292929',
+            'activeback': '#3E3E3E',
+            'activebackground': '#3E3E3E',
             'activeforeground': "white"}
 big_prm = {'padx': 8,
            'pady': 7,
@@ -229,19 +230,19 @@ class Calculator:
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
         for l in range(6, 9):
-            self.btn[l].configure(bg='#292929', activebackground="#090909")
-            self.btn[l].defaultActiveBack = '#090909'
+            self.btn[l].configure(bg='#292929', activebackground="#202020")
+            self.btn[l].defaultActiveBack = '#202020'
             self.btn[l].defaultBackGround = '#292929'
         for l in range(12, 15):
-            self.btn[l].configure(bg='#292929', activebackground="#090909")
-            self.btn[l].defaultActiveBack = '#090909'
+            self.btn[l].configure(bg='#292929', activebackground="#202020")
+            self.btn[l].defaultActiveBack = '#202020'
             self.btn[l].defaultBackGround = '#292929'
         for l in range(18, 21):
-            self.btn[l].configure(bg='#292929', activebackground="#090909")
-            self.btn[l].defaultActiveBack = '#090909'
+            self.btn[l].configure(bg='#292929', activebackground="#202020")
+            self.btn[l].defaultActiveBack = '#202020'
             self.btn[l].defaultBackGround = '#292929'
-        self.btn[25].configure(bg='#292929', activebackground="#090909")
-        self.btn[25].defaultActiveBack = '#090909'
+        self.btn[25].configure(bg='#292929', activebackground="#202020")
+        self.btn[25].defaultActiveBack = '#202020'
         self.btn[25].defaultBackGround = '#292929'
         # Equals
         self.btn[26].configure(bg='#FF771F', activebackground='#FF5E00', command=self.InputEquals)
