@@ -1,19 +1,21 @@
-from tkinter import _cnfmerge
+import tkinter as tk
 from tkinter import *
+from tkinter import Scrollbar
+from tkinter import _cnfmerge
 from operator import neg
 from random import randint
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import PlotGrid
-import tkinter as tk
-from tkinter import Scrollbar
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
+from matplotlib.colors import to_hex
 
 delf = ()
 
 
-def fctrl(arg):
-    return factorial(arg).evalf()
+def fctrl(nbr):
+    return factorial(nbr).evalf()
 
 
 def DrawAfter(character):
@@ -42,38 +44,61 @@ def LaTex(Math_Expression):
     return f'${latex(Math_Expression)}$'
 
 
-def TwoPlotMultiColor(Plot_First_Func, Plot_Add_Func, Function):
-    Plot_First_Func.extend(Plot_Add_Func)
+def TwoPlotMultiColor(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
+    Plot_First_Func2D.extend(Plot_Add_Func2D)
     RD = randint(1048576, 16777000)
     HX = hex(RD)
     HX = HX[2:8].upper()
-    Plot_First_Func[-1].line_color = str('#') + str(HX)
-    Plot_First_Func[-1].label = LaTex(sympify(Function))
-    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func, legend=True)
-    return Plot_First_Func
+    Plot_First_Func2D[-1].line_color = str('#') + str(HX)
+    # Plot_First_Func2D[-1].label = LaTex(sympify(Function2D)), legend=True
+    PlotGrid(1, 2, Plot_First_Func2D, Plot_Add_Func2D)
 
 
-def LabelLatexPlot(Plot_First_Func, Function):
-    Plot_First_Func[-1].label = LaTex(sympify(Function))
+def MultiPlot2D(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
+    Plot_First_Func2D.extend(Plot_Add_Func2D)
+    RD = randint(1048576, 16777000)
+    HX = hex(RD)
+    HX = HX[2:8].upper()
+    Plot_First_Func2D[-1].line_color = str('#') + str(HX)
+    Plot_First_Func2D[-1].label = LaTex(sympify(Function2D))
+    return Plot_First_Func2D
+
+
+def OnePlotLaTex(Plot_First_Func, FunctionTX):
+    Plot_First_Func[-1].label = LaTex(sympify(FunctionTX))
     Plot_First_Func.show()
 
 
-def TwoPlot3D(Plot_First_Func, Plot_Add_Func):
-    Plot_First_Func.extend(Plot_Add_Func)
-    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func, legend=True)
+def FirstPlotLaTex(Plot_First_Func, FunctionTX):
+    Plot_First_Func[-1].label = LaTex(sympify(FunctionTX))
     return Plot_First_Func
+
+
+def TwoPlot3D(Plot_First_Func3D, Plot_Add_Func3D):
+    Plot_First_Func3D.extend(Plot_Add_Func3D)
+    PlotGrid(1, 2, Plot_First_Func3D, Plot_Add_Func3D, legend=True)
+    return Plot_First_Func3D
+
+
+def MultiPlot3D(Plot_First_Func3D, Plot_Add_Func3D):
+    Plot_First_Func3D.extend(Plot_Add_Func3D)
+    return Plot_First_Func3D
 
 
 def EQT(nbr_a, nbr_b, nbr_c):
     global delf
+    delf = ()
     a = float(eval(nbr_a))
     b = float(eval(nbr_b))
     c = float(eval(nbr_c))
     d = float((b ** 2) - 4 * a * c)
     nd = neg(d)
     nb = neg(b)
+    delf += (
+        '____________________________________________', '',
+        f"eq > {eval(str(a * x ** 2 + b * x + c))} = 0")
     if a > 0 or a < 0:
-        delf = (
+        delf += (
             f'The Equation Have Two Solutions For x :',
             f'  ∆ =  b² - 4ac',
             f'  ∆ = {b}² - (4 ⨯ {a} ⨯ {c})',
@@ -121,34 +146,72 @@ def EQT(nbr_a, nbr_b, nbr_c):
     return delf
 
 
-class TextManager:
-    def __init__(self):
-        self.text = ''
+class ManagedEntry(Entry):
+    def __init__(self, master=None, cnf=None, **kw):
+        if cnf is None:
+            cnf = {}
+        kw = _cnfmerge((kw, cnf))
+        super(ManagedEntry, self).__init__(master=master, cnf={}, **kw)
+        self.bind_class(self, "<Button-1>", self.ClickCursor)
+        self.index_cursor = 0
         self.expression = ''
         self.answer = ''
         # store expressions & order
         self.store_expression = []
         self.store_order = []
         self.permit = None
-        self.nbr = int
+        self.ind_nbr = int
+        self.ex_nbr = int
         self.n = int
         self.v = int
         self.w = int
 
-    def ControlCursor(self, index):
-        self.nbr = 0
-        self.n = 0
-        while True:
-            self.nbr += self.store_order[self.n]
-            if index == 0:
-                return 0, -1
-            elif index <= self.nbr:
-                return self.nbr, self.n
-            self.n += 1
+    def ClickCursor(self, event):
+        self.index_cursor = int(self.index("@%d" % event.x))
+        try:
+            end = len(str(self.expression))
+            if self.index_cursor < end:
+                self.index_cursor, self.ex_nbr = self.ControlCursor()
+        except Exception:
+            pass
+        self.icursor(self.index_cursor)
 
-    def RealStringInsertion(self, str_now, index):
+    def DirectionCursor(self, key):
+        if key == 'Right':
+            end = len(str(self.expression))
+            if self.index_cursor < end:
+                try:
+                    self.index_cursor, self.ex_nbr = self.ControlCursor()
+                    self.index_cursor += self.store_order[self.ex_nbr + 1]
+                    self.icursor(self.index_cursor)
+                except Exception:
+                    self.index_cursor, self.ex_nbr = self.ControlCursor()
+                    self.icursor(self.index_cursor)
+            else:
+                pass
+
+        elif key == 'Left':
+            if self.index_cursor > 0:
+                self.index_cursor, self.ex_nbr = self.ControlCursor()
+                self.index_cursor -= self.store_order[self.ex_nbr]
+                self.icursor(self.index_cursor)
+            else:
+                pass
+
+    def ControlCursor(self):
+        self.ind_nbr = 0
+        self.ex_nbr = 0
+        while True:
+            self.ind_nbr += self.store_order[self.ex_nbr]
+            if self.index_cursor == 0:
+                return 0, -1
+            elif self.index_cursor <= self.ind_nbr:
+                return self.ind_nbr, self.ex_nbr
+            self.ex_nbr += 1
+
+    def RealStringInsertion(self, str_now):
         how = len(self.store_expression)
-        now = str(str_now[:index])
+        now = str(str_now[:self.index_cursor])
         real = ''
         self.n = 0
         while self.n < how:
@@ -160,49 +223,49 @@ class TextManager:
             self.n += 1
         return self.permit, self.n
 
-    def RemoveFromString(self, remove_from_str, index):
-        end = len(str(remove_from_str))
-        self.permit, self.n = self.RealStringInsertion(remove_from_str, index)
-        pro = index - self.store_order[self.n]
-        if index == 0:
+    def RemoveFromString(self):
+        end = len(str(self.expression))
+        self.permit, self.n = self.RealStringInsertion(self.expression)
+        pro = self.index_cursor - self.store_order[self.n]
+        if self.index_cursor == 0:
             pass
         else:
-            if end == index and self.permit:
-                self.text = remove_from_str[:-self.store_order[self.n]]
-                index -= self.store_order[int(self.n)]
+            if end == self.index_cursor and self.permit:
+                self.expression = self.expression[:-self.store_order[self.n]]
+                self.index_cursor -= self.store_order[int(self.n)]
                 self.store_expression.pop(int(self.n))
                 self.store_order.pop(int(self.n))
             elif pro == 0 and self.permit:
-                self.text = remove_from_str[self.store_order[self.n]:]
-                index -= self.store_order[int(self.n)]
+                self.expression = self.expression[self.store_order[self.n]:]
+                self.index_cursor -= self.store_order[int(self.n)]
                 self.store_expression.pop(int(self.n))
                 self.store_order.pop(int(self.n))
             else:
                 if self.permit:
-                    self.text = remove_from_str[:pro] + remove_from_str[index:]
-                    index -= self.store_order[int(self.n)]
+                    self.expression = self.expression[:pro] + self.expression[self.index_cursor:]
+                    self.index_cursor -= self.store_order[int(self.n)]
                     self.store_expression.pop(int(self.n))
                     self.store_order.pop(int(self.n))
                 else:
                     pass
-            return self.text, index
+            return self.expression
 
-    def InsertIntoString(self, insert_into_str, str_to_insert, index):
-        end = len(str(insert_into_str))
-        self.permit, self.n = self.RealStringInsertion(insert_into_str, index)
-        if index == 0:
-            self.text = insert_into_str[:index] + str_to_insert + insert_into_str[index:]
+    def InsertIntoString(self, str_to_insert):
+        end = len(str(self.expression))
+        self.permit, self.n = self.RealStringInsertion(self.expression)
+        if self.index_cursor == 0:
+            self.expression = self.expression[:self.index_cursor] + str_to_insert + self.expression[self.index_cursor:]
             self.store_expression.insert(0, str(str_to_insert))
             self.store_order.insert(0, len(str(str_to_insert)))
-            index += int(len(str(str_to_insert)))
-        elif index == end or self.permit:
-            self.text = insert_into_str[:index] + str_to_insert + insert_into_str[index:]
+            self.index_cursor += int(len(str(str_to_insert)))
+        elif self.index_cursor == end or self.permit:
+            self.expression = self.expression[:self.index_cursor] + str_to_insert + self.expression[self.index_cursor:]
             self.store_expression.insert(int(self.n) + 1, str(str_to_insert))
             self.store_order.insert(int(self.n) + 1, len(str(str_to_insert)))
-            index += int(len(str(str_to_insert)))
+            self.index_cursor += int(len(str(str_to_insert)))
         else:
-            self.text = insert_into_str
-        return self.text, index
+            self.expression = self.expression
+        return self.expression
 
     def FullReBuild(self, call_back):
         try:
@@ -215,21 +278,21 @@ class TextManager:
                         or operation == '**2' or operation == '^':
                     for y in range(self.v, self.w):
                         self.expression += str(self.store_expression[y])
-                    character = str('(') + str(call_back[-1]) + str(')') + str(self.expression)
-                    self.answer = eval(character)
-                    return self.answer, character
+                    self.expression = str('(') + str(call_back[-1]) + str(')') + str(self.expression)
+                    self.answer = eval(self.expression)
+                    return self.answer
                 elif operation == 'e+' or operation == 'e-':
                     for y in range(self.v, self.w):
                         self.expression += str(self.store_expression[y])
-                    character = str(call_back[-1]) + str(self.expression)
-                    self.answer = eval(character)
-                    return self.answer, character
+                    self.expression = str(call_back[-1]) + str(self.expression)
+                    self.answer = eval(self.expression)
+                    return self.answer
                 self.v -= 1
         except Exception:
             try:
                 self.expression = str(self.store_expression[0]) + str(call_back[-1]) + str(')')
                 self.answer = eval(self.expression)
-                return self.answer, self.expression
+                return self.answer
             except Exception:
                 self.v = int(len(self.store_expression)) - 1
                 while self.v >= 0:
@@ -237,15 +300,18 @@ class TextManager:
                     if operation > 3:
                         self.expression = str(self.store_expression[self.v]) + str(call_back[-1]) + str(')')
                         self.answer = eval(self.expression)
-                        return self.answer, self.expression
+                        return self.answer
                     self.v -= 1
                 self.expression = str(call_back[-1])
                 self.answer = eval(self.expression)
-                return self.answer, self.expression
+                return self.answer
 
     def ResetClear(self):
+        self.icursor(0)
+        self.expression = ''
         self.store_expression = []
         self.store_order = []
+        self.index_cursor = int(self.index(INSERT))
 
 
 class HoverButton(Button):
@@ -299,19 +365,21 @@ class ScrolledListbox(Listbox):
 
 class ScrollableTkAggX(FigureCanvasTkAgg):
     def __init__(self, figure, master, *args, **kwargs):
-        # --- create canvas with scrollbar ---
-        self.canvas = tk.Canvas(master)
+        # --- create canvas with scrollbar ---,
+        facecolor = str(to_hex(figure.get_facecolor()))
+        self.canvas = tk.Canvas(master, background=facecolor)
         self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
         self.canvas.rowconfigure(0, weight=1)
         self.canvas.columnconfigure(0, weight=1)
 
-        self.fig_wrapper = tk.Frame(self.canvas)
+        self.fig_wrapper = tk.Frame(self.canvas, background=facecolor)
         self.fig_wrapper.grid(row=0, column=0, sticky=tk.NSEW)
         self.fig_wrapper.rowconfigure(0, weight=1)
         self.fig_wrapper.columnconfigure(0, weight=1)
 
         super(ScrollableTkAggX, self).__init__(figure, master=self.fig_wrapper, *args, **kwargs)
         self.tkagg = self.get_tk_widget()
+        self.tkagg.configure(background=facecolor)
         self.tkagg.grid(row=0, column=0, sticky=tk.NSEW)
 
         self.hbar = Scrollbar(self.canvas, orient=tk.HORIZONTAL, command=self.canvas.xview)
@@ -331,6 +399,10 @@ class ScrollableTkAggX(FigureCanvasTkAgg):
         self.canvas.itemconfigure(self.canvas_frame, height=canvas_height - 20)
         # update scrollregion after starting 'mainloop'
         self.canvas.configure(scrollregion=self.canvas.bbox(tk.ALL))
+
+    def Draw(self):
+        self.draw()
+        self.canvas.xview_moveto(0)
 
 
 class ScrollableTkAggXY(FigureCanvasTkAgg):
@@ -377,21 +449,95 @@ class ScrollableTkAggXY(FigureCanvasTkAgg):
         self.on_configure()
 
 
-class TkFigureFrame(FigureCanvasTkAgg):
-    def __init__(self, figure, window, *args, **kwargs):
-        self.canvas = Canvas(master=window)
-        self.canvas.rowconfigure(0, weight=1)
-        self.canvas.columnconfigure(0, weight=1)
+class FigureXY(Figure):
+    def __init__(self, fontsize, **kwargs):
+        super(FigureXY, self).__init__(**kwargs)
+        self.fontsize = fontsize
+        self.AxesXY = self.add_subplot(1, 1, 1)
+        self.latex_math = []
 
-        super(TkFigureFrame, self).__init__(figure=figure, master=self.canvas, *args, **kwargs)
+    def TextMath(self):
+        demo = self.latex_math[-1]
+        self.AxesXY.text(0, 0.5, demo, fontsize=self.fontsize)
+        self.AxesXY.axis('off')
+        self.AxesXY.set_xticklabels("", visible=False)
+        self.AxesXY.set_yticklabels("", visible=False)
+
+    def AddFirstLaTex(self, character):
+        self.latex_math.append(character)
+        self.TextMath()
+        try:
+            self.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
+        except Exception:
+            pass
+
+    def AddMultiLaTex(self, character):
+        self.latex_math.append(character)
+
+        n_lines = int(len(self.latex_math))
+        self.AxesXY = self.add_subplot(n_lines, 1, n_lines)
+
+        self.TextMath()
+
+        n_axes = len(self.axes)
+        for i_axes in range(n_axes):
+            self.axes[i_axes].change_geometry(n_axes, 1, i_axes + 1)
+
+        oldSize = self.get_size_inches()
+        mac1 = len(self.latex_math[-1])
+        mac2 = len(self.latex_math[-2])
+        if mac1 > 20 or mac2 > 30 or mac2 > 20 or mac1 > 30:
+            self.set_size_inches(1.35 + oldSize[0], 1.35 + oldSize[1])
+        else:
+            self.set_size_inches(0.7 + s for s in oldSize)
+
+        try:
+            self.tight_layout()  # pad=-1, h_pad=-3 h_pad=2
+        except Exception:
+            pass
+
+
+class TkFigurePlot(FigureCanvasTkAgg):
+    def __init__(self, figure, master, *args, **kwargs):
+        super(TkFigurePlot, self).__init__(figure=figure, master=master, *args, **kwargs)
         self.TkAggWidget = self.get_tk_widget()
         self.TkAggWidget.grid(row=1, column=0, sticky=NSEW)
 
-        self.ToolBarFrame = Frame(master=self.canvas)
+        self.ToolBarFrame = Frame(master)
         self.ToolBarFrame.grid(row=0, column=0)
         self.ToolBarFrame.columnconfigure(0, weight=1)
 
         self.ToolBar = NavigationToolbar2Tk(self, self.ToolBarFrame)
-        self.ToolBar.update()
         self.ToolBar.grid(row=0, column=0)
         self.ToolBar.columnconfigure(0, weight=1)
+        self.ToolBar.update()
+
+    def Destroy(self):
+        self.ToolBarFrame.destroy()
+        self.TkAggWidget.destroy()
+
+
+class BackEndPlot:
+    def __init__(self, master):
+        self.Master = master
+        self.Figure = Figure(figsize=(6, 3), facecolor='#F0F0F0')
+        self.FigureWidget()
+
+    def Plot(self, plot):
+        PlotFirstFunc = plot
+        PlotBackEnd = PlotFirstFunc.backend(PlotFirstFunc)
+        PlotBackEnd.process_series()
+        AXg = PlotBackEnd.ax[0]
+        self.Figure = PlotBackEnd.fig
+        self.Figure._remove_ax(AXg)
+        self.Figure.add_axes(AXg)
+        self.Figure.set_size_inches(6, 3)
+        self.Figure.tight_layout()
+        self.TkAgg.Destroy()
+        self.FigureWidget()
+        self.TkAgg.draw()
+
+    def FigureWidget(self):
+        self.TkAgg = TkFigurePlot(figure=self.Figure, master=self.Master)
+        TkAggWidget = self.TkAgg.get_tk_widget()
+        TkAggWidget.grid(row=1, column=0, sticky=NSEW)
