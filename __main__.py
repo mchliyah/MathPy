@@ -572,9 +572,11 @@ class Calculator:
             if self.mode == 'Operation':
                 self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
-                self.FastTextVariable.set(N(eval(self.expression), self.ENG))
                 if self.ENG == 16:
                     self.FastTextVariable.set(eval(self.expression))
+
+                else:
+                    self.FastTextVariable.set(N(eval(self.expression), self.ENG))
 
             elif self.mode == 'Equation 2nd':
                 if self.full is None:
@@ -628,9 +630,10 @@ class Calculator:
         try:
             if self.mode == 'Operation':
                 if not self.equal:
-                    self.answer = N(eval(self.expression), self.ENG)
                     if self.ENG == 16:
                         self.answer = eval(self.expression)
+                    else:
+                        self.answer = N(eval(self.expression), self.ENG)
                     self.FastTextVariable.set('')
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -648,9 +651,10 @@ class Calculator:
                                 self.expression += str(self.store_expression[z])
                                 z += 1
                             self.expression = str(self.callback[-1]) + str(self.expression)
-                            self.answer = N(eval(self.expression), self.ENG)
                             if self.ENG == 16:
                                 self.answer = eval(self.expression)
+                            else:
+                                self.answer = N(eval(self.expression), self.ENG)
                             self.FastTextVariable.set(self.answer)
                             self.TextVariable.set(f'{self.expression} = {self.answer}')
                             self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -804,9 +808,10 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             try:
                 if self.mode == 'Operation' and self.equal:
                     self.expression = str(self.callback[-1])
-                    self.answer = N(eval(self.expression), self.ENG)
                     if self.ENG == 16:
                         self.answer = eval(self.expression)
+                    else:
+                        self.answer = N(eval(self.expression), self.ENG)
                     self.FastTextVariable.set(self.answer)
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
@@ -823,9 +828,10 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             try:
                 if self.mode == 'Operation' and self.equal:
                     self.expression = str(self.callback[-1])
-                    self.answer = N(eval(self.expression), self.ENG)
                     if self.ENG == 16:
                         self.answer = eval(self.expression)
+                    else:
+                        self.answer = N(eval(self.expression), self.ENG)
                     self.FastTextVariable.set(self.answer)
                     self.TextVariable.set(f'{self.expression} = {self.answer}')
                     self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
