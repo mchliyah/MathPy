@@ -9,15 +9,7 @@ import tkinter as tk
 from tkinter import Scrollbar
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
-text = ''
-expression = ''
-answer = ''
-permit = None
 delf = ()
-nbr = int
-n = int
-v = int
-w = int
 
 
 def fctrl(arg):
@@ -48,124 +40,6 @@ def DrawBefore(character):
 def LaTex(Math_Expression):
     # return r"$%s$" % latex(Math_Expression)
     return f'${latex(Math_Expression)}$'
-
-
-def ControlCursor(index, nbr_order):
-    global n, nbr
-    nbr = 0
-    n = 0
-    while True:
-        nbr += nbr_order[n]
-        if index == 0:
-            return 0, -1
-        elif index <= nbr:
-            return nbr, n
-        n += 1
-
-
-def RealStringInsertion(str_now, index, str_order):
-    global permit, n
-    how = len(str_order)
-    now = str(str_now[:index])
-    real = ''
-    n = 0
-    while n < how:
-        real += str(str_order[n])
-        permit = None
-        if now == real:
-            permit = True
-            break
-        n += 1
-    return permit, n
-
-
-def RemoveFromString(str_to_remove, index, nbr_order, str_order):
-    global text, permit, n
-    end = len(str(str_to_remove))
-    permit, n = RealStringInsertion(str_to_remove, index, str_order)
-    pro = index - nbr_order[n]
-    if index == 0:
-        pass
-    else:
-        if end == index and permit:
-            text = str_to_remove[:-nbr_order[n]]
-            index -= nbr_order[int(n)]
-            str_order.pop(int(n))
-            nbr_order.pop(int(n))
-        elif pro == 0 and permit:
-            text = str_to_remove[nbr_order[n]:]
-            index -= nbr_order[int(n)]
-            str_order.pop(int(n))
-            nbr_order.pop(int(n))
-        else:
-            if permit:
-                text = str_to_remove[:pro] + str_to_remove[index:]
-                index -= nbr_order[int(n)]
-                str_order.pop(int(n))
-                nbr_order.pop(int(n))
-            else:
-                pass
-        return text, index
-
-
-def InsertIntoString(string, str_to_insert, index, nbr_order, str_order):
-    global text, permit, n
-    end = len(str(string))
-    permit, n = RealStringInsertion(string, index, str_order)
-    if index == 0:
-        text = string[:index] + str_to_insert + string[index:]
-        str_order.insert(0, str(str_to_insert))
-        nbr_order.insert(0, len(str(str_to_insert)))
-        index += int(len(str(str_to_insert)))
-    elif index == end or permit:
-        text = string[:index] + str_to_insert + string[index:]
-        str_order.insert(int(n) + 1, str(str_to_insert))
-        nbr_order.insert(int(n) + 1, len(str(str_to_insert)))
-        index += int(len(str(str_to_insert)))
-    else:
-        text = string
-    return text, index
-
-
-def FullReBuild(str_order, call_back):
-    global v, w, expression, answer
-    try:
-        expression = ''
-        v = int(len(str_order)) - 1
-        w = int(len(str_order))
-        while True:
-            operation = str(str_order[v])
-            if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
-                    or operation == '**2' or operation == '^':
-                for y in range(v, w):
-                    expression += str(str_order[y])
-                character = str('(') + str(call_back[-1]) + str(')') + str(expression)
-                answer = eval(character)
-                return answer, character
-            elif operation == 'e+' or operation == 'e-':
-                for y in range(v, w):
-                    expression += str(str_order[y])
-                character = str(call_back[-1]) + str(expression)
-                answer = eval(character)
-                return answer, character
-            v -= 1
-    except Exception:
-        try:
-            expression = str(str_order[0]) + str(call_back[-1]) + str(')')
-            answer = eval(expression)
-            return answer, expression
-        except Exception:
-            v = int(len(str_order)) - 1
-            while v >= 0:
-                operation = int(len(str_order[v]))
-                if operation > 3:
-                    expression = str(str_order[v]) + str(call_back[-1]) + str(')')
-                    answer = eval(expression)
-                    return answer, expression
-                v -= 1
-            expression = str(call_back[-1])
-            answer = eval(expression)
-            return answer, expression
 
 
 def TwoPlotMultiColor(Plot_First_Func, Plot_Add_Func, Function):
@@ -245,6 +119,133 @@ def EQT(nbr_a, nbr_b, nbr_c):
                 f'  x = {neg(c)} / {b}',
                 f'  x = {neg(c) / b}')
     return delf
+
+
+class TextManager:
+    def __init__(self):
+        self.text = ''
+        self.expression = ''
+        self.answer = ''
+        # store expressions & order
+        self.store_expression = []
+        self.store_order = []
+        self.permit = None
+        self.nbr = int
+        self.n = int
+        self.v = int
+        self.w = int
+
+    def ControlCursor(self, index):
+        self.nbr = 0
+        self.n = 0
+        while True:
+            self.nbr += self.store_order[self.n]
+            if index == 0:
+                return 0, -1
+            elif index <= self.nbr:
+                return self.nbr, self.n
+            self.n += 1
+
+    def RealStringInsertion(self, str_now, index):
+        how = len(self.store_expression)
+        now = str(str_now[:index])
+        real = ''
+        self.n = 0
+        while self.n < how:
+            real += str(self.store_expression[self.n])
+            self.permit = None
+            if now == real:
+                self.permit = True
+                break
+            self.n += 1
+        return self.permit, self.n
+
+    def RemoveFromString(self, remove_from_str, index):
+        end = len(str(remove_from_str))
+        self.permit, self.n = self.RealStringInsertion(remove_from_str, index)
+        pro = index - self.store_order[self.n]
+        if index == 0:
+            pass
+        else:
+            if end == index and self.permit:
+                self.text = remove_from_str[:-self.store_order[self.n]]
+                index -= self.store_order[int(self.n)]
+                self.store_expression.pop(int(self.n))
+                self.store_order.pop(int(self.n))
+            elif pro == 0 and self.permit:
+                self.text = remove_from_str[self.store_order[self.n]:]
+                index -= self.store_order[int(self.n)]
+                self.store_expression.pop(int(self.n))
+                self.store_order.pop(int(self.n))
+            else:
+                if self.permit:
+                    self.text = remove_from_str[:pro] + remove_from_str[index:]
+                    index -= self.store_order[int(self.n)]
+                    self.store_expression.pop(int(self.n))
+                    self.store_order.pop(int(self.n))
+                else:
+                    pass
+            return self.text, index
+
+    def InsertIntoString(self, insert_into_str, str_to_insert, index):
+        end = len(str(insert_into_str))
+        self.permit, self.n = self.RealStringInsertion(insert_into_str, index)
+        if index == 0:
+            self.text = insert_into_str[:index] + str_to_insert + insert_into_str[index:]
+            self.store_expression.insert(0, str(str_to_insert))
+            self.store_order.insert(0, len(str(str_to_insert)))
+            index += int(len(str(str_to_insert)))
+        elif index == end or self.permit:
+            self.text = insert_into_str[:index] + str_to_insert + insert_into_str[index:]
+            self.store_expression.insert(int(self.n) + 1, str(str_to_insert))
+            self.store_order.insert(int(self.n) + 1, len(str(str_to_insert)))
+            index += int(len(str(str_to_insert)))
+        else:
+            self.text = insert_into_str
+        return self.text, index
+
+    def FullReBuild(self, call_back):
+        try:
+            self.expression = ''
+            self.v = int(len(self.store_expression)) - 1
+            self.w = int(len(self.store_expression))
+            while True:
+                operation = str(self.store_expression[self.v])
+                if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
+                        or operation == '**2' or operation == '^':
+                    for y in range(self.v, self.w):
+                        self.expression += str(self.store_expression[y])
+                    character = str('(') + str(call_back[-1]) + str(')') + str(self.expression)
+                    self.answer = eval(character)
+                    return self.answer, character
+                elif operation == 'e+' or operation == 'e-':
+                    for y in range(self.v, self.w):
+                        self.expression += str(self.store_expression[y])
+                    character = str(call_back[-1]) + str(self.expression)
+                    self.answer = eval(character)
+                    return self.answer, character
+                self.v -= 1
+        except Exception:
+            try:
+                self.expression = str(self.store_expression[0]) + str(call_back[-1]) + str(')')
+                self.answer = eval(self.expression)
+                return self.answer, self.expression
+            except Exception:
+                self.v = int(len(self.store_expression)) - 1
+                while self.v >= 0:
+                    operation = int(len(self.store_expression[self.v]))
+                    if operation > 3:
+                        self.expression = str(self.store_expression[self.v]) + str(call_back[-1]) + str(')')
+                        self.answer = eval(self.expression)
+                        return self.answer, self.expression
+                    self.v -= 1
+                self.expression = str(call_back[-1])
+                self.answer = eval(self.expression)
+                return self.answer, self.expression
+
+    def ResetClear(self):
+        self.store_expression = []
+        self.store_order = []
 
 
 class HoverButton(Button):
