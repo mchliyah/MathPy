@@ -174,23 +174,15 @@ class Calculator:
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0=============================================================
-        # Operation
-        self.Operation = Button(self.top_frame, **big_prm, text="Operation",
-                                command=lambda: self.SwitchFunction("Operation"))
-        self.Operation.grid(row=0, column=0)
-        # Function
-        self.Function = Button(self.top_frame, **big_prm, text="Function",
-                               command=lambda: self.SwitchFunction("Function"))
-        self.Function.grid(row=0, column=2)
-        # Equation
-        self.Equation_2nd = Button(self.top_frame, **big_prm, text="Equation",
-                                   command=lambda: self.SwitchFunction('Equation 2nd'))
-        self.Equation_2nd.grid(row=0, column=4)
-        # self.Equation_2nd['width'] = 2
-        self.Equation = Button(self.top_frame, **big_prm, text="Solve",
-                               command=lambda: self.SwitchFunction('Equation'))
-        self.Equation.grid(row=0, column=6)
-        # self.Equation['width'] = 2
+        big_txt = ['Operation', 'Function', "Equation", 'Solve']
+        big_pad = ['Operation', 'Function', "LinEqua", 'Solve']
+        self.btn_b = []
+        i = 0
+        for k in range(0, 8, 2):
+            self.btn_b.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
+            self.btn_b[i].grid(row=0, column=k)
+            self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
+            i += 1
         # buttons that will be displayed on middle frame ROW 0==========================================================
         txt = ['RAD', '1ST', 'ENG', 'ANS', 'r', 'Õ']
         self.btn_m = []
@@ -250,7 +242,7 @@ class Calculator:
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
-        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation 2nd'))
+        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('LinEqua'))
         filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_separator()
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
@@ -304,39 +296,37 @@ class Calculator:
         if self.mode == 'Operation':
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
             self.FastTextVariable.set('')
-            self.Operation['bg'] = 'indian red'
-            self.Equation_2nd['bg'] = '#292929'
-            self.Equation['bg'] = '#292929'
-            self.Function['bg'] = '#292929'
+            self.btn_b[0]['bg'] = 'indian red'
+            for i in range(1, 4):
+                self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
-
-        elif self.mode == 'Equation 2nd':
-            self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
-            self.FastTextVariable.set('aX² + bX + c = 0')
-            self.Equation_2nd['bg'] = 'indian red'
-            self.Equation['bg'] = '#292929'
-            self.Function['bg'] = '#292929'
-            self.Operation['bg'] = '#292929'
-            self.btn[5].config(state=DISABLED)
-            self.btn[2].config(state=DISABLED)
 
         elif self.mode == 'Function':
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
-            self.Function['bg'] = 'indian red'
-            self.Equation_2nd['bg'] = '#292929'
-            self.Equation['bg'] = '#292929'
-            self.Operation['bg'] = '#292929'
+            self.btn_b[0]['bg'] = '#292929'
+            self.btn_b[1]['bg'] = 'indian red'
+            for i in range(2, 4):
+                self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
 
-        elif self.mode == 'Equation':
+        elif self.mode == 'LinEqua':
+            self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
+            self.FastTextVariable.set('aX² + bX + c = 0')
+            for i in range(2):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn_b[2]['bg'] = 'indian red'
+            self.btn_b[3]['bg'] = '#292929'
+            self.btn[5].config(state=DISABLED)
+            self.btn[2].config(state=DISABLED)
+
+        elif self.mode == 'Solve':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
-            self.Function['bg'] = '#292929'
-            self.Equation_2nd['bg'] = '#292929'
-            self.Equation['bg'] = 'indian red'
-            self.Operation['bg'] = '#292929'
+            for i in range(3):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn_b[3]['bg'] = 'indian red'
             self.btn[5].config(state=NORMAL)
             self.btn[2].config(state=DISABLED)
 
@@ -373,13 +363,13 @@ class Calculator:
         self.TextVariable.set('')
         self.FastTextVariable.set('')
 
-        if self.mode == 'Equation 2nd':
-            self.TextVariable.set(f'a = ')
-            self.FastTextVariable.set('aX² + bX + c = 0')
-
-        elif self.mode == 'Function':
+        if self.mode == 'Function':
             self.TextVariable.set(f'From : ')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
+
+        elif self.mode == 'LinEqua':
+            self.TextVariable.set(f'a = ')
+            self.FastTextVariable.set('aX² + bX + c = 0')
 
         self.equal = False
         self.clear = False
@@ -569,20 +559,7 @@ class Calculator:
 
                 else:
                     self.FastTextVariable.set(N(eval(self.expression), self.ENG))
-
-            elif self.mode == 'Equation 2nd':
-                if self.full is None:
-                    self.TextVariable.set(f'a = {self.expression}')
-                    self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
-
-                elif not self.full:
-                    self.TextVariable.set(f'b = {self.expression}')
-                    self.FastTextVariable.set(f'{self.a}X² + ({self.expression})X + c = 0')
-
-                elif self.full:
-                    self.TextVariable.set(f'c = {self.expression}')
-                    self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
-
+                    
             elif self.mode == "Function":
                 if self.full is None:
                     self.TextVariable.set(f'From : {self.expression}')
@@ -595,8 +572,21 @@ class Calculator:
                 elif self.full:
                     self.TextVariable.set(f'f(x) = {self.expression}')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
+                    
+            elif self.mode == 'LinEqua':
+                if self.full is None:
+                    self.TextVariable.set(f'a = {self.expression}')
+                    self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
 
-            elif self.mode == 'Equation':
+                elif not self.full:
+                    self.TextVariable.set(f'b = {self.expression}')
+                    self.FastTextVariable.set(f'{self.a}X² + ({self.expression})X + c = 0')
+
+                elif self.full:
+                    self.TextVariable.set(f'c = {self.expression}')
+                    self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
+
+            elif self.mode == 'Solve':
                 if self.full is None:
                     self.TextVariable.set(self.expression)
                     self.FastTextVariable.set(self.expression)
@@ -653,7 +643,30 @@ class Calculator:
                             break
                         z -= 1
 
-            elif self.mode == 'Equation 2nd':
+            elif self.mode == 'Function':
+                if self.full is None:
+                    self.v = int(self.expression)
+                    self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
+                    self.expression = ""
+                    self.TextVariable.set(f'To : ')
+                    self.full = False
+
+                elif not self.full:
+                    self.w = int(self.expression) + 1
+                    self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x) = ')
+                    self.full = True
+
+                elif self.full:
+                    self.FullTextDisplay.insert(INSERT, f'\nf(x) = {sympify(self.expression)}')
+                    for x in range(self.v, self.w):
+                        self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
+
+                    self.clear = True
+                    self.full = None
+
+            elif self.mode == 'LinEqua':
                 if self.full is None:
                     self.a = N(eval(self.expression), 3)
                     self.expression = ""
@@ -743,30 +756,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.clear = True
                     self.full = None
 
-            elif self.mode == 'Function':
-                if self.full is None:
-                    self.v = int(self.expression)
-                    self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
-                    self.expression = ""
-                    self.TextVariable.set(f'To : ')
-                    self.full = False
-
-                elif not self.full:
-                    self.w = int(self.expression) + 1
-                    self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
-                    self.expression = ""
-                    self.TextVariable.set(f'f(x) = ')
-                    self.full = True
-
-                elif self.full:
-                    self.FullTextDisplay.insert(INSERT, f'\nf(x) = {sympify(self.expression)}')
-                    for x in range(self.v, self.w):
-                        self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
-
-                    self.clear = True
-                    self.full = None
-
-            elif self.mode == 'Equation':
+            elif self.mode == 'Solve':
                 if self.full is None:
                     self.q = str(eval(self.expression))
                     self.expression = ""
