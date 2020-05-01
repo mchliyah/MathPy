@@ -80,7 +80,11 @@ class Calculator:
         # equation solver parametre
         self.q = ''
         self.p = ''
-        self.d = ''
+        self.j = ''
+        self.k = ''
+        self.m = ''
+        self.n = ''
+        self.lslv = ''
         self.x = x
         self.y = y
         self.z = z
@@ -561,7 +565,11 @@ class Calculator:
         self.c = ''
         self.q = ''
         self.p = ''
-        self.d = ''
+        self.j = ''
+        self.k = ''
+        self.m = ''
+        self.n = ''
+        self.lslv = ''
         self.fctx = ''
         self.fctx1 = ''
         self.fctx2 = ''
@@ -866,7 +874,7 @@ class Calculator:
                             self.answer = N(sympify(self.expression), self.ENG)
                         self.FastTextVariable.set('')
                         self.TextVariable.set(f'{self.expression} = {self.answer}')
-                        self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
+                        self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
                         self.equal = True
 
@@ -887,7 +895,7 @@ class Calculator:
                                     self.answer = N(sympify(self.expression), self.ENG)
                                 self.FastTextVariable.set(self.answer)
                                 self.TextVariable.set(f'{self.expression} = {self.answer}')
-                                self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
+                                self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                                 break
                             self.v -= 1
                 except IndexError or SyntaxError:
@@ -899,35 +907,35 @@ class Calculator:
                             self.answer = N(sympify(self.expression), self.ENG)
                         self.FastTextVariable.set(self.answer)
                         self.TextVariable.set(f'{self.expression} = {self.answer}')
-                        self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
+                        self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                     except IndexError or SyntaxError:
                         self.FastTextVariable.set('IndexError or SyntaxError')
 
             elif self.mode == 'Function':
                 if self.full is None:
                     self.v = int(self.expression)
-                    self.FullTextDisplay.insert(END, f'\nfrom : {self.expression}')
+                    self.FullTextDisplay.insert(END, f'from : {self.expression}')
                     self.expression = ""
-                    self.TextVariable.set(f'To : ')
+                    self.TextVariable.set('To : ')
                     self.full = False
 
                 elif not self.full:
                     self.w = int(self.expression) + 1
-                    self.FullTextDisplay.insert(END, f'\nTo : {self.expression}')
+                    self.FullTextDisplay.insert(END, f'To : {self.expression}')
                     self.expression = ""
-                    self.TextVariable.set(f'f(x) = ')
+                    self.TextVariable.set('f(x) = ')
                     self.FastTextVariable.set(f'f(x) = ')
                     self.full = True
 
                 elif self.full:
                     if not self.equal:
                         self.fctx = str(sympify(self.expression))
-                        self.FullTextDisplay.insert(END, f'\nf(x) = {sympify(self.fctx)}')
+                        self.FullTextDisplay.insert(END, f'f(x) = {sympify(self.fctx)}')
                         for x in range(self.v, self.w):
                             if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'\nf({x}) = {sympify(self.fctx)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {sympify(self.fctx)}')
                             else:
-                                self.FullTextDisplay.insert(END, f'\nf({x}) = {N(sympify(self.fctx), self.ENG)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {N(sympify(self.fctx), self.ENG)}')
                         self.P3d = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
                         self.expression = ""
                         self.TextVariable.set(f'f(x) = ')
@@ -935,12 +943,12 @@ class Calculator:
 
                     elif self.equal:
                         self.fctx = str(sympify(self.expression))
-                        self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
+                        self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                         for x in range(self.v, self.w):
                             if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'\nf({x}) = {sympify(self.fctx)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {sympify(self.fctx)}')
                             else:
-                                self.FullTextDisplay.insert(END, f'\nf({x}) = {N(sympify(self.fctx), self.ENG)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {N(sympify(self.fctx), self.ENG)}')
                         self.expression = ""
                         self.TextVariable.set(f'f(x) = ')
                         self.PA = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
@@ -1026,14 +1034,14 @@ class Calculator:
 
                 elif self.full:
                     self.p = str(sympify(self.expression))
-                    self.TextVariable.set(f'\n{self.q} = {self.p}')
-                    self.FullTextDisplay.insert(END, f'\n{self.q} = {self.p}')
+                    self.TextVariable.set(f'{self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, f'{self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.FastTextVariable.set(sol)
                     for l in range(len(sol)):
-                        self.FullTextDisplay.insert(END, f'\nx{self.nb[int(l) + 1]} = {sol[l]}')
+                        self.FullTextDisplay.insert(END, f'x{self.nb[int(l) + 1]} = {sol[l]}')
 
                     self.clear = True
                     self.full = None
@@ -1047,58 +1055,58 @@ class Calculator:
 
                 elif not self.full:
                     self.p = str(sympify(self.expression))
-                    self.TextVariable.set(f'\n{self.q} = {self.p}')
-                    self.FullTextDisplay.insert(END, '\nNew Matrix :', f'\n   | {self.q} = {self.p}')
+                    self.TextVariable.set(f'{self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, 'New Matrix :', f'   | {self.q} = {self.p}')
                     self.expression = ""
                     self.full = True
                     self.clear = None
 
                 elif self.full:
                     if self.clear is None:
-                        self.d = str(sympify(self.expression))
-                        self.TextVariable.set(f'{self.d} = ')
+                        self.j = str(sympify(self.expression))
+                        self.TextVariable.set(f'{self.j} = ')
                         self.expression = ""
                         self.equal = None
                         self.clear = False
 
                     elif not self.clear:
                         if self.equal is None:
-                            self.b = str(sympify(self.expression))
-                            self.TextVariable.set(f'\n{self.d} = {self.b}')
-                            self.FullTextDisplay.insert(END, f'\n<| {self.d} = {self.b}')
+                            self.k = str(sympify(self.expression))
+                            self.TextVariable.set(f'{self.j} = {self.k}')
+                            self.FullTextDisplay.insert(END, f'<| {self.j} = {self.k}')
                             self.expression = ""
                             self.equal = False
 
                         elif not self.equal:
-                            self.v = str(sympify(self.expression))
-                            self.TextVariable.set(f'{self.v} = ')
+                            self.m = str(sympify(self.expression))
+                            self.TextVariable.set(f'{self.m} = ')
                             self.expression = ""
                             self.equal = True
 
                         elif self.equal:
-                            self.w = str(sympify(self.expression))
-                            self.TextVariable.set(f'\n{self.v} = {self.w}')
-                            self.FullTextDisplay.insert(END, f'\n   | {self.v} = {self.w}')
+                            self.n = str(sympify(self.expression))
+                            self.TextVariable.set(f'{self.m} = {self.n}')
+                            self.FullTextDisplay.insert(END, f'   | {self.m} = {self.n}')
                             print(0)
                             try:
-                                lsv = linsolve(
-                                    [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.d), sympify(self.b)),
-                                     Eq(sympify(self.v), sympify(self.w))], [self.x, self.y, self.z])
+                                self.lslv = linsolve(
+                                    [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
+                                     Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
                                 print(1)
                             except SyntaxError or TypeError or ValueError or NameError or NotImplementedError:
                                 try:
                                     print(2)
-                                    lsv = nonlinsolve(
-                                        [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.d), sympify(self.b)),
-                                         Eq(sympify(self.v), sympify(self.w))], [self.x, self.y, self.z])
+                                    self.lslv = nonlinsolve(
+                                        [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
+                                         Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
                                 except SyntaxError or TypeError or ValueError or NameError or NotImplementedError:
                                     self.FastTextVariable.set('Cannot Solve This Matrix')
 
-                            self.FastTextVariable.set(lsv)
-                            self.FullTextDisplay.insert(END, lsv)
-                            print(len(lsv))
-                            # for l in range(len(lsv)):
-                            #   self.FullTextDisplay.insert(END, f'\nx{self.sb[int(l)]} = {lsv[l]}')
+                            self.FastTextVariable.set(self.lslv)
+                            self.FullTextDisplay.insert(END, self.lslv)
+                            print(len(self.lslv))
+                            # for l in range(len(self.lslv)):
+                            #   self.FullTextDisplay.insert(END, f'x{self.sb[int(l)]} = {self.lslv[l]}')
 
                             self.clear = True
                             self.full = None
@@ -1106,7 +1114,7 @@ class Calculator:
             elif self.mode == 'Plot':
                 if self.full is None:
                     self.fctx = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
+                    self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.P3d = plot(sympify(self.fctx))
                     self.expression = ""
                     self.TextVariable.set(f'f(x) = ')
@@ -1114,7 +1122,7 @@ class Calculator:
 
                 elif self.full:
                     self.fctx = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
+                    self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PA = plot(sympify(self.fctx))
                     self.P3d.append(self.PA[0])
                     for s in range(1, len(self.callback_function)):
@@ -1126,7 +1134,7 @@ class Calculator:
             elif self.mode == 'Plot Prm':
                 if self.full is None:
                     self.fctx1 = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₁ = {self.fctx1}')
+                    self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
                     self.TextVariable.set(f'f(x)₂ =')
                     self.expression = ""
@@ -1134,7 +1142,7 @@ class Calculator:
 
                 elif self.full:
                     self.fctx2 = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx2}')
+                    self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
                         self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
@@ -1157,7 +1165,7 @@ class Calculator:
             elif self.mode == 'P3DPL':
                 if self.full is None:
                     self.fctx1 = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₁ = {self.fctx1}')
+                    self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
                     self.TextVariable.set(f'f(x)₂ =')
                     self.expression = ""
@@ -1165,7 +1173,7 @@ class Calculator:
 
                 elif self.full:
                     self.fctx2 = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx2}')
+                    self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
@@ -1188,7 +1196,7 @@ class Calculator:
             elif self.mode == 'Plot3D':
                 if self.full is None:
                     self.fctxy = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxy}')
+                    self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.P3d = plot3d(sympify(self.fctxy))
                     self.expression = ""
                     self.TextVariable.set(f'f(x,y) = ')
@@ -1196,7 +1204,7 @@ class Calculator:
 
                 elif self.full:
                     self.fctxy = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxy}')
+                    self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PA = plot3d(sympify(self.fctxy))
                     self.P3d.append(self.PA[0])
                     self.P3d.show()
@@ -1206,7 +1214,7 @@ class Calculator:
             elif self.mode == 'P3DPS':
                 if self.full is None:
                     self.fctxy1 = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y)₁ = {self.fctxy1}')
+                    self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = ')
                     self.expression = ""
                     self.TextVariable.set(f'f(x,y)₂ = ')
@@ -1214,7 +1222,7 @@ class Calculator:
 
                 elif self.full:
                     self.fctxy2 = str(sympify(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy2}')
+                    self.FullTextDisplay.insert(END, f'f(x,y)₂ = {self.fctxy2}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
                     if not self.equal:
                         self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
