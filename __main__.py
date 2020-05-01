@@ -3,8 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import ttk, _cnfmerge as cnfmerge
 
-# version 3.2.0
-# Hide Some Global Call , Make Lot Of Self Call, Last Time I Make Bad Decision
+# version 3.2.1
+# Improve Removing Text
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -100,12 +100,13 @@ class Calculator:
     def __init__(self, master):
         # expression that will be displayed on screen
         self.expression = ''
-        # store expressions by order
+        # store expressions & order
         self.store_expression = []
+        self.store_order = []
         # answer of operation
         self.answer = ''
         # store last answer of operation
-        self.callback = ['']
+        self.callback = []
         # float numbers of equation
         self.a = ''
         self.b = ''
@@ -315,6 +316,7 @@ class Calculator:
 
     def Clear(self):
         self.store_expression = []
+        self.store_order = []
         self.expression = ''
         self.TextVariable.set('')
         self.FastTextVariable.set('')
@@ -337,8 +339,13 @@ class Calculator:
             self.Clear()
 
         try:
-            self.expression = str(self.expression).replace(self.store_expression[-1], '')
+            k = self.store_order[-1]
+            while k > 0:
+                self.expression = self.expression[:-1]
+                k -= 1
+
             self.store_expression.remove(self.store_expression[-1])
+            self.store_order.remove(self.store_order[-1])
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -349,7 +356,8 @@ class Calculator:
         if self.clear:
             self.Clear()
 
-        self.store_expression.append((str(keyword)))
+        self.store_expression.append(str(keyword))
+        self.store_order.append(len(str(keyword)))
         self.expression += str(keyword)
 
         self.Click()
@@ -462,7 +470,7 @@ class Calculator:
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
 
         except ZeroDivisionError:
-            pass
+            self.FastTextVariable.set(inf)
         except ValueError:
             pass
         except SyntaxError:
@@ -622,7 +630,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.half = False
 
         except ZeroDivisionError:
-            self.FastTextVariable.set('ZeroDivisionError')
+            self.FastTextVariable.set(inf)
         except ValueError:
             self.FastTextVariable.set('ValueError')
         except SyntaxError:
@@ -631,6 +639,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             self.FastTextVariable.set('NameError')
         except TypeError:
             self.FastTextVariable.set('TypeError')
+        except OverflowError:
+            self.FastTextVariable.set('OverflowMathRangeError')
         except IndexError:
             self.FastTextVariable.set('IndexError')
             try:
@@ -659,5 +669,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.2.0")
+    win.title("Scientific Calculator v3.2.1")
     win.mainloop()
