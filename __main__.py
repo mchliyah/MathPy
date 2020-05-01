@@ -3,7 +3,7 @@ __author__ = 'Achraf'
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from sympy.abc import y, z
-from sympy.plotting import plot3d, plot3d_parametric_line, plot3d_parametric_surface
+from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
 from __jeep_v3__ import *
@@ -438,6 +438,10 @@ class Calculator:
                 text='∫f(x)',
                 command=lambda: [self.Input('integrate('), self.Input(')'), self.ChangeDirectionCursor('Left')])
 
+            self.btn_d[2].configure(
+                text='W₀',
+                command=lambda: [self.Input('LambertW('), self.Input(')'), self.ChangeDirectionCursor('Left')])
+
             if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve' \
                     or self.mode == 'Matrices':
                 self.SwitchFunction(self.mode, False)
@@ -472,6 +476,10 @@ class Calculator:
             self.btn_d[3].configure(
                 text='d/dx',
                 command=lambda: [self.Input('diff('), self.Input(')'), self.ChangeDirectionCursor('Left')])
+
+            self.btn_d[2].configure(
+                text='W₋₁',
+                command=lambda: [self.Input('LambertW('), self.Input(',-1)'), self.ChangeDirectionCursor('Left')])
 
             if self.mode == 'Plot' or self.mode == 'Plot Prm' or self.mode == 'P3DPL' or self.mode == "Plot3D" or \
                     self.mode == 'P3DPS':
@@ -828,8 +836,11 @@ class Calculator:
             elif put == 'd':
                 self.Input('diff('), self.Input(')'), self.ChangeDirectionCursor('Left')
 
-            elif put == 'w':
+            elif keyword.keysym == 'w':
                 self.Input('LambertW('), self.Input(')'), self.ChangeDirectionCursor('Left')
+
+            elif keyword.keysym == 'W':
+                self.Input('LambertW('), self.Input(',-1)'), self.ChangeDirectionCursor('Left')
 
             elif put == 'j':
                 self.Input('1j')
