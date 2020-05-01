@@ -44,7 +44,7 @@ btn_prm = {'padx': 18,
            'height': 1,
            'relief': 'raised',
            'activeback': '#555555',
-           'activebackground': '#555555',
+           'activebackground': '#444444',
            'activeforeground': "white"}
 btnb_prm = {'padx': 18,
             'pady': 2,
@@ -57,7 +57,7 @@ btnb_prm = {'padx': 18,
             'height': 1,
             'relief': 'raised',
             'activeback': '#3E3E3E',
-            'activebackground': '#3E3E3E',
+            'activebackground': '#313131',
             'activeforeground': "white"}
 big_prm = {'padx': 8,
            'pady': 7,
@@ -70,7 +70,7 @@ big_prm = {'padx': 8,
            'height': 1,
            'relief': 'raised',
            'activeback': '#49000A',
-           'activebackground': '#49000A',
+           'activebackground': '#80000B',
            'activeforeground': "white"}
 big2_prm = {'padx': 14,
             'pady': 13,
@@ -83,7 +83,7 @@ big2_prm = {'padx': 14,
             'height': 1,
             'relief': 'raised',
             'activeback': '#49000A',
-            'activebackground': '#49000A',
+            'activebackground': '#80000B',
             'activeforeground': "white"}
 ent_prm = {'bd': 1,
            'fg': 'white',
@@ -110,7 +110,7 @@ class Calculator:
         # answer of operation
         self.answer = ''
         # store answers of operation
-        self.callback = []
+        self.callback = ['']
         # float numbers of equation
         self.a = ''
         self.b = ''
@@ -184,17 +184,17 @@ class Calculator:
             self.btn_m.append(HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
             self.btn_m[i].grid(row=0, column=i)
         # Answer Stored
-        self.btn_m[3].configure(bg='#20B645', activebackground='#009C27',
+        self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
                                 command=lambda: self.Input(str(self.callback[-1])))
         self.btn_m[3].defaultActiveBack = '#009C27'
         self.btn_m[3].defaultBackGround = '#20B645'
         # Clear
-        self.btn_m[4].configure(width=1, bg='firebrick2', activebackground='firebrick3', font=('Marlett', 23),
+        self.btn_m[4].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 23),
                                 command=lambda: self.Delete())
         self.btn_m[4].defaultActiveBack = 'firebrick3'
         self.btn_m[4].defaultBackGround = 'firebrick2'
         # Remove
-        self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue3', font=('Wingdings', 21),
+        self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
                                 command=lambda: self.Remove())
         self.btn_m[5].defaultActiveBack = 'Royalblue3'
         self.btn_m[5].defaultBackGround = 'Royalblue2'
@@ -230,22 +230,22 @@ class Calculator:
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
         for l in range(6, 9):
-            self.btn[l].configure(bg='#292929', activebackground="#202020")
+            self.btn[l].configure(bg='#292929', activebackground="#111111")
             self.btn[l].defaultActiveBack = '#202020'
             self.btn[l].defaultBackGround = '#292929'
         for l in range(12, 15):
-            self.btn[l].configure(bg='#292929', activebackground="#202020")
+            self.btn[l].configure(bg='#292929', activebackground="#111111")
             self.btn[l].defaultActiveBack = '#202020'
             self.btn[l].defaultBackGround = '#292929'
         for l in range(18, 21):
-            self.btn[l].configure(bg='#292929', activebackground="#202020")
+            self.btn[l].configure(bg='#292929', activebackground="#111111")
             self.btn[l].defaultActiveBack = '#202020'
             self.btn[l].defaultBackGround = '#292929'
-        self.btn[25].configure(bg='#292929', activebackground="#202020")
+        self.btn[25].configure(bg='#292929', activebackground="#111111")
         self.btn[25].defaultActiveBack = '#202020'
         self.btn[25].defaultBackGround = '#292929'
         # Equals
-        self.btn[26].configure(bg='#FF5E00', activebackground='#CF4E00', command=self.InputEquals)
+        self.btn[26].configure(bg='#FF5E00', activebackground='#A74400', command=self.InputEquals)
         self.btn[26].defaultActiveBack = '#CF4E00'
         self.btn[26].defaultBackGround = '#FF5E00'
         # run button switcher and display switcher mode=================================================================
@@ -259,16 +259,16 @@ class Calculator:
         File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=Exit)
-        Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation", True) and self.SwitchButtons('1st'))
-        Mode.add_command(label='Function', command=lambda: self.SwitchFunction('Function', True) and self.SwitchButtons('1st'))
-        Mode.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation', True) and self.SwitchButtons('1st'))
-        Mode.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve', True) and self.SwitchButtons('1st'))
+        Mode.add_command(label="Operation", command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction("Operation", True)])
+        Mode.add_command(label='Function', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Function', True)])
+        Mode.add_command(label="Equation", command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Equation', True)])
+        Mode.add_command(label='Solve', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
         Mode.add_separator()
-        Mode.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot', True) and self.SwitchButtons('2nd'))
-        Mode.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm', True) and self.SwitchButtons('2nd'))
-        Mode.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D', True) and self.SwitchButtons('2nd'))
-        Mode.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL', True) and self.SwitchButtons('2nd'))
-        Mode.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS', True) and self.SwitchButtons('2nd'))
+        Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot', True)])
+        Mode.add_command(label='Plot Prm', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot Prm', True)])
+        Mode.add_command(label='Plot3D', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot3D', True)])
+        Mode.add_command(label='P3DPL', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
+        Mode.add_command(label='P3DPS', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
         Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
         Switch.add_command(label='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(15)))
         Switch.add_command(label='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(12)))
@@ -295,8 +295,8 @@ class Calculator:
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 2nd
-            self.btn_m[1].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[1].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='#FF9950',
+                                    activeforeground='orange')
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
@@ -321,8 +321,8 @@ class Calculator:
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 1st
-            self.btn_m[1].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[1].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='#FF9950',
+                                    activeforeground='orange')
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
@@ -512,16 +512,16 @@ class Calculator:
             convert_constant = π / 180
             inverse_convert_constant = 180 / π
             # Degree -> Radians
-            self.btn_m[0].configure(text='DEG', command=lambda: self.SwitchDegRad('Radians'), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[0].configure(text='DEG', command=lambda: self.SwitchDegRad('Radians'), fg='#FF9950',
+                                    activeforeground='orange')
             self.btn[0]['state'] = ['disabled']
 
         elif switch == 'Radians':
             convert_constant = 1
             inverse_convert_constant = 1
             # Radians -> Degree
-            self.btn_m[0].configure(text='RAD', command=lambda: self.SwitchDegRad('Degree'), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[0].configure(text='RAD', command=lambda: self.SwitchDegRad('Degree'), fg='#FF9950',
+                                    activeforeground='orange')
             self.btn[0]['state'] = ['normal']
 
     def SwitchENG(self, NBR):
@@ -529,29 +529,29 @@ class Calculator:
         self.ENG = NBR
 
         if dot == int(16):
-            self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(15):
-            self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(12):
-            self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(9):
-            self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(6):
-            self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(3):
-            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(2):
-            self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='#FF9950',
+                                    activeforeground='orange')
         elif dot == int(1):
-            self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='orange',
-                                    activeforeground='#80000B')
+            self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='#FF9950',
+                                    activeforeground='orange')
         self.Click()
 
     def Delete(self):
