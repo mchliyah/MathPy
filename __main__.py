@@ -3,8 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import _cnfmerge as cnfmerge
 
-# version 3.0.1
-# Fix Size Full Text Display With Other Display Fast And First, And Some Other Sizes
+# version 3.0.2
+# Add Shortcut Keyboard Listening: {s, S}: Sin, {c, C}: Cos, {t, T}: Tan, {p, P}: p, {\}: sqrt
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -398,6 +398,10 @@ class Calculator:
                 self.store.append((str(')')))
                 self.expression += str(')')
 
+            elif keyword.keysym == 'backslash':
+                self.store.append((str('sqrt(')))
+                self.expression += str('sqrt(')
+
             elif keyword.keysym == 'S' or keyword.keysym == 's':
                 self.store.append((str('Sin')))
                 self.expression += str('Sin')
@@ -409,6 +413,10 @@ class Calculator:
             elif keyword.keysym == 'T' or keyword.keysym == 't':
                 self.store.append((str('Tan')))
                 self.expression += str('Tan')
+
+            elif keyword.keysym == 'P' or keyword.keysym == 'p':
+                self.store.append((str('pi')))
+                self.expression += str('pi')
 
             elif keyword.keysym == 'Return' or keyword.keysym == 'equal':
                 return self.InputEquals()
@@ -650,5 +658,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.0.1")
+    win.title("Scientific Calculator v3.0.2")
     win.mainloop()
