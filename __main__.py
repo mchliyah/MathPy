@@ -1,6 +1,5 @@
 __author__ = 'Achraf'
 
-from math import log2, log10
 from operator import neg
 from random import randint
 from tkinter import *
@@ -11,17 +10,14 @@ from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
+
 import __eci__ as eci
 
 """ 
-# version 5.2.1
-# build hand writen mathematical was optimized and make it as function "def"
-# the possibility to input and delete directly from First Text Display by making cursor everywhere was optimized and 
-make it for all modes, and add reset for
-# stop working ENG instantly
-# make equation as function "def"
-# @staticmethod : 1*StandardWrite 2*ReBuild 3*RealStringInsertion 4*DrawTexTk 5*InsertIntoString 6*RemoveFromString
-7*TwoPlotColorOneFunc 8*TwoPlotColorTwoFunc 9*EQT
+# version 6
+# stop working ENG function and delete it
+# stop working switching Radians to Degree function and delete it
+# add LambertW
 """
 
 btn_prm = {'padx': 18,
@@ -68,78 +64,12 @@ ent_prm = {'fg': 'white',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = pi
-convert_constant = 1
-inverse_convert_constant = 1
 text = ''
 permit = None
 delf = ()
 n = int
 v = int
 w = int
-
-
-def Sin(arg):
-    return sin(arg * convert_constant)
-
-
-def Cos(arg):
-    return cos(arg * convert_constant)
-
-
-def Tan(arg):
-    return tan(arg * convert_constant)
-
-
-def aSin(arg):
-    return inverse_convert_constant * (asin(arg))
-
-
-def aCos(arg):
-    return inverse_convert_constant * (acos(arg))
-
-
-def aTan(arg):
-    return inverse_convert_constant * (atan(arg))
-
-
-def Sinh(arg):
-    return sinh(arg)
-
-
-def Cosh(arg):
-    return cosh(arg)
-
-
-def Tanh(arg):
-    return tanh(arg)
-
-
-def aSinh(arg):
-    return asinh(arg)
-
-
-def aCosh(arg):
-    return acosh(arg)
-
-
-def aTanh(arg):
-    return atanh(arg)
-
-
-def Ln(arg):
-    return log(arg)
-
-
-def Log(arg):
-    return log10(arg)
-
-
-def Log2(arg):
-    return log2(arg)
-
-
-def Exp(arg):
-    return exp(arg)
 
 
 def Fact(arg):
@@ -309,7 +239,6 @@ class Calculator:
     def __init__(self):
         self.win = Tk()
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
-        self.ENG = 16
         self.btn_u = []
         self.btn_a = []
         # expression that will be displayed on screen
@@ -450,7 +379,7 @@ class Calculator:
         for k in range(5):
             self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
-        txt = ['RAD', '1ST', 'ENG', 'ANS', 'r', 'Õ']
+        txt = ['', '', '1ST', 'ANS', 'r', 'Õ']
         self.btn_m = []
         for i in range(6):
             self.btn_m.append(eci.HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
@@ -477,21 +406,21 @@ class Calculator:
             self.btn_u.append(eci.HoverButton(self.middle_frame, **btn_prm))
             self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
         # ROW 2
-        # ========================Logarithm=============================================================================
-        Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
-        Logarithm_txt = ['Ln', 'Log⏨', "Log₂", 'Exp', '√n', "∞"]
+        # ========================logarithm=============================================================================
+        logarithm_pad = ['log(', 'exp(', 'LambertW(', '', 'sqrt(', "oo"]
+        logarithm_txt = ['log', 'exp', 'W', "", '√n', "∞"]
         self.btn_d = []
         for i in range(6):
-            self.btn_d.append(eci.HoverButton(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
+            self.btn_d.append(eci.HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i]))
             self.btn_d[i].grid(row=2, column=i, sticky=NSEW)
-            self.btn_d[i].configure(command=lambda n=Logarithm_pad[i]: self.Input(n))
+            self.btn_d[i].configure(command=lambda n=logarithm_pad[i]: self.Input(n))
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
         btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
                "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", "Fact(", 'e']
 
-        btn_txt = ['π', 'E', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "*",
+        btn_txt = ['π', 'E', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "⨯",
                    u'n\u00B2', 'y', "1", "2", "3", "/", "nˣ", 'z', "0", '', '.', "=", "!n", "10ˣ"]
         self.btn = []
         i = 0
@@ -532,8 +461,7 @@ class Calculator:
             self.btn[l].ActiveBack = '#161616'
             self.btn[l].DefaultBackGround = '#212121'
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
-        self.SwitchENG(int(16))
+        self.SwitchButtons('1st'), self.SwitchFunction('Operation', True)
         # Switch Menu In Bare Display===================================================================================
         menubare = Menu(self.win)
         File = Menu(menubare, tearoff=0)
@@ -544,9 +472,6 @@ class Calculator:
         menubare.add_cascade(label="Float", menu=Switch)
         File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
         File.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
-        File.add_separator()
-        File.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
-        File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=self.Exit)
         Mode.add_command(label="Operation",
@@ -569,14 +494,6 @@ class Calculator:
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
         Mode.add_command(label='Plot 3D Parametric Surface',
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
-        Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
-        Switch.add_command(label='ENG₁', command=lambda: self.SwitchENG(int(1)))
-        Switch.add_command(label='ENG₂', command=lambda: self.SwitchENG(int(2)))
-        Switch.add_command(label='ENG₃', command=lambda: self.SwitchENG(int(3)))
-        Switch.add_command(label='ENG₆', command=lambda: self.SwitchENG(int(6)))
-        Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
-        Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
-        Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
         # Master Display ===============================================================================================
         # Window configuration
         self.win.rowconfigure(0, weight=1)
@@ -591,7 +508,7 @@ class Calculator:
         self.win.configure(menu=menubare, bg='#4d4d4d')
         self.win.geometry("1100x580")
         self.win.minsize(width=1100, height=580)
-        self.win.title("PyMathon v5.2.1")
+        self.win.title("PyMathon v6")
         self.win.mainloop()
 
     def Info(self, event):
@@ -618,12 +535,12 @@ class Calculator:
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 2nd
-            self.btn_m[1].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='#FF9950',
+            self.btn_m[2].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='#FF9950',
                                     activeforeground='orange')
             # ROW 1
             # ========================Trigonometry======================================================================
-            Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
-            Trigonometry_txt = ['Cos', 'Sin', "Tan", 'Cosh', 'Sinh', "Tanh"]
+            Trigonometry_pad = ['cos(', 'sin(', "tan(", 'cosh(', 'sinh(', "tanh("]
+            Trigonometry_txt = ['cos', 'sin', "tan", 'cosh', 'sinh', "tanh"]
             for i in range(6):
                 self.btn_u[i].configure(text=Trigonometry_txt[i], command=lambda n=Trigonometry_pad[i]: self.Input(n))
 
@@ -646,12 +563,12 @@ class Calculator:
 
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 1st
-            self.btn_m[1].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='#FF9950',
+            self.btn_m[2].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='#FF9950',
                                     activeforeground='orange')
             # ROW 1
             # ========================Trigonometry======================================================================
-            Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
-            Trigonometry_txt = ['aCos', 'aSin', "aTan", 'aCosh', 'aSinh', "aTanh"]
+            Trigonometry_pad = ['acos(', 'asin(', "atan(", 'acosh(', 'asinh(', "atanh("]
+            Trigonometry_txt = ['acos', 'asin', "atan", 'acosh', 'asinh', "atanh"]
             for i in range(6):
                 self.btn_u[i].configure(text=Trigonometry_txt[i], command=lambda n=Trigonometry_pad[i]: self.Input(n))
 
@@ -673,8 +590,6 @@ class Calculator:
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2].config(state=NORMAL)
-                self.btn_d[1].config(state=NORMAL)
-                self.btn_d[2].config(state=NORMAL)
 
             self.btn_a[0].config(bg='#80000B', relief='sunken')
             self.btn_a[0].DefaultBackGround = '#80000B'
@@ -690,9 +605,6 @@ class Calculator:
                 self.btn[2]['state'] = ['disabled']
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             self.btn_a[0].config(bg='#212121', relief='raised')
             self.btn_a[0].DefaultBackGround = '#212121'
@@ -710,9 +622,6 @@ class Calculator:
                 self.btn[17].config(state=DISABLED)
                 self.btn[23].config(state=DISABLED)
                 self.btn[2].config(state=DISABLED)
-                self.btn_d[1].config(state=NORMAL)
-                self.btn_d[2].config(state=NORMAL)
-                self.SwitchDegRad('Radians')
 
             for i in range(2):
                 self.btn_a[i].config(bg='#212121', relief='raised')
@@ -730,9 +639,6 @@ class Calculator:
                 self.btn[17].config(state=NORMAL)
                 self.btn[23].config(state=NORMAL)
                 self.btn[2].config(state=DISABLED)
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             for i in range(3):
                 self.btn_a[i].config(bg='#212121', relief='raised')
@@ -749,9 +655,6 @@ class Calculator:
                 self.btn[17].config(state=NORMAL)
                 self.btn[23].config(state=NORMAL)
                 self.btn[2].config(state=DISABLED)
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             for i in range(4):
                 self.btn_a[i].config(bg='#212121', relief='raised')
@@ -767,9 +670,6 @@ class Calculator:
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             self.btn_b[0].config(bg='#80000B', relief='sunken')
             self.btn_b[0].DefaultBackGround = '#80000B'
@@ -785,9 +685,6 @@ class Calculator:
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             self.btn_b[0].config(bg='#212121', relief='raised')
             self.btn_b[0].DefaultBackGround = '#212121'
@@ -805,9 +702,6 @@ class Calculator:
                 self.btn[17]['state'] = ['disabled']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             for i in range(2):
                 self.btn_b[i].config(bg='#212121', relief='raised')
@@ -826,9 +720,6 @@ class Calculator:
                 self.btn[17]['state'] = ['normal']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             for i in range(3):
                 self.btn_b[i].config(bg='#212121', relief='raised')
@@ -846,9 +737,6 @@ class Calculator:
                 self.btn[17]['state'] = ['normal']
                 self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
-                self.btn_d[1]['state'] = ['disabled']
-                self.btn_d[2]['state'] = ['disabled']
-                self.SwitchDegRad('Radians')
 
             for i in range(4):
                 self.btn_b[i].config(bg='#212121', relief='raised')
@@ -858,55 +746,6 @@ class Calculator:
 
         if self.switched:
             self.Delete()
-
-    def SwitchDegRad(self, convert):
-        switch = convert
-        if switch == 'Degree':
-            global convert_constant, inverse_convert_constant
-            convert_constant = π / 180
-            inverse_convert_constant = 180 / π
-            # Degree -> Radians
-            self.btn_m[0].configure(text='DEG', command=lambda: self.SwitchDegRad('Radians'), fg='#FF9950',
-                                    activeforeground='orange')
-            self.btn[0]['state'] = ['disabled']
-
-        elif switch == 'Radians':
-            convert_constant = 1
-            inverse_convert_constant = 1
-            # Radians -> Degree
-            self.btn_m[0].configure(text='RAD', command=lambda: self.SwitchDegRad('Degree'), fg='#FF9950',
-                                    activeforeground='orange')
-            self.btn[0]['state'] = ['normal']
-
-    def SwitchENG(self, NBR):
-        dot = NBR
-        self.ENG = NBR
-
-        if dot == int(16):
-            self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(15):
-            self.btn_m[2].configure(text='ENG₁₅', command=lambda: self.SwitchENG(int(12)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(12):
-            self.btn_m[2].configure(text='ENG₁₂', command=lambda: self.SwitchENG(int(9)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(9):
-            self.btn_m[2].configure(text='ENG₉', command=lambda: self.SwitchENG(int(6)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(6):
-            self.btn_m[2].configure(text='ENG₆', command=lambda: self.SwitchENG(int(3)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(3):
-            self.btn_m[2].configure(text='ENG₃', command=lambda: self.SwitchENG(int(2)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(2):
-            self.btn_m[2].configure(text='ENG₂', command=lambda: self.SwitchENG(int(1)), fg='#FF9950',
-                                    activeforeground='orange')
-        elif dot == int(1):
-            self.btn_m[2].configure(text='ENG₁', command=lambda: self.SwitchENG(int(16)), fg='#FF9950',
-                                    activeforeground='orange')
-        self.ShowDirectText()
 
     def Delete(self):
         self.a = ''
@@ -1022,19 +861,13 @@ class Calculator:
                 self.Input('E')
 
             elif keyword.keysym == 'e':
-                self.Input('Exp(')
+                self.Input('exp(')
 
             elif put == 'v':
                 self.SwitchButtons("1st")
 
             elif put == 'b':
                 self.SwitchButtons("2nd")
-
-            elif put == 'r':
-                self.SwitchDegRad('Radians')
-
-            elif put == 'd':
-                self.SwitchDegRad('Degree')
 
             elif put == 'slash':
                 self.Input('/')
@@ -1064,25 +897,25 @@ class Calculator:
                 self.Input('sqrt(')
 
             elif keyword.keysym == 's':
-                self.Input('Sin(')
+                self.Input('sin(')
 
             elif keyword.keysym == 'c':
-                self.Input('Cos(')
+                self.Input('cos(')
 
             elif keyword.keysym == 't':
-                self.Input('Tan(')
+                self.Input('tan(')
 
             elif keyword.keysym == 'S':
-                self.Input('Sinh(')
+                self.Input('sinh(')
 
             elif keyword.keysym == 'C':
-                self.Input('Cosh(')
+                self.Input('cosh(')
 
             elif keyword.keysym == 'T':
-                self.Input('Tanh(')
+                self.Input('tanh(')
 
             elif keyword.keysym == 'l':
-                self.Input('Ln(')
+                self.Input('log(')
 
             elif put == 'i':
                 self.Input('oo')
@@ -1092,9 +925,6 @@ class Calculator:
 
             elif put == 'exclam' or put == 'f':
                 self.Input('factorial(')
-
-            elif keyword.keysym == 'L':
-                self.Input('Log')
 
             elif put == 'p':
                 self.Input('π')
@@ -1176,8 +1006,8 @@ class Calculator:
         try:
             if self.mode == 'Operation':
                 self.FirstStrVar.set(self.expression)
-                self.SecondStrVar.set(sympify(self.expression))
-                self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(self.expression))
+                self.SecondStrVar.set(eval(self.expression))
+                self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWriteEqual(eval(self.expression)))
 
             elif self.mode == 'Function':
                 if self.full is None:
@@ -1381,10 +1211,7 @@ class Calculator:
                         self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {sympify(self.fctx)}')
                         for x in range(self.v, self.w):
-                            if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
-                            else:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
+                            self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), 3)}')
                         self.PlotFirstFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
                         self.expression = ""
                         self.VariableTXT(f'f(x) =')
@@ -1394,10 +1221,7 @@ class Calculator:
                         self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                         for x in range(self.v, self.w):
-                            if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
-                            else:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
+                            self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), 3)}')
                         self.PlotAddFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
                         TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
                         self.expression = ""
