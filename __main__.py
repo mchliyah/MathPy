@@ -1,6 +1,6 @@
 from math import log2, log10
 from operator import *
-from __init__old import *
+from __init__pass import *
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
@@ -8,6 +8,7 @@ from sympy.solvers.solveset import solvify
 
 # version 5.1.0
 # add new function: system solver {Matrix}
+# optimize Scrolled Listbox: add horizontal scrollbar
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -49,7 +50,7 @@ big2_prm = {'padx': 14,
             'activeforeground': "white"}
 ent_prm = {'fg': 'white',
            'bg': '#4d4d4d',
-           'font': ('Segoe UI Symbol', 17),
+           'font': ('Segoe UI Symbol', 16),
            'relief': 'flat', }
 π = pi
 convert_constant = 1
@@ -58,7 +59,7 @@ inverse_convert_constant = 1
 
 class Calculator:
     def __init__(self, master):
-        self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎', '∞']
+        self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
         self.color = ['', "r", "g", "o", "y", "b"]
         self.sb = ['x', 'y', 'z']
         self.ENG = 16
@@ -128,7 +129,7 @@ class Calculator:
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
         SecondTextDisplay.bind('<Key>', self.KeyboardInput)
         # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(master, width=48, height=13, **ent_prm)
+        self.FullTextDisplay = ScrolledListbox(master, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         self.FullTextDisplay.bind('<Key>', self.KeyboardInput)
         self.FullTextDisplay.focus_set()
@@ -186,8 +187,7 @@ class Calculator:
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
         btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', self.y, "4", "5", "6", "-", "**2", self.z,
-               "1",
-               "2", "3", "*", "**", "e", '.', "0", "=", "/", "Fact(", '/100']
+               "1", "2", "3", "*", "**", "e", '.', "0", "=", "/", "Fact(", '/100']
 
         btn_txt = ['π', 'E', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', 'y', "4", "5", "6", "-",
                    u'n\u00B2', 'z', "1", "2", "3", "*", "nˣ", '10ˣ', '.', "0", "=", "/", "!n", "n%"]
@@ -233,18 +233,22 @@ class Calculator:
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction("Operation", True)])
         Mode.add_command(label='Function',
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Function', True)])
-        Mode.add_command(label="Line Equation",
+        Mode.add_command(label="Simple Line Equation",
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Equation', True)])
-        Mode.add_command(label='Line Equation Solver', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
-        Mode.add_command(label='System Equation Solver', command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Matrix', True)])
+        Mode.add_command(label='Line Equation Solver',
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
+        Mode.add_command(label='System Equation Solver',
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Matrix', True)])
         Mode.add_separator()
         Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot', True)])
         Mode.add_command(label='Plot Parametric',
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot Prm', True)])
         Mode.add_command(label='Plot 3D',
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot3D', True)])
-        Mode.add_command(label='Plot 3D Parametric Line', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
-        Mode.add_command(label='Plot 3D Parametric Surface', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
+        Mode.add_command(label='Plot 3D Parametric Line',
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPL', True)])
+        Mode.add_command(label='Plot 3D Parametric Surface',
+                         command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
         Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
         Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
         Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
@@ -261,7 +265,8 @@ class Calculator:
             # buttons that will be displayed on top frame ROW 0=========================================================
             for i in range(5):
                 self.btn_b[i].destroy()
-            big_txt = ['Operation', 'Function', "Line\nEquation", 'Line\nEquation\nSolver', 'System\nEquation\nSolver']
+            big_txt = ['Operation', 'Function', "Simple\nLine\nEquation", 'Line\nEquation\nSolver',
+                       'System\nEquation\nSolver']
             big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrix']
             self.btn_a = []
             for i in range(5):
@@ -287,7 +292,8 @@ class Calculator:
             # buttons that will be displayed on top frame ROW 0=========================================================
             for i in range(5):
                 self.btn_a[i].destroy()
-            big_txt = ['Plot\nf(x)', 'Plot\nParametric', 'Plot 3D\nParametric\nLine', "Plot3D\nf(x,y)", 'Plot 3D\nParametric\nSurface']
+            big_txt = ['Plot\nf(x)', 'Plot\nParametric', 'Plot 3D\nParametric\nLine', "Plot3D\nf(x,y)",
+                       'Plot 3D\nParametric\nSurface']
             big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             self.btn_b = []
             for i in range(5):
@@ -355,7 +361,7 @@ class Calculator:
 
         elif self.mode == 'Equation':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode Line Equation : ax² + bx + c = 0')
+                self.FullTextDisplay.insert(END, 'Mode Simple Line Equation : ax² + bx + c = 0')
                 self.FastTextVariable.set('ax² + bx + c = 0')
                 self.btn[5].config(state=DISABLED)
                 self.btn[11].config(state=DISABLED)
@@ -813,15 +819,15 @@ class Calculator:
                     self.TextVariable.set(self.expression)
                     self.FastTextVariable.set(self.expression)
                 elif self.full and not self.clear and self.equal is None:
-                    self.TextVariable.set(f'{self.d} = {self.expression}')
-                    self.FastTextVariable.set(f'{self.d} = {self.expression}')
+                    self.TextVariable.set(f'{self.j} = {self.expression}')
+                    self.FastTextVariable.set(f'{self.j} = {self.expression}')
 
                 elif self.full and not self.clear and not self.equal:
                     self.TextVariable.set(self.expression)
                     self.FastTextVariable.set(self.expression)
                 elif self.full and not self.clear and self.equal:
-                    self.TextVariable.set(f'{self.v} = {self.expression}')
-                    self.FastTextVariable.set(f'{self.v} = {self.expression}')
+                    self.TextVariable.set(f'{self.m} = {self.expression}')
+                    self.FastTextVariable.set(f'{self.m} = {self.expression}')
 
             elif self.mode == 'Plot':
                 self.TextVariable.set(f'f(x) = {self.expression}')
@@ -1056,7 +1062,7 @@ class Calculator:
                 elif not self.full:
                     self.p = str(sympify(self.expression))
                     self.TextVariable.set(f'{self.q} = {self.p}')
-                    self.FullTextDisplay.insert(END, 'New Matrix :', f'   | {self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, 'New System :', f'   | {self.q} = {self.p}')
                     self.expression = ""
                     self.full = True
                     self.clear = None
@@ -1087,26 +1093,17 @@ class Calculator:
                             self.n = str(sympify(self.expression))
                             self.TextVariable.set(f'{self.m} = {self.n}')
                             self.FullTextDisplay.insert(END, f'   | {self.m} = {self.n}')
-                            print(0)
                             try:
                                 self.lslv = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
-                                print(1)
-                            except SyntaxError or TypeError or ValueError or NameError or NotImplementedError:
-                                try:
-                                    print(2)
-                                    self.lslv = nonlinsolve(
-                                        [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
-                                         Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
-                                except SyntaxError or TypeError or ValueError or NameError or NotImplementedError:
-                                    self.FastTextVariable.set('Cannot Solve This Matrix')
+                            except ValueError or TypeError or SyntaxError or NameError or NotImplementedError:
+                                self.lslv = nonlinsolve(
+                                    [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
+                                     Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
                             self.FastTextVariable.set(self.lslv)
                             self.FullTextDisplay.insert(END, self.lslv)
-                            print(len(self.lslv))
-                            # for l in range(len(self.lslv)):
-                            #   self.FullTextDisplay.insert(END, f'x{self.sb[int(l)]} = {self.lslv[l]}')
 
                             self.clear = True
                             self.full = None
