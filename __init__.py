@@ -1,10 +1,14 @@
-from tkinter import _cnfmerge, Button, Listbox, Canvas, Scrollbar, Grid, Pack, Place, HORIZONTAL, VERTICAL, NSEW, NS, EW
+from tkinter import _cnfmerge
+from tkinter import *
 from operator import neg
 from random import randint
-from sympy import sqrt, N
+from sympy import *
+from sympy.abc import x
 from sympy.plotting import PlotGrid
 
 text = ''
+expression = ''
+answer = ''
 permit = None
 delf = ()
 nbr = int
@@ -90,8 +94,8 @@ def InsertIntoString(string, str_to_insert, index, nbr_order, str_order):
     return text, index
 
 
-def ReBuild(str_order):
-    global v, w
+def FullReBuild(str_order, call_back):
+    global v, w, expression, answer
     try:
         expression = ''
         v = int(len(str_order)) - 1
@@ -102,30 +106,52 @@ def ReBuild(str_order):
                     or operation == '^':
                 for y in range(v, w):
                     expression += str(str_order[y])
-                return expression
+                character = str(call_back[-1]) + str(expression)
+                answer = eval(character)
+                return answer, character
             v -= 1
     except Exception:
-        pass
+        try:
+            expression = str(str_order[0]) + str(call_back[-1]) + str(')')
+            answer = eval(expression)
+            return answer, expression
+        except Exception:
+            try:
+                v = int(len(str_order)) - 1
+                while v >= 0:
+                    operation = int(len(str_order[v]))
+                    if operation > 3:
+                        expression = str(str_order[v]) + str(call_back[-1]) + str(')')
+                        answer = eval(expression)
+                        return answer, expression
+                    v -= 1
+            except Exception:
+                try:
+                    expression = str(call_back[-1])
+                    answer = eval(expression)
+                    return answer, expression
+                except Exception:
+                    pass
 
 
-def TwoPlotColorTwoFunc(PlotFirstFunc, PlotAddFunc, callback_function):
-    PlotFirstFunc.append(PlotAddFunc[0])
+def TwoPlotColorTwoFunc(Plot_First_Func, Plot_Add_Func, callback_function):
+    Plot_First_Func.append(Plot_Add_Func[0])
     s = int((len(callback_function) / 2) - 1)
     RD = randint(1048576, 16777000)
     HX = hex(RD)
     HX = HX[2:8].upper()
-    PlotFirstFunc[s].line_color = str('#') + str(HX)
-    PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
+    Plot_First_Func[s].line_color = str('#') + str(HX)
+    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func)
 
 
-def TwoPlotColorOneFunc(PlotFirstFunc, PlotAddFunc, callback_function):
-    PlotFirstFunc.append(PlotAddFunc[0])
+def TwoPlotColorOneFunc(Plot_First_Func, Plot_Add_Func, callback_function):
+    Plot_First_Func.append(Plot_Add_Func[0])
     s = int(len(callback_function) - 1)
     RD = randint(1048576, 16777000)
     HX = hex(RD)
     HX = HX[2:8].upper()
-    PlotFirstFunc[s].line_color = str('#') + str(HX)
-    PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
+    Plot_First_Func[s].line_color = str('#') + str(HX)
+    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func)
 
 
 def EQT(nbr_a, nbr_b, nbr_c):
