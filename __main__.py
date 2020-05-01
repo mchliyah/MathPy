@@ -1,14 +1,13 @@
 from math import log2, log10
 from operator import *
-from __init__pass import *
+from __init__ import *
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-# version 5.1.0
-# add new function: system solver
-# optimize Scrolled Listbox: add horizontal scroll bar axe x
+# version 5.1.1
+# optimize window to be resizable
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -59,18 +58,6 @@ inverse_convert_constant = 1
 
 class Calculator(Canvas):
     def __init__(self, master):
-        # Master Display ===============================================================================================
-        Canvas.__init__(self, master)
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_rowconfigure(3, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-
-        self.bind_all('<Key>', self.KeyboardInput)
-        self.grid_bbox('all')
-        self.configure(scrollregion=self.bbox("all"))
 
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
         self.color = ['', "r", "g", "y", "o", "b"]
@@ -130,28 +117,67 @@ class Calculator(Canvas):
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
+        # Master Display ===============================================================================================
+        Canvas.__init__(self, master)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+
+        self.bind_all('<Key>', self.KeyboardInput)
+        self.grid_bbox('all')
+        self.configure(scrollregion=self.bbox("all"))
+
         # Self Display ROW 0============================================================================================
         # First Text Display
         FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable, state='readonly')
-        FirstTextDisplay.grid(row=0, column=0, columnspan=2)
+        FirstTextDisplay.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), readonlybackground='#4d4d4d')
         # Second Text Display
         SecondTextDisplay = Entry(self, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
-        SecondTextDisplay.grid(row=1, column=1)
+        SecondTextDisplay.grid(row=1, column=1, sticky=NSEW, padx=1, pady=1)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
         # Full Text Display
         self.FullTextDisplay = ScrolledListbox(self, width=52, height=13, **ent_prm)
-        self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
+        self.FullTextDisplay.grid(row=2, column=1, rowspan=2, sticky=NSEW)
         self.FullTextDisplay.focus_set()
         # ROW 1 set frame showing top buttons
-        self.top_frame = Frame(self, relief='flat', bg='slate gray')
-        self.top_frame.grid(row=1, column=0)
+        self.top_frame = Frame(self, relief='flat', bg='#212121')
+        self.top_frame.grid(row=1, column=0, sticky=NSEW)
+        self.top_frame.rowconfigure(0, weight=1)
+        self.top_frame.columnconfigure(0, weight=1)
+        self.top_frame.columnconfigure(1, weight=1)
+        self.top_frame.columnconfigure(2, weight=1)
+        self.top_frame.columnconfigure(3, weight=1)
+        self.top_frame.columnconfigure(4, weight=1)
         # ROW 2 set frame showing middle buttons
         self.middle_frame = Frame(self, relief='flat', bg='#666666')
-        self.middle_frame.grid(row=2, column=0)
+        self.middle_frame.grid(row=2, column=0, sticky=NSEW)
+        self.middle_frame.rowconfigure(0, weight=1)
+        self.middle_frame.rowconfigure(1, weight=1)
+        self.middle_frame.rowconfigure(2, weight=1)
+        self.middle_frame.columnconfigure(0, weight=1)
+        self.middle_frame.columnconfigure(1, weight=1)
+        self.middle_frame.columnconfigure(2, weight=1)
+        self.middle_frame.columnconfigure(3, weight=1)
+        self.middle_frame.columnconfigure(4, weight=1)
+        self.middle_frame.columnconfigure(5, weight=1)
         # ROW 3 set frame showing bottom buttons
-        bottom_frame = Frame(self, relief='flat', bg='#4d4d4d')
-        bottom_frame.grid(row=3, column=0)
+        self.bottom_frame = Frame(self, relief='flat', bg='#4d4d4d')
+        self.bottom_frame.grid(row=3, column=0, sticky=NSEW)
+        self.bottom_frame.rowconfigure(0, weight=1)
+        self.bottom_frame.rowconfigure(1, weight=1)
+        self.bottom_frame.rowconfigure(2, weight=1)
+        self.bottom_frame.rowconfigure(3, weight=1)
+        self.bottom_frame.rowconfigure(4, weight=1)
+        self.bottom_frame.columnconfigure(0, weight=1)
+        self.bottom_frame.columnconfigure(1, weight=1)
+        self.bottom_frame.columnconfigure(2, weight=1)
+        self.bottom_frame.columnconfigure(3, weight=1)
+        self.bottom_frame.columnconfigure(4, weight=1)
+        self.bottom_frame.columnconfigure(5, weight=1)
         # buttons that will be fake displayed on top frame ROW 0========================================================
         big_txt = ['', '', '', '', '']
         self.btn_b = []
@@ -162,7 +188,7 @@ class Calculator(Canvas):
         self.btn_m = []
         for i in range(6):
             self.btn_m.append(HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
-            self.btn_m[i].grid(row=0, column=i)
+            self.btn_m[i].grid(row=0, column=i, sticky=NSEW, padx=1, pady=1)
         # Answer Stored
         self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
                                 command=lambda: self.Input(str(self.callback[-1])))
@@ -183,7 +209,7 @@ class Calculator(Canvas):
         self.btn_u = []
         for i in range(6):
             self.btn_u.append(HoverButton(self.middle_frame, **btn_prm))
-            self.btn_u[i].grid(row=1, column=i)
+            self.btn_u[i].grid(row=1, column=i, sticky=NSEW, padx=1, pady=1)
         # ROW 2
         # ========================Logarithm=============================================================================
         Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
@@ -191,7 +217,7 @@ class Calculator(Canvas):
         self.btn_d = []
         for i in range(6):
             self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
-            self.btn_d[i].grid(row=2, column=i)
+            self.btn_d[i].grid(row=2, column=i, sticky=NSEW, padx=1, pady=1)
             self.btn_d[i].configure(command=lambda n=Logarithm_pad[i]: self.Input(n))
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
@@ -205,8 +231,8 @@ class Calculator(Canvas):
         i = 0
         for j in range(5):
             for k in range(6):
-                self.btn.append(HoverButton(bottom_frame, **btnb_prm, text=btn_txt[i]))
-                self.btn[i].grid(row=j, column=k)
+                self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
+                self.btn[i].grid(row=j, column=k, sticky=NSEW, padx=1, pady=1)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
         for l in range(6, 9):
@@ -281,7 +307,7 @@ class Calculator(Canvas):
             self.btn_a = []
             for i in range(5):
                 self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
-                self.btn_a[i].grid(row=0, column=i)
+                self.btn_a[i].grid(row=0, column=i, sticky=NSEW, padx=1, pady=1)
                 self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
@@ -308,7 +334,7 @@ class Calculator(Canvas):
             self.btn_b = []
             for i in range(5):
                 self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
-                self.btn_b[i].grid(row=0, column=i)
+                self.btn_b[i].grid(row=0, column=i, sticky=NSEW, padx=1, pady=1)
                 self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
@@ -994,7 +1020,7 @@ class Calculator(Canvas):
 
                 elif self.full:
                     c = float(eval(self.expression))
-                    d = N((self.b ** 2) - 4 * self.a * c, 3)
+                    d = float((self.b ** 2) - 4 * self.a * c)
                     nd = neg(d)
                     nb = neg(self.b)
                     self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
@@ -1004,7 +1030,7 @@ class Calculator(Canvas):
                                                     f'The Equation Have Two Solutions For x :',
                                                     f'  ∆ =  b² - 4ac',
                                                     f'  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c}))',
-                                                    f'      = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)})',
+                                                    f'      = {self.b ** 2} - ({4 * self.a * c})',
                                                     f'      = {d}')
                         if d == 0:
                             self.FullTextDisplay.insert(END,
@@ -1369,6 +1395,7 @@ if __name__ == "__main__":
     root.configure(bg='#4d4d4d')
     # Window configuration
     win.configure(menu=menubare, bg='#4d4d4d')
-    # win.resizable(False, False)
-    win.title("PyMathon v5.1.0")
+    win.geometry("1000x560")
+    win.minsize(width=1000, height=560)
+    win.title("PyMathon v5.1.1")
     win.mainloop()
