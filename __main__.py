@@ -18,6 +18,8 @@ from sympy.solvers.solveset import solvify
 class of calculator
 # more improving scrollbar for FigureX in ScrollableTkAggX and more speed on draw for FigureXY in ScrollableTkAggXY
 # optimization in operation mode
+# create class of setting small numbers and make definition solve as the master function all of that for line equation 
+solver mode
 """
 # noinspection NonAsciiCharacters
 π = pi
@@ -25,7 +27,7 @@ class of calculator
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '6.3.0_b3.2'
+    __version__ = '6.3.0_S'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
@@ -86,16 +88,6 @@ class Calculator:
 
     def __init__(self):
         self.win = Tk()
-        self.little_nbr = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉',
-                           '⏨', '₁₁', '₁₂', '₁₃', '₁₄', '₁₅', '₁₆', '₁₇', '₁₈', '₁₉',
-                           '₂₀', '₂₁', '₂₂', '₂₃', '₂₄', '₂₅', '₂₆', '₂₇', '₂₈', '₂₉',
-                           '₃₀', '₃₁', '₃₂', '₃₃', '₃₄', '₃₅', '₃₆', '₃₇', '₃₈', '₃₉',
-                           '₄₀', '₄₁', '₄₂', '₄₃', '₄₄', '₄₅', '₄₆', '₄₇', '₄₈', '₄₉',
-                           '₅₀', '₅₁', '₅₂', '₅₃', '₅₄', '₅₅', '₅₆', '₅₇', '₅₈', '₅₉',
-                           '₆₀', '₆₁', '₆₂', '₆₃', '₆₄', '₆₅', '₆₆', '₆₇', '₆₈', '₆₉',
-                           '₇₀', '₇₁', '₇₂', '₇₃', '₇₄', '₇₅', '₇₆', '₇₇', '₇₈', '₇₉',
-                           '₈₀', '₈₁', '₈₂', '₈₃', '₈₄', '₈₅', '₈₆', '₈₇', '₈₈', '₈₉',
-                           '₉₀', '₉₁', '₉₂', '₉₃', '₉₄', '₉₅', '₉₆', '₉₇', '₉₈', '₉₉']
         self.little_tuple = {'(': '₍', ')': '₎'}
         self.btn_u = []
         self.btn_a = []
@@ -111,8 +103,6 @@ class Calculator:
         self.x = x
         self.y = y
         self.z = z
-        self.R = S.Reals
-        self.C = S.Complexes
         self.q = ''
         self.p = ''
         self.SolutionOS = ''
@@ -224,13 +214,13 @@ class Calculator:
         self.FullTextDisplay = ScrolledListbox(self.east_canvas, width=52, height=8, **self.ent_prm)
         self.FullTextDisplay.configure(font=('DejaVu Sans', 22))
         self.FullTextDisplay.grid(row=0, column=0, sticky=NSEW)
+        # ROW 2 set canvas showing BackEndPlot==========================================================================
+        self.BackEndPlot = BackEndPlot(master=self.east_canvas, figsize=(6, 3))
+        self.BackEndPlot.grid(row=0, column=0, sticky=NSEW)
         # ROW 2 set canvas showing ScrollableTkAggXY====================================================================
         self.FigureXY = FigureXY(figsize=(1, 1), fontsize=20, facecolor='#F0F0F0')
         self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
         self.TkAggXY.grid(row=0, column=0, sticky=NSEW)
-        # ROW 2 set canvas showing BackEndPlot==========================================================================
-        self.BackEndPlot = BackEndPlot(master=self.east_canvas, figsize=(6, 3))
-        self.BackEndPlot.grid(row=0, column=0, sticky=NSEW)
         # buttons that will be displayed on middle bottom canvas ROW 0==================================================
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
@@ -874,15 +864,13 @@ class Calculator:
                 expr_str = DrawBefore(self.TextDisplay.expression)
                 result_expr = DrawAfter(self.answer)
                 result_num = DrawAfterNum(self.answer)
-
-                norm = str(result_expr).replace('$', '')
-                dot_zero = str(result_num).replace('.0', '').replace('$', '')
+                dot_zero = str(result_num).replace('.0', '')
 
                 if expr_str == result_expr and str('log') in str(self.TextDisplay.expression) \
                         or str('exp') in str(self.TextDisplay.expression):
                     self.FigureX.DrawTexTk(f'op > {self.TextDisplay.expression} = {result_expr} = {result_num}')
 
-                elif dot_zero == norm or result_expr == result_num:
+                elif dot_zero == result_expr or result_expr == result_num:
                     self.FigureX.DrawTexTk(f'op > {expr_str} = {result_expr}')
                 else:
                     self.FigureX.DrawTexTk(f'op > {expr_str} = {result_expr} = {result_num}')
@@ -1005,8 +993,7 @@ class Calculator:
                     expr_str = DrawBefore(self.TextDisplay.expression)
                     result_expr = DrawAfter(self.answer)
                     result_num = DrawAfterNum(self.answer)
-                    norm = str(result_expr).replace('$', '')
-                    dot_zero = str(result_num).replace('.0', '').replace('$', '')
+                    dot_zero = str(result_num).replace('.0', '')
 
                     if expr_str == result_expr and str('log') in str(self.TextDisplay.expression) \
                             or str('exp') in str(self.TextDisplay.expression):
@@ -1015,15 +1002,12 @@ class Calculator:
                         self.FigureXY.DrawLaTex(f'= {result_expr}')
                         self.FigureXY.DrawLaTex(f'= {result_num}')
 
-                    elif dot_zero == norm or result_expr == result_num:
-                        self.FigureX.DrawTexTk(
-                            f'op > {expr_str} = {result_expr}')
+                    elif dot_zero == result_expr or result_expr == result_num:
+                        self.FigureX.DrawTexTk(f'op > {expr_str} = {result_expr}')
                         self.FigureXY.DrawLaTex(f'op > {expr_str}')
                         self.FigureXY.DrawLaTex(f'= {result_expr}')
                     else:
-                        self.FigureX.DrawTexTk(
-                            f'op > {expr_str} = {result_expr}'
-                            f' = {result_num}')
+                        self.FigureX.DrawTexTk(f'op > {expr_str} = {result_expr} = {result_num}')
                         self.FigureXY.DrawLaTex(f'op > {expr_str}')
                         self.FigureXY.DrawLaTex(f'= {result_expr}')
                         self.FigureXY.DrawLaTex(f'= {result_num}')
@@ -1037,8 +1021,7 @@ class Calculator:
                     expr_str = DrawBefore(self.TextDisplay.expression)
                     result_expr = DrawAfter(self.answer)
                     result_num = DrawAfterNum(self.answer)
-                    norm = str(result_expr).replace('$', '')
-                    dot_zero = str(result_num).replace('.0', '').replace('$', '')
+                    dot_zero = str(result_num).replace('.0', '')
 
                     if expr_str == result_expr and str('log') in str(self.TextDisplay.expression) \
                             or str('exp') in str(self.TextDisplay.expression):
@@ -1046,15 +1029,12 @@ class Calculator:
                         self.FigureXY.DrawLaTex(f'op > {self.TextDisplay.expression}')
                         self.FigureXY.DrawLaTex(f'= {result_expr}')
 
-                    elif dot_zero == norm or result_expr == result_num:
-                        self.FigureX.DrawTexTk(
-                            f'op > {expr_str} = {result_expr}')
+                    elif dot_zero == result_expr or result_expr == result_num:
+                        self.FigureX.DrawTexTk(f'op > {expr_str} = {result_expr}')
                         self.FigureXY.DrawLaTex(f'op > {expr_str}')
                         self.FigureXY.DrawLaTex(f'= {result_expr}')
                     else:
-                        self.FigureX.DrawTexTk(
-                            f'op > {expr_str} = {result_expr}'
-                            f' = {result_num}')
+                        self.FigureX.DrawTexTk(f'op > {expr_str} = {result_expr} = {result_num}')
                         self.FigureXY.DrawLaTex(f'op > {expr_str}')
                         self.FigureXY.DrawLaTex(f'= {result_expr}')
                         self.FigureXY.DrawLaTex(f'= {result_num}')
@@ -1130,27 +1110,18 @@ class Calculator:
                 elif self.full:
                     self.p = str(eval(self.TextDisplay.expression))
                     self.VariableEQL(f'eq > {self.q} = {self.p}')
-                    # try:
-                    #     self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
-                    #     print('complex')
-                    #     if self.SolutionOS is None:
-                    #         self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
-                    #         print('real')
-                    # except Exception:
                     try:
                         self.SolutionOS = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
-                        print('all')
                     except Exception:
                         self.FigureX.DrawTexTk('Cannot Solve This Equation')
                     self.FigureX.DrawTexTk(
                         f'eq > {DrawBefore(self.q)} = {DrawBefore(self.p)} > Solution : {DrawAfter(self.SolutionOS)}')
                     self.FigureXY.DrawLaTex(f'eq > {DrawBefore(self.q)} = {DrawBefore(self.p)}')
                     self.FigureXY.DrawLaTex(f'Solution : {DrawAfter(self.SolutionOS)}')
-                    much_x = len(self.SolutionOS)
-                    # print(str(much_x)[1:2])
-                    for sl in range(much_x):
-                        self.FigureXY.DrawLaTex(
-                            f'> x{self.little_nbr[sl]} = {DrawAfter(self.SolutionOS[sl])}')
+                    much_sol = len(self.SolutionOS)
+                    small_numbers = SmallNumbers(much_sol)
+                    for sl in range(much_sol):
+                        self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {DrawAfter(self.SolutionOS[sl])}')
 
                     self.clear = True
                     self.full = None
