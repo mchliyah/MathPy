@@ -13,7 +13,7 @@ from sympy.plotting import plot3d, plot3d_parametric_line, plot3d_parametric_sur
 from sympy.solvers.solveset import solvify
 
 __author__ = 'Achraf Najmi'
-__version__ = '6.2.0_b3'
+__version__ = '6.2.0_b3.1'
 __name__ = 'MathPy'
 """
 # version 6.2
@@ -25,6 +25,8 @@ __name__ = 'MathPy'
 # DrawBefore and DrawAfter move them to jeep v5 as @staticmethod
 # create class of ManagedEntry by resembling all features were making to modify the Entry(): {ClickCursor, ControlCursor
 DirectionCursor, RealStringInsertion, RemoveFromString, InsertIntoString, FullReBuild, ResetClear}
+# change font from {Segoe UI Symbol} to {DejaVu Sans}
+# set geometry("1100x680"), set minsize(width=420, height=680), set resizable(width=True, height=False)
 """
 # noinspection NonAsciiCharacters
 π = pi
@@ -34,7 +36,7 @@ btn_prm = {'padx': 18,
            'background': '#666666',
            'fg': 'white',
            'bg': '#666666',
-           'font': ('Segoe UI Symbol', 16, 'bold'),
+           'font': ('DejaVu Sans', 17),
            'width': 2,
            'height': 1,
            'relief': 'raised',
@@ -47,7 +49,7 @@ btn_dif = {'padx': 18,
            'background': '#666666',
            'fg': '#FF9950',
            'bg': '#666666',
-           'font': ('Wingdings', 21),
+           'font': ('Wingdings', 18),
            'width': 1,
            'height': 1,
            'relief': 'raised',
@@ -60,7 +62,7 @@ btnb_prm = {'padx': 18,
             'background': '#4d4d4d',
             'fg': 'white',
             'bg': '#4d4d4d',
-            'font': ('Segoe UI Symbol', 17),
+            'font': ('DejaVu Sans', 17),
             'width': 2,
             'height': 1,
             'relief': 'raised',
@@ -73,7 +75,7 @@ big2_prm = {'padx': 14,
             'background': '#212121',
             'fg': 'white',
             'bg': '#212121',
-            'font': ('Segoe UI Symbol', 13),
+            'font': ('DejaVu Sans', 12),
             'width': 5,
             'height': 1,
             'relief': 'raised',
@@ -82,14 +84,14 @@ big2_prm = {'padx': 14,
             'activeforeground': "white"}
 ent_prm = {'fg': 'black',
            'bg': '#F0F0F0',
-           'font': ('Segoe UI Symbol', 32),
+           'font': ('DejaVu Sans', 32),
            'relief': 'flat'}
 
 
 class Calculator:
     def __init__(self):
         self.win = Tk()
-        self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
+        self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍', '₎']
         self.btn_u = []
         self.btn_a = []
         self.mathext = []
@@ -206,7 +208,7 @@ class Calculator:
         ErrorLabelDisplay.grid(row=0, column=2, sticky=NSEW)
         ErrorLabelDisplay.configure(anchor='e')
         # ROW 1 set MathPlot LaTex Display==============================================================================
-        self.FigureX = Figure(figsize=(100, 5), facecolor='#212121')
+        self.FigureX = Figure(figsize=(100, 5), facecolor='#212121', tight_layout=True)
         self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.middle_top_canvas)
         self.TkAggWidgetX = self.TkAggX.get_tk_widget()
         self.TkAggWidgetX.grid(row=0, column=0, sticky=NSEW)
@@ -237,17 +239,17 @@ class Calculator:
             self.btn_m2[i2a].grid(row=0, column=i2b, sticky=NSEW)
             i2b += 1
         # Answer Stored
-        self.btn_m2[0].configure(bg='#20B645', activebackground='#00751E', font=('Segoe UI Symbol', 16, 'bold'),
+        self.btn_m2[0].configure(bg='#20B645', activebackground='#00751E', font=('DejaVu Sans', 17),
                                  command=lambda: self.Input(str(self.callback[-1])))
         self.btn_m2[0].ABG = '#009C27'
         self.btn_m2[0].DBG = '#20B645'
         # Clear
-        self.btn_m2[1].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 23),
+        self.btn_m2[1].configure(width=1, bg='firebrick2', activebackground='firebrick4', font=('Marlett', 20),
                                  command=lambda: self.Delete())
         self.btn_m2[1].ABG = 'firebrick3'
         self.btn_m2[1].DBG = 'firebrick2'
         # Remove
-        self.btn_m2[2].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
+        self.btn_m2[2].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 19),
                                  command=lambda: self.Remove())
         self.btn_m2[2].ABG = 'Royalblue3'
         self.btn_m2[2].DBG = 'Royalblue2'
@@ -356,8 +358,8 @@ class Calculator:
         self.win.iconbitmap('Alecive-Flatwoken-Apps-Libreoffice-Math-B.ico')
         self.win.configure(menu=menubare, bg='#4d4d4d')
         self.win.geometry("1100x680")
-        self.win.minsize(width=1100, height=680)
-        self.win.resizable(width=True, height=True)
+        self.win.minsize(width=420, height=680)
+        self.win.resizable(width=True, height=False)
         self.win.title(u"%s v%s" % (__name__, __version__))
         self.win.mainloop()
 
@@ -380,7 +382,7 @@ class Calculator:
             # buttons that will be displayed on middle bottom canvas ROW 0==============================================
             # 2nd
             self.btn_m1[2].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"),
-                                     font=('Segoe UI Symbol', 16, 'bold'))
+                                     font=('DejaVu Sans', 17))
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['cos(', 'sin(', "tan(", 'cosh(', 'sinh(', "tanh("]
@@ -421,7 +423,7 @@ class Calculator:
             # buttons that will be displayed on middle bottom canvas ROW 0==============================================
             # 1st
             self.btn_m1[2].configure(text="2ND", command=lambda: self.SwitchButtons("1st"),
-                                     font=('Segoe UI Symbol', 16, 'bold'))
+                                     font=('DejaVu Sans', 17))
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['acos(', 'asin(', "atan(", 'acosh(', 'asinh(', "atanh("]
@@ -476,6 +478,7 @@ class Calculator:
 
         elif self.mode == 'Function':
             if self.switched:
+                self.FullTextDisplay.insert(END, u"%s v%s Created by %s" % (__name__, __version__, __author__))
                 self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
                 self.btn[11]['state'] = ['normal']
                 self.btn[2]['state'] = ['disabled']
@@ -492,6 +495,7 @@ class Calculator:
 
         elif self.mode == 'Equation':
             if self.switched:
+                self.FullTextDisplay.insert(END, u"%s v%s Created by %s" % (__name__, __version__, __author__))
                 self.FullTextDisplay.insert(END, 'Mode Simple Line Equation : ax² + bx + c = 0')
                 self.btn[11].config(state=DISABLED)
                 self.btn[17].config(state=DISABLED)
@@ -553,6 +557,7 @@ class Calculator:
 
         elif self.mode == 'Plot Prm':
             if self.switched:
+                self.FullTextDisplay.insert(END, u"%s v%s Created by %s" % (__name__, __version__, __author__))
                 self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
                 self.btn[11]['state'] = ['normal']
                 self.btn[17]['state'] = ['disabled']
@@ -569,6 +574,7 @@ class Calculator:
 
         elif self.mode == 'P3DPL':
             if self.switched:
+                self.FullTextDisplay.insert(END, u"%s v%s Created by %s" % (__name__, __version__, __author__))
                 self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
                 self.btn[11]['state'] = ['normal']
                 self.btn[17]['state'] = ['disabled']
@@ -586,6 +592,7 @@ class Calculator:
 
         elif self.mode == 'Plot3D':
             if self.switched:
+                self.FullTextDisplay.insert(END, u"%s v%s Created by %s" % (__name__, __version__, __author__))
                 self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
                 self.btn[11]['state'] = ['normal']
                 self.btn[17]['state'] = ['normal']
@@ -602,6 +609,7 @@ class Calculator:
 
         elif self.mode == 'P3DPS':
             if self.switched:
+                self.FullTextDisplay.insert(END, u"%s v%s Created by %s" % (__name__, __version__, __author__))
                 self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
                 self.btn[11]['state'] = ['normal']
                 self.btn[17]['state'] = ['normal']
@@ -628,7 +636,7 @@ class Calculator:
             self.east_canvas.columnconfigure(0, weight=1)
 
             self.FullTextDisplay = ScrolledListbox(self.east_canvas, width=52, height=8, **ent_prm)
-            self.FullTextDisplay.configure(font=('Segoe UI Symbol', 24))
+            self.FullTextDisplay.configure(font=('DejaVu Sans', 24))
             self.FullTextDisplay.grid(row=0, column=0, sticky=NSEW)
             self.FullTextDisplay.rowconfigure(0, weight=1)
             self.FullTextDisplay.columnconfigure(0, weight=1)
@@ -637,7 +645,7 @@ class Calculator:
             self.east_canvas.rowconfigure(0, weight=1)
             self.east_canvas.columnconfigure(0, weight=1)
 
-            self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
+            self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0', tight_layout=True)
             self.AxesXY = self.FigureXY.subplots(nrows=2, ncols=1)
 
             self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
@@ -893,7 +901,7 @@ class Calculator:
         mpl_white_rvb = (255. / 255., 255. / 255., 255. / 255.)
         try:
             self.FigureX.clear()
-            self.FigureX.text(0, 0.4, la_text, color=mpl_white_rvb, fontsize=30)
+            self.FigureX.text(0, 0.4, la_text, color=mpl_white_rvb, fontsize=32)
             self.TkAggX.draw()
         except Exception:
             pass
@@ -905,7 +913,7 @@ class Calculator:
     def ShowInput(self):
         try:
             if self.mode == 'Operation':
-                self.TextStrVar.set(self.TextDisplay.expression)
+                self.VariableTXT('op >')
                 self.DrawTexTk(f'op > {DrawBefore(self.TextDisplay.expression)} = '
                                f'{DrawAfter(eval(self.TextDisplay.expression))}')
 
