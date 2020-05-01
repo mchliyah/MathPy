@@ -5,6 +5,10 @@ from random import randint
 from sympy import *
 from sympy.abc import x
 from sympy.plotting import PlotGrid
+import tkinter as tk
+from tkinter import Scrollbar
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 text = ''
 expression = ''
@@ -103,7 +107,13 @@ def FullReBuild(str_order, call_back):
         while True:
             operation = str(str_order[v])
             if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
-                    or operation == '^':
+                    or operation == '**2' or operation == '^':
+                for y in range(v, w):
+                    expression += str(str_order[y])
+                character = str('(') + str(call_back[-1]) + str(')') + str(expression)
+                answer = eval(character)
+                return answer, character
+            elif operation == 'e+' or operation == 'e-':
                 for y in range(v, w):
                     expression += str(str_order[y])
                 character = str(call_back[-1]) + str(expression)
@@ -116,41 +126,25 @@ def FullReBuild(str_order, call_back):
             answer = eval(expression)
             return answer, expression
         except Exception:
-            try:
-                v = int(len(str_order)) - 1
-                while v >= 0:
-                    operation = int(len(str_order[v]))
-                    if operation > 3:
-                        expression = str(str_order[v]) + str(call_back[-1]) + str(')')
-                        answer = eval(expression)
-                        return answer, expression
-                    v -= 1
-            except Exception:
-                try:
-                    expression = str(call_back[-1])
+            v = int(len(str_order)) - 1
+            while v >= 0:
+                operation = int(len(str_order[v]))
+                if operation > 3:
+                    expression = str(str_order[v]) + str(call_back[-1]) + str(')')
                     answer = eval(expression)
                     return answer, expression
-                except Exception:
-                    pass
+                v -= 1
+            expression = str(call_back[-1])
+            answer = eval(expression)
+            return answer, expression
 
 
-def TwoPlotColorTwoFunc(Plot_First_Func, Plot_Add_Func, callback_function):
+def TwoPlotColor(Plot_First_Func, Plot_Add_Func):
     Plot_First_Func.append(Plot_Add_Func[0])
-    s = int((len(callback_function) / 2) - 1)
     RD = randint(1048576, 16777000)
     HX = hex(RD)
     HX = HX[2:8].upper()
-    Plot_First_Func[s].line_color = str('#') + str(HX)
-    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func)
-
-
-def TwoPlotColorOneFunc(Plot_First_Func, Plot_Add_Func, callback_function):
-    Plot_First_Func.append(Plot_Add_Func[0])
-    s = int(len(callback_function) - 1)
-    RD = randint(1048576, 16777000)
-    HX = hex(RD)
-    HX = HX[2:8].upper()
-    Plot_First_Func[s].line_color = str('#') + str(HX)
+    Plot_First_Func[-1].line_color = str('#') + str(HX)
     PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func)
 
 
@@ -258,3 +252,107 @@ class ScrolledListbox(Listbox):
 
     def __str__(self):
         return str(self.canvas)
+
+
+class ScrollableTkAggX(FigureCanvasTkAgg):
+    def __init__(self, figure, master, *args, **kwargs):
+        # --- create canvas with scrollbar ---
+        self.canvas = tk.Canvas(master)
+        self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.columnconfigure(0, weight=1)
+
+        self.fig_wrapper = tk.Frame(self.canvas)
+        self.fig_wrapper.grid(row=0, column=0, sticky=tk.NSEW)
+        self.fig_wrapper.rowconfigure(0, weight=1)
+        self.fig_wrapper.columnconfigure(0, weight=1)
+
+        super(ScrollableTkAggX, self).__init__(figure, master=self.fig_wrapper, *args, **kwargs)
+        self.tkagg = self.get_tk_widget()
+        self.tkagg.grid(row=0, column=0, sticky=tk.NSEW)
+
+        self.hbar = Scrollbar(self.canvas, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        self.hbar.grid(row=1, column=0, sticky=tk.EW)
+
+        self.canvas.configure(xscrollcommand=self.hbar.set, scrollregion=self.canvas.bbox(tk.ALL))
+
+        # when all widgets are in canvas
+        self.canvas.bind('<Configure>', self.on_configure)
+        # --- put frame in canvas ---
+        self.canvas_frame = self.canvas.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
+
+        ScrollableTkAggX_meths = vars(FigureCanvasTkAgg).keys()
+        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
+        methods = methods.difference(ScrollableTkAggX_meths)
+
+        for m in methods:
+            if m[0] != '_' and m != 'config' and m != 'configure':
+                setattr(self, m, getattr(self.canvas, m))
+
+    def __str__(self):
+        return str(self.canvas)
+
+        # expand canvas_frame when canvas changes its size
+
+    def on_configure(self, event):
+        # when all widgets are in canvas
+        canvas_height = event.height
+        self.canvas.itemconfigure(self.canvas_frame, height=canvas_height - 20)
+        # update scrollregion after starting 'mainloop'
+        self.canvas.configure(scrollregion=self.canvas.bbox(tk.ALL))
+
+
+class ScrollableTkAggXY(FigureCanvasTkAgg):
+    def __init__(self, figure, master, *args, **kwargs):
+        # --- create canvas with scrollbar ---
+        self.canvas = tk.Canvas(master)
+        self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.columnconfigure(0, weight=1)
+
+        self.fig_wrapper = tk.Frame(self.canvas)
+        self.fig_wrapper.grid(row=0, column=0, sticky=tk.NSEW)
+        self.fig_wrapper.rowconfigure(0, weight=1)
+        self.fig_wrapper.columnconfigure(0, weight=1)
+
+        super(ScrollableTkAggXY, self).__init__(figure, master=self.fig_wrapper, *args, **kwargs)
+        self.tkagg = self.get_tk_widget()
+        self.tkagg.grid(row=0, column=0, sticky=tk.NSEW)
+
+        self.vbar = Scrollbar(self.canvas, orient=tk.VERTICAL, command=self.canvas.yview)
+        self.vbar.grid(row=0, column=1, sticky=tk.NS)
+
+        self.hbar = Scrollbar(self.canvas, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        self.hbar.grid(row=1, column=0, sticky=tk.EW)
+
+        self.canvas.configure(yscrollcommand=self.vbar.set, xscrollcommand=self.hbar.set,
+                              scrollregion=self.canvas.bbox(tk.ALL))
+
+        # when all widgets are in canvas
+        self.canvas.bind('<Configure>', self.on_configure)
+        # --- put frame in canvas ---
+        self.canvas_frame = self.canvas.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
+
+        ScrollableTkAggXY_meths = vars(FigureCanvasTkAgg).keys()
+        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
+        methods = methods.difference(ScrollableTkAggXY_meths)
+
+        for m in methods:
+            if m[0] != '_' and m != 'config' and m != 'configure':
+                setattr(self, m, getattr(self.canvas, m))
+
+    def __str__(self):
+        return str(self.canvas)
+
+    # expand canvas_frame when canvas changes its size
+    def on_configure(self, event):
+        # when all widgets are in canvas
+        # canvas_width = event.width
+        Size = self.get_width_height()
+        self.canvas.itemconfigure(self.canvas_frame, height=int(Size[1]))
+        # update scrollregion after starting 'mainloop'
+        self.canvas.configure(scrollregion=self.canvas.bbox(tk.ALL))
+
+    def Drawing(self):
+        self.draw()
+        self.on_configure(1)
