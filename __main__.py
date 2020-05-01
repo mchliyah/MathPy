@@ -4,11 +4,11 @@ from operator import *
 from tkinter import *
 from sympy import S, Eq, exp, tan, sin, cos, log, sqrt
 from sympy.abc import x
-from sympy.solvers.solveset import solvify, solveset
+from sympy.solvers.solveset import solvify
 
-# version 3.3.1
-# Optimise the new Equation Solver
-# Reorganize & Resize and Add new Buttons & Commands & keyboard bind
+# version 3.3.2
+# Optimize & Reorganize & Resize Buttons
+# Rename the Equation Solver to Solve Set
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -26,7 +26,7 @@ big_prm = {'padx': 16,
            'fg': 'white',
            'bg': 'slate gray',
            'font': ('Segoe UI Symbol', 16),
-           'width': 4,
+           'width': 5,
            'height': 1,
            'relief': 'raised',
            'activebackground': 'dim gray',
@@ -37,6 +37,7 @@ ent_prm = {'bd': 4,
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = 3.141592653589793
+ne = 2.718281828459045
 
 
 class EntryBox(Entry):
@@ -125,6 +126,10 @@ def Exp(arg):
     return mt.exp(arg)
 
 
+def Fact(arg):
+    return mt.factorial(arg)
+
+
 class Calculator:
     def __init__(self, master):
         self.btn_u = []
@@ -141,6 +146,7 @@ class Calculator:
         self.a = ''
         self.b = ''
         self.c = ''
+        # equation solver parametre
         self.q = ''
         self.p = ''
         self.x = x
@@ -187,29 +193,27 @@ class Calculator:
         # Operation
         self.Operation = Button(self.top_frame, **big_prm, text="Operation",
                                 command=lambda: self.SwitchFunction("Operation"))
-        self.Operation.grid(row=0, column=2, columnspan=2)
+        self.Operation.grid(row=0, column=0)
         # Function
         self.Function = Button(self.top_frame, **big_prm, text="Function",
                                command=lambda: self.SwitchFunction("Function"))
-        self.Function.grid(row=0, column=4, columnspan=2)
+        self.Function.grid(row=0, column=2)
         # Equation
-        self.Equation_2nd = Button(self.top_frame, **big_prm, text="Eq2&1",
+        self.Equation_2nd = Button(self.top_frame, **big_prm, text="Equation",
                                    command=lambda: self.SwitchFunction('Equation 2nd'))
-        self.Equation_2nd.grid(row=0, column=6)
-        self.Equation_2nd['width'] = 2
-        self.Equation = Button(self.top_frame, **big_prm, text="EqAll",
+        self.Equation_2nd.grid(row=0, column=4)
+        # self.Equation_2nd['width'] = 2
+        self.Equation = Button(self.top_frame, **big_prm, text="Solve Set",
                                command=lambda: self.SwitchFunction('Equation'))
-        self.Equation.grid(row=0, column=7)
-        self.Equation['width'] = 2
+        self.Equation.grid(row=0, column=6)
+        # self.Equation['width'] = 2
         # buttons that will be displayed on middle frame ROW 0==========================================================
-        pad = ['(', ')', "", '', '', ""]
-        txt = ['(', ')', "", 'Answer', 'r', "Õ"]
+        txt = ['', '', '', 'Answer', 'r', 'Õ']
         btn = []
         i = 0
         for k in range(6):
             btn.append(Button(self.middle_frame, **btn_prm, text=txt[i]))
-            btn[i].grid(row=1, column=k)
-            btn[i]["command"] = lambda n=pad[i]: self.Input(n)
+            btn[i].grid(row=0, column=k)
             i += 1
         # Answer Stored
         btn[3].configure(bg='SeaGreen3', activebackground='SeaGreen3',
@@ -228,15 +232,16 @@ class Calculator:
         i = 0
         for k in range(6):
             self.btn_d.append(Button(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
-            self.btn_d[i].grid(row=3, column=k)
+            self.btn_d[i].grid(row=2, column=k)
             self.btn_d[i]["command"] = lambda n=Logarithm_pad[i]: self.Input(n)
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ['π', 'e', "1j", '^', '**3', 'x', "7", "8", "9", "+", '**2', 'e-', "4", "5", "6", "-", "**", 'e', "1",
-               "2", "3", "*", "Sq(", "iSq(", '0', ".", "=", "/", "factorial(", '/100']
-        btn_txt = ['π', 'e', "j", '^', u'n\u00B3', 'x', "7", "8", "9", "+", u'n\u00B2', 'nx10ˉˣ', "4", "5", "6", "-",
-                   "nˣ", 'nx10ˣ', "1", "2", "3", "*", "√n", '√n~', '0', ".", "=", "/", "!n", "n%"]
+        btn = ['π', 'ne', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', 'e-', "4", "5", "6", "-", "**2", 'e', "1",
+               "2", "3", "*", "**", "Sq(", '0', ".", "=", "/", "Fact(", '/100']
+
+        btn_txt = ['π', 'ne', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', 'nx10ˉˣ', "4", "5", "6", "-",
+                   u'n\u00B2', 'nx10ˣ', "1", "2", "3", "*", "nˣ", '√n', '0', ".", "=", "/", "!n", "n%"]
         self.btn = []
         i = 0
         for j in range(5):
@@ -251,11 +256,11 @@ class Calculator:
 
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
-        # Switch Menu In Bare Display=================================================================================
+        # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
-        filemenu.add_command(label="Equation Standard", command=lambda: self.SwitchFunction('Equation 2nd'))
-        filemenu.add_command(label='Equation', command=lambda: self.SwitchFunction('Equation'))
+        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation 2nd'))
+        filemenu.add_command(label='Solve Set', command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_separator()
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
@@ -273,7 +278,7 @@ class Calculator:
             # ROW 1
             # 2nd
             self.sweet = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
-            self.sweet.grid(row=1, column=2)
+            self.sweet.grid(row=0, column=1)
             self.sweet.configure(fg='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
@@ -283,7 +288,7 @@ class Calculator:
             i = 0
             for k in range(6):
                 self.btn_u.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
-                self.btn_u[i].grid(row=2, column=k)
+                self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
 
@@ -291,7 +296,7 @@ class Calculator:
             # ROW 1
             # 1st
             self.sweet = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("3rd"))
-            self.sweet.grid(row=1, column=2)
+            self.sweet.grid(row=0, column=1)
             self.sweet.configure(fg='orange', activeforeground='indian red')
             # ROW 2
             # ========================Trigonometry======================================================================
@@ -301,7 +306,7 @@ class Calculator:
             i = 0
             for k in range(6):
                 self.btn_u.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
-                self.btn_u[i].grid(row=2, column=k)
+                self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
 
@@ -309,17 +314,17 @@ class Calculator:
             # ROW 1
             # 1st
             self.sweet = Button(self.middle_frame, **btn_prm, text="3rd", command=lambda: self.SwitchButtons("1st"))
-            self.sweet.grid(row=1, column=2)
+            self.sweet.grid(row=0, column=1)
             self.sweet.configure(fg='orange', activeforeground='indian red')
             # ROW 2
             # ========================Logarithm=============================================================================
-            Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', '', ""]
-            Logarithm_txt = ['Ln', 'Log', "Log2", 'Exp', '', ""]
+            Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'Sq(', "Fact("]
+            Logarithm_txt = ['Ln', 'Log', "Log2", 'Exp', '√n', "!n"]
             self.btn_u = []
             i = 0
             for k in range(6):
                 self.btn_u.append(Button(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
-                self.btn_u[i].grid(row=2, column=k)
+                self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Logarithm_pad[i]: self.Input(n)
                 i += 1
 
@@ -394,18 +399,18 @@ class Calculator:
             convert_constant = π / 180
             inverse_convert_constant = 180 / π
             # Degree -> Radians
-            Deg_Rad = Button(self.top_frame, **big_prm, text='Degree',
+            Deg_Rad = Button(self.middle_frame, **btn_prm, text='Deg',
                              command=lambda: self.SwitchDegRad('Radians'))
-            Deg_Rad.grid(row=0, column=0, columnspan=2)
+            Deg_Rad.grid(row=0, column=0)
             Deg_Rad.configure(fg='orange', activeforeground='indian red')
 
         elif switch == 'Radians':
             convert_constant = 1
             inverse_convert_constant = 1
             # Radians -> Degree
-            Rad_Deg = Button(self.top_frame, **big_prm, text='Radians',
+            Rad_Deg = Button(self.middle_frame, **btn_prm, text='Rad',
                              command=lambda: self.SwitchDegRad('Degree'))
-            Rad_Deg.grid(row=0, column=0, columnspan=2)
+            Rad_Deg.grid(row=0, column=0)
             Rad_Deg.configure(fg='orange', activeforeground='indian red')
 
     def Clear(self):
@@ -786,7 +791,6 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     sol = solvify(Eq(eval(self.q), eval(self.p)), self.x, self.C)
                     if sol is None:
                         sol = solvify(Eq(eval(self.q), eval(self.p)), self.x, self.R)
-
                     self.FastTextVariable.set(sol)
                     m = 1
                     for l in range(len(sol)):
@@ -801,7 +805,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
         except ValueError:
             self.FastTextVariable.set('ValueError')
         except NotImplementedError:
-            self.FastTextVariable.set('Cannot solve')
+            self.FastTextVariable.set('CannotSolve')
         except SyntaxError:
             self.FastTextVariable.set('SyntaxError')
             try:
@@ -845,5 +849,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.3.1")
+    win.title("Scientific Calculator v3.3.2")
     win.mainloop()
