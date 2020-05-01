@@ -139,7 +139,6 @@ class Calculator:
         self.full = False
         self.half = False
         self.exist = None
-        self.permit = None
         # string variable for text input
         self.FirstStrVar = StringVar()
         self.LabelStrVar = StringVar()
@@ -718,7 +717,6 @@ class Calculator:
         self.clear = False
         self.full = None
         self.exist = None
-        self.permit = None
 
     def Remove(self):
         if self.clear:
@@ -1245,7 +1243,6 @@ class Calculator:
                             else:
                                 self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
-                                self.FullTextDisplay.insert(END, 'System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
 
                                 self.w = int(len(self.lslv))
                                 self.v = 0
@@ -1264,8 +1261,9 @@ class Calculator:
                                 self.yexp = str(self.yexp).replace(', ', '')
                                 self.zexp = str(self.zexp).replace(', ', '')
                                 self.VariableEQL(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}', '')
-                                self.FullTextDisplay.insert(END, f'> x = {self.xexp}', f'> y = {self.yexp}',
-                                                            f'> z = {self.zexp}')
+                                self.FullTextDisplay.insert(END, 'System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]'
+                                                            , f'> x = {self.xexp}', f'> y = {self.yexp}'
+                                                            , f'> z = {self.zexp}')
                             self.clear = True
                             self.full = None
 
