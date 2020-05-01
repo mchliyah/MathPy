@@ -2,8 +2,8 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 2.1.0
-# fix Bugs in Fast Answer in Second Text Display
+# version 2.1.1
+# fix Size Between First Text Display And Second Text Display And Full Text Display
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -61,15 +61,15 @@ class Calculator:
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        self.FirstTextDisplay = Entry(master, width=41, **ent_prm, textvariable=self.TextInput)
+        self.FirstTextDisplay = Entry(master, width=44, **ent_prm, textvariable=self.TextInput)
         self.FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        self.FirstTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 36))
+        self.FirstTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 35))
         # Second Text Display
-        self.SecondTextDisplay = Entry(master, width=34, **ent_prm, textvariable=self.FastText)
+        self.SecondTextDisplay = Entry(master, width=36, **ent_prm, textvariable=self.FastText)
         self.SecondTextDisplay.grid(row=1, column=1)
         self.SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 26), justify='right')
         # Full Text Display
-        self.FullTextDisplay = Text(master, width=50, height=13, **ent_prm)
+        self.FullTextDisplay = Text(master, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         # ROW 1 set frame showing top buttons
         top_frame = Frame(master, relief='flat', bg='dark slate gray')
@@ -449,7 +449,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
 
 win = Tk()
-win.title("Scientific Calculator v2.1.0")
+win.title("Scientific Calculator v2.1.1")
 # win.configure(bg='#666666')
 win.configure(bg='#4d4d4d')
 win.resizable(False, False)
