@@ -7,8 +7,8 @@ from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line
 from sympy.solvers.solveset import solvify
 
 # version 5.1.0
-# add new function: system solver {Matrix}
-# optimize Scrolled Listbox: add horizontal scrollbar
+# add new function: system solver
+# optimize Scrolled Listbox: add horizontal scroll bar axe x
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -60,7 +60,7 @@ inverse_convert_constant = 1
 class Calculator:
     def __init__(self, master):
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
-        self.color = ['', "r", "g", "o", "y", "b"]
+        self.color = ['', "r", "g", "y", "o", "b"]
         self.sb = ['x', 'y', 'z']
         self.ENG = 16
         self.btn_u = []
@@ -768,7 +768,7 @@ class Calculator:
                 self.FastTextVariable.set('')
                 self.TextVariable.set(self.expression)
                 if self.ENG == 16:
-                    self.FastTextVariable.set(sympify(self.expression))
+                    self.FastTextVariable.set(eval(self.expression))
 
                 else:
                     self.FastTextVariable.set(N(sympify(self.expression), self.ENG))
@@ -875,7 +875,7 @@ class Calculator:
                 try:
                     if not self.equal:
                         if self.ENG == 16:
-                            self.answer = sympify(self.expression)
+                            self.answer = eval(self.expression)
                         else:
                             self.answer = N(sympify(self.expression), self.ENG)
                         self.FastTextVariable.set('')
@@ -896,7 +896,7 @@ class Calculator:
                                     self.v += 1
                                 self.expression = str(self.callback[-1]) + str(self.expression)
                                 if self.ENG == 16:
-                                    self.answer = sympify(self.expression)
+                                    self.answer = eval(self.expression)
                                 else:
                                     self.answer = N(sympify(self.expression), self.ENG)
                                 self.FastTextVariable.set(self.answer)
@@ -908,7 +908,7 @@ class Calculator:
                     try:
                         self.expression = str(self.callback[-1])
                         if self.ENG == 16:
-                            self.answer = sympify(self.expression)
+                            self.answer = eval(self.expression)
                         else:
                             self.answer = N(sympify(self.expression), self.ENG)
                         self.FastTextVariable.set(self.answer)
@@ -935,7 +935,7 @@ class Calculator:
 
                 elif self.full:
                     if not self.equal:
-                        self.fctx = str(sympify(self.expression))
+                        self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {sympify(self.fctx)}')
                         for x in range(self.v, self.w):
                             if self.ENG == 16:
@@ -948,7 +948,7 @@ class Calculator:
                         self.equal = True
 
                     elif self.equal:
-                        self.fctx = str(sympify(self.expression))
+                        self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                         for x in range(self.v, self.w):
                             if self.ENG == 16:
@@ -963,19 +963,19 @@ class Calculator:
 
             elif self.mode == 'Equation':
                 if self.full is None:
-                    self.a = float(sympify(self.expression))
+                    self.a = float(eval(self.expression))
                     self.expression = ""
                     self.TextVariable.set(f'b = ')
                     self.full = False
 
                 elif not self.full:
-                    self.b = float(sympify(self.expression))
+                    self.b = float(eval(self.expression))
                     self.expression = ""
                     self.TextVariable.set(f'c = ')
                     self.full = True
 
                 elif self.full:
-                    c = float(sympify(self.expression))
+                    c = float(eval(self.expression))
                     d = N((self.b ** 2) - 4 * self.a * c, 3)
                     nd = neg(d)
                     nb = neg(self.b)
@@ -1033,13 +1033,13 @@ class Calculator:
 
             elif self.mode == 'Solve':
                 if self.full is None:
-                    self.q = str(sympify(self.expression))
+                    self.q = str(eval(self.expression))
                     self.TextVariable.set(f'{self.q} = ')
                     self.expression = ""
                     self.full = True
 
                 elif self.full:
-                    self.p = str(sympify(self.expression))
+                    self.p = str(eval(self.expression))
                     self.TextVariable.set(f'{self.q} = {self.p}')
                     self.FullTextDisplay.insert(END, f'{self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
@@ -1110,7 +1110,7 @@ class Calculator:
 
             elif self.mode == 'Plot':
                 if self.full is None:
-                    self.fctx = str(sympify(self.expression))
+                    self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.P3d = plot(sympify(self.fctx))
                     self.expression = ""
@@ -1118,7 +1118,7 @@ class Calculator:
                     self.full = True
 
                 elif self.full:
-                    self.fctx = str(sympify(self.expression))
+                    self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PA = plot(sympify(self.fctx))
                     self.P3d.append(self.PA[0])
@@ -1130,7 +1130,7 @@ class Calculator:
 
             elif self.mode == 'Plot Prm':
                 if self.full is None:
-                    self.fctx1 = str(sympify(self.expression))
+                    self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
                     self.TextVariable.set(f'f(x)₂ =')
@@ -1138,7 +1138,7 @@ class Calculator:
                     self.full = True
 
                 elif self.full:
-                    self.fctx2 = str(sympify(self.expression))
+                    self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
@@ -1161,7 +1161,7 @@ class Calculator:
 
             elif self.mode == 'P3DPL':
                 if self.full is None:
-                    self.fctx1 = str(sympify(self.expression))
+                    self.fctx1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
                     self.TextVariable.set(f'f(x)₂ =')
@@ -1169,7 +1169,7 @@ class Calculator:
                     self.full = True
 
                 elif self.full:
-                    self.fctx2 = str(sympify(self.expression))
+                    self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
@@ -1192,7 +1192,7 @@ class Calculator:
 
             elif self.mode == 'Plot3D':
                 if self.full is None:
-                    self.fctxy = str(sympify(self.expression))
+                    self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.P3d = plot3d(sympify(self.fctxy))
                     self.expression = ""
@@ -1200,7 +1200,7 @@ class Calculator:
                     self.full = True
 
                 elif self.full:
-                    self.fctxy = str(sympify(self.expression))
+                    self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PA = plot3d(sympify(self.fctxy))
                     self.P3d.append(self.PA[0])
@@ -1210,7 +1210,7 @@ class Calculator:
 
             elif self.mode == 'P3DPS':
                 if self.full is None:
-                    self.fctxy1 = str(sympify(self.expression))
+                    self.fctxy1 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = ')
                     self.expression = ""
@@ -1218,7 +1218,7 @@ class Calculator:
                     self.full = True
 
                 elif self.full:
-                    self.fctxy2 = str(sympify(self.expression))
+                    self.fctxy2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y)₂ = {self.fctxy2}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
                     if not self.equal:
