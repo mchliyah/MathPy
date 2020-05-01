@@ -11,7 +11,7 @@ from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 
-import __eci__ as eci
+from __jeep_v1__ import *
 
 """ 
 # version 6
@@ -83,185 +83,6 @@ ent_prm = {'fg': 'white',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = pi
-text = ''
-permit = None
-delf = ()
-nbr = int
-n = int
-v = int
-w = int
-
-
-def ControlCursor(index, nbr_order):
-    global n, nbr
-    nbr = 0
-    n = 0
-    while True:
-        nbr += nbr_order[n]
-        if index == 0:
-            return 0, -1
-        elif index <= nbr:
-            return nbr, n
-        n += 1
-
-
-def RealStringInsertion(str_now, index, str_order):
-    global permit, n
-    how = len(str_order)
-    now = str(str_now[:index])
-    real = ''
-    n = 0
-    while n < how:
-        real += str(str_order[n])
-        permit = None
-        if now == real:
-            permit = True
-            break
-        n += 1
-    return permit, n
-
-
-def RemoveFromString(str_to_remove, index, nbr_order, str_order):
-    global text, permit, n
-    end = len(str(str_to_remove))
-    permit, n = RealStringInsertion(str_to_remove, index, str_order)
-    pro = index - nbr_order[n]
-    if index == 0:
-        pass
-    else:
-        if end == index and permit:
-            text = str_to_remove[:-nbr_order[n]]
-            index -= nbr_order[int(n)]
-            str_order.pop(int(n))
-            nbr_order.pop(int(n))
-        elif pro == 0 and permit:
-            text = str_to_remove[nbr_order[n]:]
-            index -= nbr_order[int(n)]
-            str_order.pop(int(n))
-            nbr_order.pop(int(n))
-        else:
-            if permit:
-                text = str_to_remove[:pro] + str_to_remove[index:]
-                index -= nbr_order[int(n)]
-                str_order.pop(int(n))
-                nbr_order.pop(int(n))
-            else:
-                pass
-        return text, index
-
-
-def InsertIntoString(string, str_to_insert, index, nbr_order, str_order):
-    global text, permit, n
-    end = len(str(string))
-    permit, n = RealStringInsertion(string, index, str_order)
-    if index == 0:
-        text = string[:index] + str_to_insert + string[index:]
-        str_order.insert(0, str(str_to_insert))
-        nbr_order.insert(0, len(str(str_to_insert)))
-        index += int(len(str(str_to_insert)))
-    elif index == end or permit:
-        text = string[:index] + str_to_insert + string[index:]
-        str_order.insert(int(n) + 1, str(str_to_insert))
-        nbr_order.insert(int(n) + 1, len(str(str_to_insert)))
-        index += int(len(str(str_to_insert)))
-    else:
-        text = string
-    return text, index
-
-
-def ReBuild(str_order):
-    global v, w
-    try:
-        expression = ''
-        v = int(len(str_order)) - 1
-        w = int(len(str_order))
-        while True:
-            operation = str(str_order[v])
-            if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
-                    or operation == '^':
-                for y in range(v, w):
-                    expression += str(str_order[y])
-                return expression
-            v -= 1
-    except Exception:
-        pass
-
-
-def TwoPlotColorTwoFunc(PlotFirstFunc, PlotAddFunc, callback_function):
-    PlotFirstFunc.append(PlotAddFunc[0])
-    s = int((len(callback_function) / 2) - 1)
-    RD = randint(1048576, 16777000)
-    HX = hex(RD)
-    HX = HX[2:8].upper()
-    PlotFirstFunc[s].line_color = str('#') + str(HX)
-    PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
-
-
-def TwoPlotColorOneFunc(PlotFirstFunc, PlotAddFunc, callback_function):
-    PlotFirstFunc.append(PlotAddFunc[0])
-    s = int(len(callback_function) - 1)
-    RD = randint(1048576, 16777000)
-    HX = hex(RD)
-    HX = HX[2:8].upper()
-    PlotFirstFunc[s].line_color = str('#') + str(HX)
-    PlotGrid(1, 2, PlotFirstFunc, PlotAddFunc)
-
-
-def EQT(nbr_a, nbr_b, nbr_c):
-    global delf
-    a = float(eval(nbr_a))
-    b = float(eval(nbr_b))
-    c = float(eval(nbr_c))
-    d = float((b ** 2) - 4 * a * c)
-    nd = neg(d)
-    nb = neg(b)
-    if a > 0 or a < 0:
-        delf = (
-            f'The Equation Have Two Solutions For x :',
-            f'  ∆ =  b² - 4ac',
-            f'  ∆ = {b}² - (4 ⨯ {a} ⨯ {c})',
-            f'      = {b ** 2} - ({4 * a * c})',
-            f'      = {d}')
-        if d == 0:
-            delf += (
-                f'∆=0 : x = -b / 2a',
-                f' x₁ = x₂ = ({N(neg(b), 3)}) / (2 ⨯ {a})',
-                f' x₁ = x₂ = {N(neg(b) / (2 * a), 3)}')
-        elif d >= 0:
-            delf += (
-                f'∆>0 : x = (-b ± √∆) / 2a',
-                f' x₁ = ({nb} + √{d}) / (2 ⨯ {a})',
-                f'     = {N((nb + sqrt(d)) / (2 * a), 3)}',
-                f' x₂ = ({nb} - √{d}) / (2 ⨯ {a})',
-                f'     = {N((nb - sqrt(d)) / (2 * a), 3)}')
-        elif d <= 0:
-            delf += (
-                f'      = {nd}i²',
-                f'∆<0 : x = (-b ± i√∆) / 2a',
-                f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {a})',
-                f'     = {N((nb + sqrt(nd) * 1j) / (2 * a), 3)}',
-                f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {a})',
-                f'     = {N((nb - sqrt(nd) * 1j) / (2 * a), 3)}',
-                f'  z = a ± ib',
-                f'  a = {N(nb / (2 * a), 3)}',
-                f'  b = ± {N(sqrt(nd) / (2 * a), 3)}')
-    elif a == 0:
-        if b == 0 and c == 0:
-            delf += Display.insert(f"Empty Solution {{∅}}")
-        elif b == 0:
-            delf += Display.insert(f"Empty Solution {{∅}}")
-        elif c == 0:
-            delf += (
-                f'The Equation Have One Solution For x :',
-                f'  {b}x = 0',
-                f'  x = 0',)
-        else:
-            delf += (
-                f'The Equation Have One Solution For x :',
-                f'  {b}x = {neg(c)}',
-                f'  x = {neg(c)} / {b}',
-                f'  x = {neg(c) / b}')
-    return delf
 
 
 class Calculator:
@@ -364,7 +185,7 @@ class Calculator:
         self.TkAgg = self.CanvasFigure.get_tk_widget()
         self.TkAgg.grid(row=1, column=0, sticky=NSEW)
         # Full Text Display
-        self.FullTextDisplay = eci.ScrolledListbox(self.canvas, width=52, height=10, **ent_prm)
+        self.FullTextDisplay = ScrolledListbox(self.canvas, width=52, height=10, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=0, sticky=NSEW)
         self.FullTextDisplay.rowconfigure(0, weight=1)
         self.FullTextDisplay.columnconfigure(0, weight=1)
@@ -407,12 +228,12 @@ class Calculator:
         big_txt = ['', '', '', '', '']
         self.btn_b = []
         for k in range(5):
-            self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
+            self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
         # buttons that will be displayed on middle frame ROW 0==========================================================
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
         for i1 in range(3):
-            self.btn_m1.append(eci.HoverButton(self.middle_frame, **btn_dif, text=txta[i1]))
+            self.btn_m1.append(HoverButton(self.middle_frame, **btn_dif, text=txta[i1]))
             self.btn_m1[i1].grid(row=0, column=i1, sticky=NSEW)
         # Cursor Disposition
         self.btn_m1[0]['command'] = lambda: self.CHDR('Left')
@@ -422,7 +243,7 @@ class Calculator:
         self.btn_m2 = []
         i2b = 3
         for i2a in range(3):
-            self.btn_m2.append(eci.HoverButton(self.middle_frame, **btn_prm, text=txtb[i2a]))
+            self.btn_m2.append(HoverButton(self.middle_frame, **btn_prm, text=txtb[i2a]))
             self.btn_m2[i2a].grid(row=0, column=i2b, sticky=NSEW)
             i2b += 1
         # Answer Stored
@@ -443,7 +264,7 @@ class Calculator:
         # ========================Trigonometry==========================================================================
         self.btn_u = []
         for i in range(6):
-            self.btn_u.append(eci.HoverButton(self.middle_frame, **btn_prm))
+            self.btn_u.append(HoverButton(self.middle_frame, **btn_prm))
             self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
@@ -451,7 +272,7 @@ class Calculator:
         logarithm_txt = ['log', 'exp', 'W', "∫f(x)", '√n', "n!"]
         self.btn_d = []
         for i in range(6):
-            self.btn_d.append(eci.HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i]))
+            self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i]))
             self.btn_d[i].grid(row=2, column=i, sticky=NSEW)
             self.btn_d[i].configure(
                 command=lambda n=logarithm_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
@@ -467,7 +288,7 @@ class Calculator:
         i = 0
         for j in range(5):
             for k in range(6):
-                self.btn.append(eci.HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
+                self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
                 self.btn[i].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
@@ -549,7 +370,7 @@ class Calculator:
         self.win.configure(menu=menubare, bg='#4d4d4d')
         self.win.geometry("1100x580")
         self.win.minsize(width=1100, height=580)
-        self.win.title("PyMathon v6")
+        self.win.title("MathPy v6")
         self.win.mainloop()
 
     def Info(self, event):
@@ -598,7 +419,7 @@ class Calculator:
             big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrices']
             self.btn_a = []
             for i in range(5):
-                self.btn_a.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
+                self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
@@ -616,8 +437,8 @@ class Calculator:
                     command=lambda n=Trigonometry_pad[i]: [self.Input(n), self.Input(')'), self.CHDR('Left')])
 
             self.btn_d[3].configure(
-                    text='∫f(x)',
-                    command=lambda: [self.Input('integrate('), self.Input(')'), self.CHDR('Left')])
+                text='∫f(x)',
+                command=lambda: [self.Input('integrate('), self.Input(')'), self.CHDR('Left')])
 
             if self.mode == 'Operation' or self.mode == 'Function' or self.mode == 'Equation' or self.mode == 'Solve' \
                     or self.mode == 'Matrices':
@@ -632,7 +453,7 @@ class Calculator:
             big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             self.btn_b = []
             for i in range(5):
-                self.btn_b.append(eci.HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
+                self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
