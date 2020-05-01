@@ -13,6 +13,7 @@ from __jeep_v3__ import *
 # Optimize and generalise ReBuild of re-click Equal on operation
 # Optimize operation: *applying 'evalf' to block float on 16 numbers *improve 'eval' by 'sympfy' that solve problem
 ZeroDivisionError, and delete the exception of that error
+# resizing all
 """
 
 btn_prm = {'padx': 18,
@@ -358,7 +359,7 @@ class Calculator:
         self.win.rowconfigure(2, weight=1)
         self.win.rowconfigure(3, weight=1)
         self.win.columnconfigure(0, weight=1)
-        self.win.columnconfigure(1, weight=1)
+        self.win.columnconfigure(1, weight=10)
 
         self.win.bind_all('<Key>', self.KeyboardInput)
         self.win.iconbitmap('Alecive-Flatwoken-Apps-Libreoffice-Math-B.ico')
