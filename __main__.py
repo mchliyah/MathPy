@@ -2,51 +2,43 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 1.1
-# Fix Some Bug
-btn_prm = {
-    'padx': 16,
-    'pady': 1,
-    'bd': 4,
-    'fg': 'white',
-    'bg': '#666666',
-    'font': ('Segoe UI Symbol', 16),
-    'width': 2,
-    'height': 1,
-    'relief': 'flat',
-    'activebackground': "#666666"
-}
-nbr_prm = {
-    'padx': 16,
-    'pady': 1,
-    'bd': 4,
-    'fg': 'white',
-    'bg': '#4d4d4d',
-    'font': ('Segoe UI Symbol', 16),
-    'width': 2,
-    'height': 1,
-    'relief': 'flat',
-    'activebackground': "#4d4d4d"
-}
-big_prm = {
-    'padx': 16,
-    'pady': 1,
-    'bd': 4,
-    'fg': 'white',
-    'bg': '#666666',
-    'font': ('Segoe UI Symbol', 16),
-    'width': 5,
-    'height': 1,
-    'relief': 'flat',
-    'activebackground': "#666666"
-}
-ent_prm = {
-    'bd': 4,
-    'fg': 'white',
-    'bg': '#4d4d4d',
-    'font': ('Segoe UI Symbol', 18),
-    'relief': 'flat'
-}
+# version 1.2
+# Short Writing Buttons with Bool For
+btn_prm = {'padx': 16,
+           'pady': 1,
+           'bd': 4,
+           'fg': 'white',
+           'bg': '#666666',
+           'font': ('Segoe UI Symbol', 16),
+           'width': 2,
+           'height': 1,
+           'relief': 'flat',
+           'activebackground': "#666666"}
+nbr_prm = {'padx': 16,
+           'pady': 1,
+           'bd': 4,
+           'fg': 'white',
+           'bg': '#4d4d4d',
+           'font': ('Segoe UI Symbol', 16),
+           'width': 2,
+           'height': 1,
+           'relief': 'flat',
+           'activebackground': "#4d4d4d"}
+big_prm = {'padx': 16,
+           'pady': 1,
+           'bd': 4,
+           'fg': 'white',
+           'bg': '#666666',
+           'font': ('Segoe UI Symbol', 16),
+           'width': 5,
+           'height': 1,
+           'relief': 'flat',
+           'activebackground': "#666666"}
+ent_prm = {'bd': 4,
+           'fg': 'white',
+           'bg': '#4d4d4d',
+           'font': ('Segoe UI Symbol', 18),
+           'relief': 'flat'}
 
 
 class Calculator:
@@ -84,193 +76,166 @@ class Calculator:
         self.FullTextDisplay = Text(master, width=50, height=15, **ent_prm)
         self.FullTextDisplay.grid(row=1, column=1, rowspan=3)
         # ROW 1 set frame showing top buttons
-        self.frame = Frame(master, relief='flat', bg='dark slate gray')
-        self.frame.grid(row=1, column=0)
-        # ROW 2 set frame showing top buttons
-        self.top_frame = Frame(master, relief='flat', bg='#666666')
-        self.top_frame.grid(row=2, column=0)
+        top_frame = Frame(master, relief='flat', bg='dark slate gray')
+        top_frame.grid(row=1, column=0)
+        # ROW 2 set frame showing middle buttons
+        self.middle_frame = Frame(master, relief='flat', bg='#666666')
+        self.middle_frame.grid(row=2, column=0)
         # ROW 3 set frame showing bottom buttons
-        self.bottom_frame = Frame(master, relief='flat', bg='#666666')
-        self.bottom_frame.grid(row=3, column=0)
+        bottom_frame = Frame(master, relief='flat', bg='#666666')
+        bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0
         # Operation
-        self.Operation = Button(self.frame, **big_prm, text="Operation",
+        self.Operation = Button(top_frame, **big_prm, text="Operation",
                                 command=lambda: self.SwitchFunction("Operation"))
         self.Operation.grid(row=0, column=0, columnspan=2)
         self.Operation.configure(bg='dark slate gray', activebackground='dark slate gray')
         # Equation
-        self.Equation = Button(self.frame, **big_prm, text="Equation", command=lambda: self.SwitchFunction("Equation"))
+        self.Equation = Button(top_frame, **big_prm, text="Equation", command=lambda: self.SwitchFunction("Equation"))
         self.Equation.grid(row=0, column=2, columnspan=2)
         self.Equation.configure(bg='dark slate gray', activebackground='dark slate gray')
         # Function
-        self.Function = Button(self.frame, **big_prm, text="Function", command=lambda: self.SwitchFunction("Function"))
+        self.Function = Button(top_frame, **big_prm, text="Function", command=lambda: self.SwitchFunction("Function"))
         self.Function.grid(row=0, column=4, columnspan=2)
         self.Function.configure(bg='dark slate gray', activebackground='dark slate gray')
-
-        # buttons that will be displayed on top frame ROW 0
         # COMPLEX
-        Button(self.top_frame, **btn_prm, text='complx', command=lambda: self.Input("complex(")).grid(row=1, column=0)
+        self.Complex = Button(top_frame, **big_prm, text='Complex', command=lambda: self.SwitchFunction("Complex"))
+        self.Complex.grid(row=0, column=6, columnspan=2)
+        self.Complex.configure(bg='dark slate gray', activebackground='dark slate gray')
+
+        # buttons that will be displayed on middle frame ROW 0
         # left
-        Button(self.top_frame, **btn_prm, text="(", command=lambda: self.Input('(')).grid(row=1, column=1)
+        Button(self.middle_frame, **btn_prm, text="(", command=lambda: self.Input('(')).grid(row=1, column=1)
         # right
-        Button(self.top_frame, **btn_prm, text=")", command=lambda: self.Input(')')).grid(row=1, column=2)
+        Button(self.middle_frame, **btn_prm, text=")", command=lambda: self.Input(')')).grid(row=1, column=2)
         # bntClear
-        self.bntClear = Button(self.top_frame, **btn_prm, text="r", command=lambda: self.Clear())
-        self.bntClear.grid(row=1, column=4)
-        self.bntClear.configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23))
+        btnClear = Button(self.middle_frame, **btn_prm, text="r", command=lambda: self.Clear())
+        btnClear.grid(row=1, column=4)
+        btnClear.configure(width=1, bg='indian red', activebackground='indian red', font=('Marlett', 23))
         # btnRemove
-        self.btnRemove = Button(self.top_frame, **btn_prm, text="Õ", command=lambda: self.Remove())
-        self.btnRemove.grid(row=1, column=5)
-        self.btnRemove.configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21))
+        btnRemove = Button(self.middle_frame, **btn_prm, text="Õ", command=lambda: self.Remove())
+        btnRemove.grid(row=1, column=5)
+        btnRemove.configure(width=1, bg='Royalblue2', activebackground='Royalblue2', font=('Wingdings', 21))
         # ROW 3
-        # Logarithm base e
-        Button(self.top_frame, **btn_prm, text="logₑ", command=lambda: self.Input('log(')).grid(row=3, column=0)
-        # Logarithm base 10
-        Button(self.top_frame, **btn_prm, text="log¹º", command=lambda: self.Input('log10(')).grid(row=3, column=1)
-        # Logarithm base 2
-        Button(self.top_frame, **btn_prm, text="log²", command=lambda: self.Input("log2(")).grid(row=3, column=2)
-        # Logarithm 1P
-        Button(self.top_frame, **btn_prm, text="log1p", command=lambda: self.Input('log1p(')).grid(row=3, column=3)
-        # EXP
-        Button(self.top_frame, **btn_prm, text="exp", command=lambda: self.Input('exp(')).grid(row=3, column=4)
-        # EXPM1
-        Button(self.top_frame, **btn_prm, text="expm1", command=lambda: self.Input("expm1(")).grid(row=3, column=5)
+        # ========================Logarithm=============================================================================
+        Logarithm_pad = ['log(', 'log10(', "log2(", 'log1p(', 'exp(', "expm1("]
+        Logarithm_txt = ['logₑ', 'log¹º', "log²", 'log1p', 'exp', "expm1"]
+        btn = []
+        i = 0
+        for k in range(6):
+            btn.append(Button(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
+            btn[i].grid(row=3, column=k)
+            btn[i]["command"] = lambda n=Logarithm_pad[i]: self.Input(n)
+            i += 1
         # buttons that will be displayed on bottom frame ROW 0
-        # seven
-        Button(self.bottom_frame, **nbr_prm, text="7", command=lambda: self.Input(7)).grid(row=0, column=0)
-        # eight
-        Button(self.bottom_frame, **nbr_prm, text="8", command=lambda: self.Input(8)).grid(row=0, column=1)
-        # nine
-        Button(self.bottom_frame, **nbr_prm, text="9", command=lambda: self.Input(9)).grid(row=0, column=2)
-        # Addition
-        Button(self.bottom_frame, **nbr_prm, text="+", command=lambda: self.Input("+")).grid(row=0, column=3)
-        # Answer
-        Button(self.bottom_frame, **nbr_prm, text='Answer', command=lambda: self.Input(self.ans)).grid(row=0, column=4)
-        # x
-        self.x = Button(self.bottom_frame, **nbr_prm, text='x', command=lambda: self.Input('x'))
-        self.x.grid(row=0, column=5)
-        # ROW 1
-        # four
-        Button(self.bottom_frame, **nbr_prm, text="4", command=lambda: self.Input(4)).grid(row=1, column=0)
-        # five
-        Button(self.bottom_frame, **nbr_prm, text="5", command=lambda: self.Input(5)).grid(row=1, column=1)
-        # six
-        Button(self.bottom_frame, **nbr_prm, text="6", command=lambda: self.Input(6)).grid(row=1, column=2)
-        # subtraction
-        Button(self.bottom_frame, **nbr_prm, text="-", command=lambda: self.Input("-")).grid(row=1, column=3)
-        # SQUARE
-        Button(self.bottom_frame, **nbr_prm, text='^', command=lambda: self.Input("**")).grid(row=1, column=4)
-        # COMPLEX j
-        Button(self.bottom_frame, **nbr_prm, text="j", command=lambda: self.Input("1j")).grid(row=1, column=5)
-        # ROW 2
-        # one
-        Button(self.bottom_frame, **nbr_prm, text="1", command=lambda: self.Input(1)).grid(row=2, column=0)
-        # two
-        Button(self.bottom_frame, **nbr_prm, text="2", command=lambda: self.Input(2)).grid(row=2, column=1)
-        # three
-        Button(self.bottom_frame, **nbr_prm, text="3", command=lambda: self.Input(3)).grid(row=2, column=2)
-        # Multiplication
-        Button(self.bottom_frame, **nbr_prm, text="*", command=lambda: self.Input("*")).grid(row=2, column=3)
-        # RACING SQUARE
-        Button(self.bottom_frame, **nbr_prm, text="√", command=lambda: self.Input("sqrt(")).grid(row=2, column=4)
-        # e
-        Button(self.bottom_frame, **nbr_prm, text="e", command=lambda: self.Input('e')).grid(row=2, column=5)
-        # ROW 3
-        # btn0
-        Button(self.bottom_frame, **nbr_prm, text="0", command=lambda: self.Input(0)).grid(row=3, column=0)
-        # point
-        Button(self.bottom_frame, **nbr_prm, text=".", command=lambda: self.Input(".")).grid(row=3, column=1)
-        # btnEquals
-        self.btnEquals = Button(self.bottom_frame, **nbr_prm, text="=", command=self.InputEquals)
-        self.btnEquals.grid(row=3, column=2)
-        self.btnEquals.configure(bg='#ff9980', activebackground='#ff9980')
-        # Division
-        Button(self.bottom_frame, **nbr_prm, text="/", command=lambda: self.Input("/")).grid(row=3, column=3)
-        # Factorial
-        Button(self.bottom_frame, **nbr_prm, text="!", command=lambda: self.Input("factorial(")).grid(row=3, column=4)
-        # PI
-        Button(self.bottom_frame, **nbr_prm, text="π", command=lambda: self.Input('pi')).grid(row=3, column=5)
+        # ========================Numbers===============================================================================
+        number_pad = ["7", "8", "9", "+", self.ans, 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
+                      'e', '0', ".", "=", "/", "factorial(", 'pi']
+        number_txt = ["7", "8", "9", "+", 'Answer', 'x', "4", "5", "6", "-", "^", "j", "1", "2", "3", "*", "√",
+                      'e', '0', ".", "=", "/", "!", 'π']
+        self.btn = []
+        i = 0
+        for j in range(4):
+            for k in range(6):
+                self.btn.append(Button(bottom_frame, **nbr_prm, text=number_txt[i]))
+                self.btn[i].grid(row=j, column=k)
+                self.btn[i]["command"] = lambda n=number_pad[i]: self.Input(n)
+                i += 1
+        # Equals
+        self.btn[20].configure(bg='#ff9980', activebackground='#ff9980', command=self.InputEquals)
         # run button switcher and display switcher mode
         self.SwitchButtons('1st'), self.SwitchFunction('Operation')
+
+    def SwitchButtons(self, side):
+        page = side
+        # buttons that will be Switched on middle frame
+        if page == '1st':
+            # ROW 1
+            # 2nd
+            secend = Button(self.middle_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
+            secend.grid(row=1, column=3)
+            secend.configure(foreground='orange', activeforeground='indian red')
+            # ROW 2
+            # ========================Trigonometry======================================================================
+            Trigonometry_pad = ['cos(', 'sin(', "tan(", 'cosh(', 'sinh(', "tanh("]
+            Trigonometry_txt = ['cos', 'sin', "tan", 'cosh', 'sinh', "tanh"]
+            btn = []
+            i = 0
+            for k in range(6):
+                btn.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
+                btn[i].grid(row=2, column=k)
+                btn[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
+                i += 1
+
+        elif page == '2nd':
+            # ROW 1
+            # 1st
+            first = Button(self.middle_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("1st"))
+            first.grid(row=1, column=3)
+            first.configure(foreground='orange', activeforeground='indian red')
+            # ROW 2
+            # ========================Trigonometry======================================================================
+            Trigonometry_pad = ['acos(', 'asin(', "atan(", 'acosh(', 'asinh(', "atanh("]
+            Trigonometry_txt = ['acos', 'asin', "atan", 'acosh', 'asinh', "atanh"]
+            btn = []
+            i = 0
+            for k in range(6):
+                btn.append(Button(self.middle_frame, **btn_prm, text=Trigonometry_txt[i]))
+                btn[i].grid(row=2, column=k)
+                btn[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
+                i += 1
 
     def SwitchFunction(self, passmode):
         self.mode = passmode
         self.FullTextDisplay.delete(1.0, END)
         if self.mode == 'Operation':
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
-            self.x.config(state=DISABLED)
+            self.Operation['bg'] = 'indian red'
+            self.Equation['bg'] = 'dark slate gray'
+            self.Function['bg'] = 'dark slate gray'
+            self.Complex['bg'] = 'dark slate gray'
+            self.btn[5]['state'] = ['disabled']
+            self.btn[11]['state'] = ['disabled']
+            
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
-            self.x.config(state=DISABLED)
+            self.Equation['bg'] = 'indian red'
+            self.Function['bg'] = 'dark slate gray'
+            self.Operation['bg'] = 'dark slate gray'
+            self.Complex['bg'] = 'dark slate gray'
+            self.btn[5].config(state=DISABLED)
+            self.btn[11].config(state=DISABLED)
+
         elif self.mode == 'Function':
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
-            self.x.config(state=NORMAL)
+            self.Function['bg'] = 'indian red'
+            self.Equation['bg'] = 'dark slate gray'
+            self.Operation['bg'] = 'dark slate gray'
+            self.Complex['bg'] = 'dark slate gray'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['disabled']
+
+        elif self.mode == 'Complex':
+            self.FullTextDisplay.insert(INSERT, 'Mode Complex :')
+            self.Function['bg'] = 'dark slate gray'
+            self.Equation['bg'] = 'dark slate gray'
+            self.Operation['bg'] = 'dark slate gray'
+            self.Complex['bg'] = 'indian red'
+            self.btn[5].config(state=DISABLED)
+            self.btn[11].config(state=NORMAL)
+
         self.Clear()
-
-    def SwitchButtons(self, side):
-        page = side
-        # buttons that will be Switched on top frame
-        if page == '1st':
-            # ROW 1
-            # 2nd
-            self.secend = Button(self.top_frame, **btn_prm, text="1st", command=lambda: self.SwitchButtons("2nd"))
-            self.secend.grid(row=1, column=3)
-            self.secend.configure(foreground='orange', activeforeground='indian red')
-            # ROW 2
-            # COS
-            Button(self.top_frame, **btn_prm, text="cos", command=lambda: self.Input('cos(')).grid(row=2, column=0)
-            # SIN
-            Button(self.top_frame, **btn_prm, text="sin", command=lambda: self.Input('sin(')).grid(row=2, column=1)
-            # TAN
-            Button(self.top_frame, **btn_prm, text="tan", command=lambda: self.Input('tan(')).grid(row=2, column=2)
-            # COSH
-            Button(self.top_frame, **btn_prm, text="cosh", command=lambda: self.Input('cosh(')).grid(row=2, column=3)
-            # SINH
-            Button(self.top_frame, **btn_prm, text="sinh", command=lambda: self.Input('sinh(')).grid(row=2, column=4)
-            # TANH
-            Button(self.top_frame, **btn_prm, text="tanh", command=lambda: self.Input('tanh(')).grid(row=2, column=5)
-
-        elif page == '2nd':
-            # ROW 1
-            # 1st
-            self.first = Button(self.top_frame, **btn_prm, text="2nd", command=lambda: self.SwitchButtons("1st"))
-            self.first.grid(row=1, column=3)
-            self.first.configure(foreground='orange', activeforeground='indian red')
-            # ROW 2
-            # aCOS
-            Button(self.top_frame, **btn_prm, text="acos", command=lambda: self.Input('acos(')).grid(row=2, column=0)
-            # aSIN
-            Button(self.top_frame, **btn_prm, text="asin", command=lambda: self.Input('asin(')).grid(row=2, column=1)
-            # aTAN
-            Button(self.top_frame, **btn_prm, text="atan", command=lambda: self.Input('atan(')).grid(row=2, column=2)
-            # aCOSH
-            Button(self.top_frame, **btn_prm, text="acosh", command=lambda: self.Input('acosh(')).grid(row=2, column=3)
-            # aSINH
-            Button(self.top_frame, **btn_prm, text="asinh", command=lambda: self.Input('asinh(')).grid(row=2, column=4)
-            # aTANH
-            Button(self.top_frame, **btn_prm, text="atanh", command=lambda: self.Input('atanh(')).grid(row=2, column=5)
 
     def Clear(self):
         self.store = []
         self.expression = ''
         self.TextInput.set('')
 
-        if self.mode == 'Operation':
-            self.Operation['bg'] = 'indian red'
-            self.Equation['bg'] = 'dark slate gray'
-            self.Function['bg'] = 'dark slate gray'
-
-        elif self.mode == 'Equation':
+        if self.mode == 'Equation':
             self.TextInput.set(f'a = ')
-            self.Equation['bg'] = 'indian red'
-            self.Function['bg'] = 'dark slate gray'
-            self.Operation['bg'] = 'dark slate gray'
 
         elif self.mode == 'Function':
             self.TextInput.set(f'From : ')
-            self.Function['bg'] = 'indian red'
-            self.Equation['bg'] = 'dark slate gray'
-            self.Operation['bg'] = 'dark slate gray'
 
         self.clear = False
         self.full = False
@@ -322,11 +287,14 @@ class Calculator:
             elif self.full:
                 self.TextInput.set(f'f(x) = {self.expression}')
 
+        elif self.mode == 'Complex':
+            self.TextInput.set(self.expression)
+
     def InputEquals(self):
         try:
             if self.mode == 'Operation':
-                self.expression = str(self.TextDisplay.get()).lower()
-                self.ans = str(eval(self.expression))
+                # self.expression = str(self.TextDisplay.get()).lower()
+                self.ans = eval(self.expression)
                 self.TextInput.set(f'{self.expression} = {self.ans}')
                 self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
                 self.clear = True
@@ -444,6 +412,13 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.full = False
                     self.half = False
 
+            elif self.mode == 'Complex':
+                self.expression = str(self.TextDisplay.get()).lower()
+                self.ans = eval(str(complex(self.expression)))
+                self.TextInput.set(f'{self.expression} = {self.ans}')
+                self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                self.clear = True
+
         except ZeroDivisionError:
             self.FullTextDisplay.insert(INSERT, f'\nZeroDivisionError')
         except ValueError:
@@ -457,7 +432,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
 
 win = Tk()
-win.title("Scientific Calculator v1.1")
+win.title("Scientific Calculator v1.2")
 # win.configure(bg='#666666')
 win.configure(bg='#4d4d4d')
 win.resizable(False, False)
