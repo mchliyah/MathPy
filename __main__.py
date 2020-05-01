@@ -32,7 +32,7 @@ big_prm = {'padx': 8,
            'activeforeground': "white"}
 ent_prm = {'bd': 1,
            'fg': 'white',
-           'bg': 'gray94',
+           'bg': '#4d4d4d',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = 3.141592653589793
@@ -152,18 +152,18 @@ class Calculator:
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        FirstTextDisplay = Spinbox(master, width=40, **ent_prm, textvariable=self.TextVariable)
+        FirstTextDisplay = Entry(master, width=43, **ent_prm, textvariable=self.TextVariable)
         FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        FirstTextDisplay.configure(font=('Segoe UI Symbol', 34), state='readonly', readonlybackground='#4d4d4d')
+        FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), state='readonly', readonlybackground='#4d4d4d')
         FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
         SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable)
         SecondTextDisplay.grid(row=1, column=1)
-        SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 30), justify='right')
+        SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', state='readonly',
+                                    readonlybackground='slate gray')
         # Full Text Display
         self.FullTextDisplay = Text(master, width=54, height=14, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
-        self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(master, relief='flat', bg='slate gray')
         self.top_frame.grid(row=1, column=0)
