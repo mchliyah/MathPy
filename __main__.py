@@ -3,8 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import ttk, _cnfmerge as cnfmerge
 
-# version 3.2.1
-# Improve Removing Text
+# version 3.2.2
+# Improve Re-Click Equal In Keyboard Bind Now It's Work
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -364,72 +364,82 @@ class Calculator:
 
     def KeyboardInput(self, keyword):
         put = keyword.keysym.lower()
-        if self.clear:
-            self.Clear()
         try:
-            if keyword.keysym == 'BackSpace':
-                self.Remove()
+            if self.clear:
+                if self.mode == 'Operation':
+                    if keyword.keysym == 'Return' or put == 'equal':
+                        self.InputEquals()
 
-            elif keyword.keysym == 'Delete':
-                self.Clear()
+                    else:
+                        self.Clear()
 
-            elif put == 'slash':
-                self.Input('/')
+                else:
+                    self.Clear()
 
-            elif put == 'asterisk':
-                self.Input('*')
+            if not self.clear:
+                if keyword.keysym == 'BackSpace':
+                    self.Remove()
 
-            elif put == 'minus':
-                self.Input('-')
+                elif keyword.keysym == 'Delete':
+                    self.Clear()
 
-            elif put == 'plus':
-                self.Input('+')
+                elif keyword.keysym == 'Return' or put == 'equal':
+                    self.InputEquals()
 
-            elif put == 'period':
-                self.Input('.')
+                elif put == 'slash':
+                    self.Input('/')
 
-            elif put == 'parenleft':
-                self.Input('(')
+                elif put == 'asterisk':
+                    self.Input('*')
 
-            elif put == 'parenright':
-                self.Input(')')
+                elif put == 'minus':
+                    self.Input('-')
 
-            elif put == 'backslash':
-                self.Input('sqrt(')
+                elif put == 'plus':
+                    self.Input('+')
 
-            elif put == 's':
-                self.Input('Sin')
+                elif put == 'period':
+                    self.Input('.')
 
-            elif put == 'c':
-                self.Input('Cos')
+                elif put == 'parenleft':
+                    self.Input('(')
 
-            elif put == 't':
-                self.Input('Tan')
+                elif put == 'parenright':
+                    self.Input(')')
 
-            elif put == 'l':
-                self.Input('log')
+                elif put == 'backslash':
+                    self.Input('sqrt(')
 
-            elif put == 'j':
-                self.Input('1j')
+                elif put == 's':
+                    self.Input('Sin')
 
-            elif put == 'f' or put == 'exclam':
-                self.Input('factorial(')
+                elif put == 'c':
+                    self.Input('Cos')
 
-            elif put == 'm':
-                self.Input('m1(')
+                elif put == 't':
+                    self.Input('Tan')
 
-            elif put == 'h':
-                self.Input('h(')
+                elif put == 'l':
+                    self.Input('log')
 
-            elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
-                    or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
-                self.Input(put)
+                elif put == 'j':
+                    self.Input('1j')
 
-            elif keyword.keysym == 'Return' or put == 'equal':
-                return self.InputEquals()
+                elif put == 'f' or put == 'exclam':
+                    self.Input('factorial(')
 
-            else:
-                pass
+                elif put == 'm':
+                    self.Input('m1(')
+
+                elif put == 'h':
+                    self.Input('h(')
+
+                elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
+                        or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
+                    self.Input(put)
+
+                else:
+                    pass
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -635,6 +645,15 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             self.FastTextVariable.set('ValueError')
         except SyntaxError:
             self.FastTextVariable.set('SyntaxError')
+            try:
+                if self.mode == 'Operation' and self.equal:
+                    self.expression = str(self.callback[-1])
+                    self.answer = eval(self.expression)
+                    self.FastTextVariable.set(self.answer)
+                    self.TextVariable.set(f'{self.expression} = {self.answer}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
+            except IndexError:
+                self.FastTextVariable.set('SyntaxError')
         except NameError:
             self.FastTextVariable.set('NameError')
         except TypeError:
@@ -669,5 +688,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.2.1")
+    win.title("Scientific Calculator v3.2.2")
     win.mainloop()
