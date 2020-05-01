@@ -1,29 +1,16 @@
 __author__ = 'Achraf'
 
-from tkinter import *
-
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from sympy import *
-from sympy.abc import x, y, z
+from sympy.abc import y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-from __jeep_v2__ import *
+from __jeep_v3__ import *
 
 """ 
-# version 6
-# stop working ENG definition and delete it
-# stop working switching Radians to Degree definition and delete it
-# add function LambertW
-# make writen more easy in logarithm & trigonometrical functions & dict constructor for right one
-# optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions *fix bugs {v,b}
-# new definition *Control-Cursor to improve moving cursor with optimize click insert 
-# new functions *integrate and *diff
-# optimize bind : add *integrate {i} and *diff {D,d} and change ∞ {i,I} to {I}
-# change colors of operations and of tktex
-# optimize size between First Text Display and Label Display to be more synchronise
-# fix unsolved equations of Equation Solver
+# version 6.0.1
+# Optimize and generalise ReBuild of re-click Equal on operation
 """
 
 btn_prm = {'padx': 18,
@@ -376,7 +363,7 @@ class Calculator:
         self.win.configure(menu=menubare, bg='#4d4d4d')
         self.win.geometry("1100x580")
         self.win.minsize(width=1100, height=580)
-        self.win.title("MathPy v6")
+        self.win.title("MathPy v6.0.1")
         self.win.mainloop()
 
     def Info(self, event):
@@ -882,10 +869,10 @@ class Calculator:
         self.ShowDirectText()
 
     @staticmethod
-    def StandardWrite(expression):
+    def StandardWrite(character):
         try:
-            answer = sympify(expression)
-            LaTex = latex(answer)
+            simple = sympify(character)
+            LaTex = latex(simple)
             print(LaTex)
             return r"$%s$" % LaTex
         except None:
@@ -894,10 +881,10 @@ class Calculator:
             pass
 
     @staticmethod
-    def DrawTexTk(figure, tktex, texty):
+    def DrawTexTk(figure, tktex, la_text):
         try:
             figure.clear()
-            figure.text(0.01, 0.4, texty, fontsize=30)
+            figure.text(0.01, 0.4, la_text, fontsize=30)
             tktex.draw()
         except Exception:
             pass
@@ -1070,26 +1057,14 @@ class Calculator:
                         self.equal = True
 
                     elif self.equal:
-                        self.expression = ReBuild(self.store_expression)
-                        self.expression = str(self.callback[-1]) + str(self.expression)
-                        self.answer = eval(self.expression)
+                        self.answer, self.expression = FullReBuild(self.store_expression, self.callback)
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
                         self.SecondStrVar.set(self.answer)
                         self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.answer))
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                 except Exception:
-                    try:
-                        if self.equal:
-                            self.expression = str(self.callback[-1])
-                            self.answer = eval(self.expression)
-                            self.FirstStrVar.set(f'{self.expression} = {self.answer}')
-                            self.SecondStrVar.set(self.answer)
-                            self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.answer))
-                            self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
-                        else:
-                            self.SecondStrVar.set(f'Before Equal ValueError or IndexError or SyntaxError')
-                    except Exception:
-                        self.SecondStrVar.set(f'After Equal ValueError or IndexError or SyntaxError')
+                    self.SecondStrVar.set('ValueError or IndexError or SyntaxError in Re_Build')
+                    pass
 
                 self.iCursor(END)
                 self.callback.append(str(self.answer))
