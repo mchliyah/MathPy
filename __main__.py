@@ -6,18 +6,20 @@ from sympy.abc import y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-from __jeep_v3__ import *
+from __jeep_v4__ import *
 
 """
 # version 6.0.1 
-# Optimize and generalise ReBuild of re-click Equal on operation
-# Optimize operation: *applying 'evalf' to block float on 16 numbers *improve 'eval' by 'sympfy' that solve problem
+# optimize and generalise ReBuild of re-click Equal on operation
+# optimize operation: *applying 'evalf' to block float on 16 numbers *improve 'eval' by 'sympfy' that solve problem
 ZeroDivisionError, and delete the exception of that error
 # resizing all
 # delete Second Text Display also Second String Variable
 # fix some errors
 # fix error on compensation of the variable x in mode function it was [xa,xb]
-# generalise definition Variable_EQl in all Show_Equal_Text and hiding reset expression in the way
+# generalise definition Variable_EQl in all Show_Equal_Text and hiding reset expression anyway
+# reduce the two definitions Two_Plot_Color{Two_Func,One_Func} in one, and get established Two_Plot_Color definition, 
+and delete callback_function store
 """
 
 btn_prm = {'padx': 18,
@@ -128,8 +130,6 @@ class Calculator:
         self.fctxy2 = ''
         self.PlotFirstFunc = ''
         self.PlotAddFunc = ''
-        # store functions
-        self.callback_function = []
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
@@ -669,7 +669,6 @@ class Calculator:
         self.PlotFirstFunc = ''
         self.store_expression = []
         self.store_order = []
-        self.callback_function = []
         self.expression = ''
         self.FirstStrVar.set('')
         self.iCursor(0)
@@ -1029,7 +1028,6 @@ class Calculator:
 
     def ShowEqualText(self):
         try:
-            self.callback_function.append(str(self.expression))
             if self.mode == 'Operation':
                 if not self.equal:
                     self.answer = sympify(eval(self.expression))
@@ -1094,7 +1092,7 @@ class Calculator:
                             sup = sympify(eval(self.fctx)).evalf(3)
                             self.FullTextDisplay.insert(END, f'f({x}) = {sup}')
                         self.PlotAddFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
-                        TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
                         self.VariableEQL(f'f(x) =', '')
 
             elif self.mode == 'Equation':
@@ -1261,9 +1259,9 @@ class Calculator:
                                 self.yexp = str(self.yexp).replace(', ', '')
                                 self.zexp = str(self.zexp).replace(', ', '')
                                 self.VariableEQL(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}', '')
-                                self.FullTextDisplay.insert(END, 'System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]'
-                                                            , f'> x = {self.xexp}', f'> y = {self.yexp}'
-                                                            , f'> z = {self.zexp}')
+                                self.FullTextDisplay.insert(END, 'System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]',
+                                                            f'> x = {self.xexp}', f'> y = {self.yexp}',
+                                                            f'> z = {self.zexp}')
                             self.clear = True
                             self.full = None
 
@@ -1279,7 +1277,7 @@ class Calculator:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PlotAddFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
-                    TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                    TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
                     self.VariableEQL(f'f(x) =', '')
 
             elif self.mode == 'Plot Prm':
@@ -1307,7 +1305,7 @@ class Calculator:
                     elif self.equal:
                         self.PlotAddFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                            xlim=(-10, 10), show=False)
-                        TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
@@ -1336,7 +1334,7 @@ class Calculator:
                     elif self.equal:
                         self.PlotAddFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                                   ylim=(-10, 10), xlim=(-10, 10), show=False)
-                        TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
@@ -1353,7 +1351,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PlotAddFunc = plot3d(sympify(self.fctxy), show=False)
 
-                    TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                    TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
                     self.VariableEQL(f'f(x,y) =', '')
 
             elif self.mode == 'P3DPS':
@@ -1381,7 +1379,7 @@ class Calculator:
                     elif self.equal:
                         self.PlotAddFunc = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2),
                                                                      self.x - self.y, show=False)
-                        TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
+                        TwoPlotColor(self.PlotFirstFunc, self.PlotAddFunc)
                         self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
