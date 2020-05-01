@@ -12,11 +12,12 @@ from __jeep_v4__ import *
 # version 6.0.2
 # resize frames of buttons and canvas of first text display and get them static
 # change ne to {ne+,ne-} and optimized in Re_Build definition, fix bug of n² in Re_Build definition
-# get more in operation mode specially the Writing Hand 
+# get more in operation mode specially the Writing Hand
+# redesigning & reorganizing & recoloring all widgets in the window
 """
 
 btn_prm = {'padx': 18,
-           'pady': 2,
+           'pady': 1,
            'bd': 1,
            'background': '#666666',
            'fg': 'white',
@@ -29,7 +30,7 @@ btn_prm = {'padx': 18,
            'activebackground': '#444444',
            'activeforeground': "white"}
 btn_dif = {'padx': 18,
-           'pady': 2,
+           'pady': 1,
            'bd': 1,
            'background': '#666666',
            'fg': '#FF9950',
@@ -42,7 +43,7 @@ btn_dif = {'padx': 18,
            'activebackground': '#444444',
            'activeforeground': 'orange'}
 btnb_prm = {'padx': 18,
-            'pady': 2,
+            'pady': 1,
             'bd': 1,
             'background': '#4d4d4d',
             'fg': 'white',
@@ -55,7 +56,7 @@ btnb_prm = {'padx': 18,
             'activebackground': '#2d2d2d',
             'activeforeground': "white"}
 big2_prm = {'padx': 14,
-            'pady': 20,
+            'pady': 19,
             'bd': 1,
             'background': '#212121',
             'fg': 'white',
@@ -67,8 +68,8 @@ big2_prm = {'padx': 14,
             'activeback': '#49000A',
             'activebackground': '#80000B',
             'activeforeground': "white"}
-ent_prm = {'fg': 'white',
-           'bg': '#4d4d4d',
+ent_prm = {'fg': 'black',
+           'bg': 'gray90',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 # noinspection NonAsciiCharacters
@@ -79,7 +80,6 @@ class Calculator:
     def __init__(self):
         self.win = Tk()
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
-        self.Solution = ''
         self.btn_u = []
         self.btn_a = []
         # expression that will be displayed on screen
@@ -103,11 +103,12 @@ class Calculator:
         self.C = S.Complexes
         self.q = ''
         self.p = ''
+        self.SolutionOS = ''
         self.j = ''
         self.k = ''
         self.m = ''
         self.n = ''
-        self.lslv = ''
+        self.SolutionTT = ''
         self.xexp = ''
         self.yexp = ''
         self.zexp = ''
@@ -135,58 +136,34 @@ class Calculator:
         # string variable for text input
         self.FirstStrVar = StringVar()
         self.LabelStrVar = StringVar()
-        img = PhotoImage(file='Alecive-Flatwoken-Apps-Libreoffice-Math-B.gif')
-        self.Picture = img.subsample('4', '4')
-        # Self Display ROW 0============================================================================================
-        # First Canvas
-        self.canvaf = Canvas(self.win, relief='flat', bg='#4d4d4d', width=42)
-        self.canvaf.grid(row=0, column=0, columnspan=2, sticky=NSEW)
-        self.canvaf.rowconfigure(0, weight=1)
-        self.canvaf.columnconfigure(1, weight=1)
+        image = PhotoImage(file='Alecive-Flatwoken-Apps-Libreoffice-Math-B.gif')
+        Picture = image.subsample('4', '4')
+        # ROW 0 First Canvas============================================================================================
+        canvas = Canvas(self.win, relief='flat', bg='#4d4d4d', width=42)
+        canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        canvas.rowconfigure(0, weight=1)
+        canvas.columnconfigure(1, weight=1)
         # Label Text Display
-        self.label = Label(self.canvaf, **ent_prm, textvariable=self.LabelStrVar)
+        self.label = Label(canvas, **ent_prm, textvariable=self.LabelStrVar)
         self.label.grid(row=0, column=0, sticky=NSEW)
         self.label.configure(font=('Segoe UI Symbol', 32), anchor='e')
-        # First Text Display
-        self.FirstTextDisplay = Entry(self.canvaf, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
+        # First Text Display, insertbackground='white'
+        self.FirstTextDisplay = Entry(canvas, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
         self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
-        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), insertbackground='white', takefocus=True)
+        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), takefocus=True)
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
         self.FirstTextDisplay.focus_set()
         self.IndexCursor = 0
-        # Second Canvas
-        self.canvas = Canvas(self.win, relief='flat', bg='#666666', width=42)
-        self.canvas.grid(row=1, column=1, rowspan=4, sticky=NSEW)
-        self.canvas.rowconfigure(0, weight=1)
-        self.canvas.rowconfigure(1, weight=1)
-        self.canvas.columnconfigure(0, weight=1)
-        # MathPlot LaTex Display
-        self.Figure = Figure(figsize=(6, 2), facecolor='#708190')
-        self.CanvasFigure = FigureCanvasTkAgg(self.Figure, master=self.canvas)
+        # ROW 1 set MathPlot LaTex Display==============================================================================
+        self.Figure = Figure(figsize=(6, 1), facecolor='#212121')
+        self.CanvasFigure = FigureCanvasTkAgg(self.Figure, master=self.win)
         self.TkAgg = self.CanvasFigure.get_tk_widget()
-        self.TkAgg.grid(row=0, column=0, sticky=NSEW)
-        # self.CanvasFigure = TkFigureFrame(self.Figure, window=self.canvas)
-        # self.TkAgg = self.CanvasFigure.get_tk_widget()
-        # self.CanvasFigure.grid(row=1, column=0, sticky=NSEW)
-        # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(self.canvas, width=52, height=10, **ent_prm)
-        self.FullTextDisplay.grid(row=1, column=0, sticky=NSEW)
-        self.FullTextDisplay.rowconfigure(0, weight=1)
-        self.FullTextDisplay.columnconfigure(0, weight=1)
-        # ROW 1 set frame showing top buttons
-        free_frame = Frame(self.win, relief='flat', bg='#212121')
-        free_frame.grid(row=1, column=0, sticky=NSEW)
-        free_frame.rowconfigure(0, weight=1)
-        free_frame.columnconfigure(0, weight=1)
-        free_frame.columnconfigure(1, weight=1)
-        label0 = Label(free_frame, **ent_prm, image=self.Picture)
-        label0.grid(row=0, column=0, sticky=NSEW)
-        label0.configure(bg='#212121')
-        label1 = Label(free_frame, **ent_prm, text='MathPy Created by Achraf')
-        label1.grid(row=0, column=1, sticky=NSEW)
-        label1.configure(font=('Segoe UI Symbol', 23), bg='#212121')
-        # ROW 2 set frame showing top buttons
-        self.top_frame = Frame(self.win, relief='flat', bg='#212121')
+        self.TkAgg.grid(row=1, column=0, columnspan=2, sticky=NSEW)
+        #   self.CanvasFigure = TkFigureFrame(self.Figure, window=self.canvas)
+        #   self.TkAgg = self.CanvasFigure.get_tk_widget()
+        #   self.CanvasFigure.grid(row=1, column=0, sticky=NSEW)
+        # ROW 2 set frame showing top buttons===========================================================================
+        self.top_frame = Frame(self.win, relief='flat')
         self.top_frame.grid(row=2, column=0, sticky=NSEW)
         self.top_frame.rowconfigure(0, weight=1)
         self.top_frame.columnconfigure(0, weight=1)
@@ -194,8 +171,19 @@ class Calculator:
         self.top_frame.columnconfigure(2, weight=1)
         self.top_frame.columnconfigure(3, weight=1)
         self.top_frame.columnconfigure(4, weight=1)
-        # ROW 3 set frame showing middle buttons
-        self.middle_frame = Frame(self.win, relief='flat', bg='#666666')
+        # frame showing logo of app and name
+        free_frame = Frame(self.win, relief='flat', bg='#212121')
+        free_frame.grid(row=2, column=1, sticky=NSEW)
+        # Picture of logo
+        label0 = Label(free_frame, **ent_prm)
+        label0.grid(row=0, column=0, sticky=NSEW)
+        label0.configure(bg='#212121', image=Picture)
+        # Name of app
+        label1 = Label(free_frame, **ent_prm, text='MathPy Created by Achraf')
+        label1.grid(row=0, column=1, sticky=NSEW)
+        label1.configure(font=('Segoe UI Symbol', 22), fg='white', bg='#212121')
+        # ROW 3 set frame showing middle buttons========================================================================
+        self.middle_frame = Frame(self.win, relief='flat')
         self.middle_frame.grid(row=3, column=0, sticky=NSEW)
         self.middle_frame.rowconfigure(0, weight=1)
         self.middle_frame.rowconfigure(1, weight=1)
@@ -206,8 +194,13 @@ class Calculator:
         self.middle_frame.columnconfigure(3, weight=1)
         self.middle_frame.columnconfigure(4, weight=1)
         self.middle_frame.columnconfigure(5, weight=1)
-        # ROW 4 set frame showing bottom buttons
-        self.bottom_frame = Frame(self.win, relief='flat', bg='#4d4d4d')
+        # Full Text Display
+        self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=12, **ent_prm)
+        self.FullTextDisplay.grid(row=3, column=1, rowspan=2, sticky=NSEW)
+        self.FullTextDisplay.rowconfigure(0, weight=1)
+        self.FullTextDisplay.columnconfigure(0, weight=1)
+        # ROW 4 set frame showing bottom buttons========================================================================
+        self.bottom_frame = Frame(self.win, relief='flat')
         self.bottom_frame.grid(row=4, column=0, sticky=NSEW)
         self.bottom_frame.rowconfigure(0, weight=1)
         self.bottom_frame.rowconfigure(1, weight=1)
@@ -357,11 +350,7 @@ class Calculator:
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
         # Master Display ===============================================================================================
         # Window configuration
-        # self.win.rowconfigure(0, weight=1)
         self.win.rowconfigure(1, weight=1)
-        # self.win.rowconfigure(2, weight=1)
-        # self.win.rowconfigure(3, weight=1)
-        # self.win.columnconfigure(0, weight=1)
         self.win.columnconfigure(1, weight=1)
 
         self.win.bind_all('<Key>', self.KeyboardInput)
@@ -372,8 +361,10 @@ class Calculator:
         self.win.title("MathPy v6.0.2")
         self.win.mainloop()
 
+    def iCursor(self, cursor):
+        self.FirstTextDisplay.icursor(cursor)
+
     def Info(self, event):
-        # self.FirstTextDisplay.icursor("@%d" % event.x)
         self.IndexCursor = int(self.FirstTextDisplay.index("@%d" % event.x))
         try:
             end = len(str(self.expression))
@@ -382,9 +373,6 @@ class Calculator:
         except Exception:
             pass
         self.iCursor(self.IndexCursor)
-
-    def iCursor(self, cursor):
-        self.FirstTextDisplay.icursor(cursor)
 
     def ChangeDirectionCursor(self, key):
         if key == 'Right':
@@ -666,7 +654,8 @@ class Calculator:
         self.k = ''
         self.m = ''
         self.n = ''
-        self.lslv = ''
+        self.SolutionOS = ''
+        self.SolutionTT = ''
         self.xexp = ''
         self.yexp = ''
         self.zexp = ''
@@ -735,7 +724,6 @@ class Calculator:
         try:
             self.expression, self.IndexCursor = RemoveFromString(self.expression, self.IndexCursor, self.store_order,
                                                                  self.store_expression)
-            print(self.IndexCursor, self.store_expression, self.store_order)
         except IndexError:
             pass
 
@@ -875,8 +863,6 @@ class Calculator:
         self.expression, self.IndexCursor = InsertIntoString(self.expression, keyword, self.IndexCursor,
                                                              self.store_order, self.store_expression)
 
-        print(self.IndexCursor, self.store_expression, self.store_order)
-
         self.ShowDirectText()
 
     @staticmethod
@@ -884,7 +870,6 @@ class Calculator:
         try:
             simplify = sympify(character)
             LaTex = latex(simplify)
-            print(LaTex)
             return r"$%s$" % LaTex
         except None:
             pass
@@ -895,10 +880,8 @@ class Calculator:
     def SDWrite(character):
         try:
             pik = str(character).replace('integrate', 'Integral').replace('diff', 'Derivative')
-            simplify = sympify(pik, convert_xor=False, rational=True, evaluate=False)
+            simplify = sympify(pik, rational=True, evaluate=False)
             LaTex = latex(simplify)
-            print(simplify)
-            print(LaTex)
             return r"$%s$" % LaTex
         except None:
             pass
@@ -906,9 +889,10 @@ class Calculator:
             pass
 
     def DrawTexTk(self, la_text):
+        mpl_white_rvb = (255. / 255., 255. / 255., 255. / 255.)
         try:
             self.Figure.clear()
-            self.Figure.text(0.01, 0.4, la_text, fontsize=30)
+            self.Figure.text(0.01, 0.4, la_text, color=mpl_white_rvb, fontsize=30)
             self.CanvasFigure.draw()
         except Exception:
             pass
@@ -921,7 +905,7 @@ class Calculator:
         try:
             if self.mode == 'Operation':
                 self.FirstStrVar.set(self.expression)
-                self.DrawTexTk(f'op > {self.SDWrite(self.expression)} = {self.StandardWrite(self.expression)}')
+                self.DrawTexTk(f'op > {self.SDWrite(self.expression)} = {self.StandardWrite(eval(self.expression))}')
 
             elif self.mode == 'Function':
                 if self.full is None:
@@ -1043,14 +1027,14 @@ class Calculator:
                 if not self.equal:
                     self.answer = sympify(eval(self.expression))
                     intro = len(str(self.answer))
-                    if intro <= 16:
+                    if intro <= 10:
                         self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(f'op > {self.SDWrite(self.expression)} = {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
                         self.equal = True
                     else:
-                        self.answer = sympify(str(self.answer)).evalf()
+                        self.answer = sympify(str(self.answer)).evalf(10)
                         self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(f'op > {self.SDWrite(self.expression)} = {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
@@ -1061,12 +1045,12 @@ class Calculator:
                     self.answer, self.expression = FullReBuild(self.store_expression, self.callback)
                     self.answer = sympify(self.answer)
                     intro = len(str(self.answer))
-                    if intro <= 16:
+                    if intro <= 10:
                         self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(f'op > {self.SDWrite(self.expression)} = {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                     else:
-                        self.answer = sympify(str(self.answer)).evalf()
+                        self.answer = sympify(str(self.answer)).evalf(10)
                         self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(f'op > {self.SDWrite(self.expression)} = {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
@@ -1141,17 +1125,17 @@ class Calculator:
                     self.VariableEQL(f'eq > {self.q} = {self.p}', '')
                     self.FullTextDisplay.insert(END, f'eq > {self.q} = {self.p}')
                     try:
-                        self.Solution = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
-                        if self.Solution is None:
-                            self.Solution = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
-                    except NotImplementedError:
+                        self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
+                        if self.SolutionOS is None:
+                            self.SolutionOS = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
+                    except Exception:
                         try:
-                            self.Solution = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
-                        except NotImplementedError:
+                            self.SolutionOS = solve(Eq(sympify(self.q), sympify(self.p)), self.x)
+                        except Exception:
                             self.DrawTexTk('Cannot Solve This Equation')
-                    self.DrawTexTk(self.StandardWrite(self.Solution))
-                    for xc in range(len(self.Solution)):
-                        self.FullTextDisplay.insert(END, f'> x{self.nb[int(xc) + 1]} = {self.Solution[xc]}')
+                    self.DrawTexTk(self.StandardWrite(self.SolutionOS))
+                    for xc in range(len(self.SolutionOS)):
+                        self.FullTextDisplay.insert(END, f'> x{self.nb[int(xc) + 1]} = {self.SolutionOS[xc]}')
 
                     self.clear = True
                     self.full = None
@@ -1182,20 +1166,20 @@ class Calculator:
                             self.k = str(sympify(self.expression))
                             self.FullTextDisplay.insert(END, f' eq₂ | {self.j} = {self.k}')
                             try:
-                                self.lslv = linsolve(
+                                self.SolutionTT = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
                                     [self.x, self.y])
                             except Exception:
-                                self.lslv = nonlinsolve(
+                                self.SolutionTT = nonlinsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
                                     [self.x, self.y])
 
-                            self.lslv = str(self.lslv)
-                            self.w = int(len(self.lslv))
+                            self.SolutionTT = str(self.SolutionTT)
+                            self.w = int(len(self.SolutionTT))
                             self.v = 0
                             while self.v < self.w:
                                 self.exist = False
-                                if self.lslv[self.v] == 'z' or self.lslv == 'EmptySet':
+                                if self.SolutionTT[self.v] == 'z' or self.SolutionTT == 'EmptySet':
                                     self.VariableEQL('eq₃ >', '')
                                     self.DrawTexTk('eq₃ > ')
                                     self.equal = False
@@ -1204,18 +1188,18 @@ class Calculator:
                                 self.v += 1
 
                             if not self.exist:
-                                self.DrawTexTk(self.StandardWrite(self.lslv))
-                                self.lslv = str(self.lslv[11:-2])
+                                self.DrawTexTk(self.StandardWrite(self.SolutionTT))
+                                self.SolutionTT = str(self.SolutionTT[11:-2])
                                 self.FullTextDisplay.insert(END, 'System of Two Equations : {eq₁,eq₂}_[x,y]')
 
-                                self.w = int(len(self.lslv))
+                                self.w = int(len(self.SolutionTT))
                                 self.v = 0
                                 while self.v < self.w:
-                                    self.xexp = str(self.xexp) + str(self.lslv[self.v])
+                                    self.xexp = str(self.xexp) + str(self.SolutionTT[self.v])
                                     self.v += 1
-                                    if self.lslv[self.v] == ',':
+                                    if self.SolutionTT[self.v] == ',':
                                         while self.v < self.w:
-                                            self.yexp = str(self.yexp) + str(self.lslv[self.v])
+                                            self.yexp = str(self.yexp) + str(self.SolutionTT[self.v])
                                             self.v += 1
 
                                 self.yexp = str(self.yexp).replace(', ', '')
@@ -1234,36 +1218,36 @@ class Calculator:
                             self.expression = ''
                             self.FullTextDisplay.insert(END, f' eq₃ | {self.m} = {self.n}')
                             try:
-                                self.lslv = linsolve(
+                                self.SolutionTT = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
                             except Exception:
-                                self.lslv = nonlinsolve(
+                                self.SolutionTT = nonlinsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
-                            self.lslv = str(self.lslv)
+                            self.SolutionTT = str(self.SolutionTT)
 
-                            if self.lslv == 'EmptySet':
-                                self.VariableEQL(self.lslv, '')
-                                self.DrawTexTk(self.StandardWrite(self.lslv))
+                            if self.SolutionTT == 'EmptySet':
+                                self.VariableEQL(self.SolutionTT, '')
+                                self.DrawTexTk(self.StandardWrite(self.SolutionTT))
 
                             else:
-                                self.DrawTexTk(self.StandardWrite(self.lslv))
-                                self.lslv = str(self.lslv[11:-2])
+                                self.DrawTexTk(self.StandardWrite(self.SolutionTT))
+                                self.SolutionTT = str(self.SolutionTT[11:-2])
 
-                                self.w = int(len(self.lslv))
+                                self.w = int(len(self.SolutionTT))
                                 self.v = 0
                                 while self.v < self.w:
-                                    self.xexp = str(self.xexp) + str(self.lslv[self.v])
+                                    self.xexp = str(self.xexp) + str(self.SolutionTT[self.v])
                                     self.v += 1
-                                    if self.lslv[self.v] == ',':
+                                    if self.SolutionTT[self.v] == ',':
                                         while self.v < self.w:
-                                            self.yexp = str(self.yexp) + str(self.lslv[self.v])
+                                            self.yexp = str(self.yexp) + str(self.SolutionTT[self.v])
                                             self.v += 1
-                                            if self.lslv[self.v] == ',':
+                                            if self.SolutionTT[self.v] == ',':
                                                 while self.v < self.w:
-                                                    self.zexp = str(self.zexp) + str(self.lslv[self.v])
+                                                    self.zexp = str(self.zexp) + str(self.SolutionTT[self.v])
                                                     self.v += 1
 
                                 self.yexp = str(self.yexp).replace(', ', '')
