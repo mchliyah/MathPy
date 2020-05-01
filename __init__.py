@@ -3,12 +3,11 @@ from tkinter import *
 from operator import neg
 from random import randint
 from sympy import *
-from sympy.abc import x
+from sympy.abc import x, y, z
 from sympy.plotting import PlotGrid
 import tkinter as tk
 from tkinter import Scrollbar
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 text = ''
 expression = ''
@@ -19,6 +18,36 @@ nbr = int
 n = int
 v = int
 w = int
+
+
+def fctrl(arg):
+    return factorial(arg).evalf()
+
+
+def DrawAfter(character):
+    try:
+        simplify = sympify(character, rational=True)
+        return LaTex(simplify)
+    except None:
+        pass
+    except Exception:
+        pass
+
+
+def DrawBefore(character):
+    try:
+        pik = str(character).replace('integrate', 'Integral').replace('diff', 'Derivative')
+        simplify = sympify(pik, rational=True, evaluate=False)
+        return LaTex(simplify)
+    except None:
+        pass
+    except Exception:
+        pass
+
+
+def LaTex(Math_Expression):
+    # return r"$%s$" % latex(Math_Expression)
+    return f'${latex(Math_Expression)}$'
 
 
 def ControlCursor(index, nbr_order):
@@ -139,13 +168,26 @@ def FullReBuild(str_order, call_back):
             return answer, expression
 
 
-def TwoPlotColor(Plot_First_Func, Plot_Add_Func):
-    Plot_First_Func.append(Plot_Add_Func[0])
+def TwoPlotMultiColor(Plot_First_Func, Plot_Add_Func, Function):
+    Plot_First_Func.extend(Plot_Add_Func)
     RD = randint(1048576, 16777000)
     HX = hex(RD)
     HX = HX[2:8].upper()
     Plot_First_Func[-1].line_color = str('#') + str(HX)
-    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func)
+    Plot_First_Func[-1].label = LaTex(sympify(Function))
+    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func, legend=True)
+    return Plot_First_Func
+
+
+def LabelLatexPlot(Plot_First_Func, Function):
+    Plot_First_Func[-1].label = LaTex(sympify(Function))
+    Plot_First_Func.show()
+
+
+def TwoPlot3D(Plot_First_Func, Plot_Add_Func):
+    Plot_First_Func.extend(Plot_Add_Func)
+    PlotGrid(1, 2, Plot_First_Func, Plot_Add_Func, legend=True)
+    return Plot_First_Func
 
 
 def EQT(nbr_a, nbr_b, nbr_c):
@@ -281,19 +323,7 @@ class ScrollableTkAggX(FigureCanvasTkAgg):
         # --- put frame in canvas ---
         self.canvas_frame = self.canvas.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
 
-        ScrollableTkAggX_meths = vars(FigureCanvasTkAgg).keys()
-        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
-        methods = methods.difference(ScrollableTkAggX_meths)
-
-        for m in methods:
-            if m[0] != '_' and m != 'config' and m != 'configure':
-                setattr(self, m, getattr(self.canvas, m))
-
-    def __str__(self):
-        return str(self.canvas)
-
-        # expand canvas_frame when canvas changes its size
-
+    # expand canvas_frame when canvas changes its size
     def on_configure(self, event):
         # when all widgets are in canvas
         canvas_height = event.height
@@ -328,31 +358,39 @@ class ScrollableTkAggXY(FigureCanvasTkAgg):
         self.canvas.configure(yscrollcommand=self.vbar.set, xscrollcommand=self.hbar.set,
                               scrollregion=self.canvas.bbox(tk.ALL))
 
-        # when all widgets are in canvas
-        self.canvas.bind('<Configure>', self.on_configure)
         # --- put frame in canvas ---
         self.canvas_frame = self.canvas.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
 
-        ScrollableTkAggXY_meths = vars(FigureCanvasTkAgg).keys()
-        methods = vars(Pack).keys() | vars(Grid).keys() | vars(Place).keys()
-        methods = methods.difference(ScrollableTkAggXY_meths)
-
-        for m in methods:
-            if m[0] != '_' and m != 'config' and m != 'configure':
-                setattr(self, m, getattr(self.canvas, m))
-
-    def __str__(self):
-        return str(self.canvas)
-
     # expand canvas_frame when canvas changes its size
-    def on_configure(self, event):
+    def on_configure(self):
         # when all widgets are in canvas
-        # canvas_width = event.width
         Size = self.get_width_height()
         self.canvas.itemconfigure(self.canvas_frame, height=int(Size[1]))
         # update scrollregion after starting 'mainloop'
         self.canvas.configure(scrollregion=self.canvas.bbox(tk.ALL))
+        self.canvas.yview_moveto(1)
+        self.canvas.xview_moveto(0)
 
-    def Drawing(self):
+    def Draw(self):
         self.draw()
-        self.on_configure(1)
+        self.on_configure()
+
+
+class TkFigureFrame(FigureCanvasTkAgg):
+    def __init__(self, figure, window, *args, **kwargs):
+        self.canvas = Canvas(master=window)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.columnconfigure(0, weight=1)
+
+        super(TkFigureFrame, self).__init__(figure=figure, master=self.canvas, *args, **kwargs)
+        self.TkAggWidget = self.get_tk_widget()
+        self.TkAggWidget.grid(row=1, column=0, sticky=NSEW)
+
+        self.ToolBarFrame = Frame(master=self.canvas)
+        self.ToolBarFrame.grid(row=0, column=0)
+        self.ToolBarFrame.columnconfigure(0, weight=1)
+
+        self.ToolBar = NavigationToolbar2Tk(self, self.ToolBarFrame)
+        self.ToolBar.update()
+        self.ToolBar.grid(row=0, column=0)
+        self.ToolBar.columnconfigure(0, weight=1)
