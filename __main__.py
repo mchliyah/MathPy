@@ -16,12 +16,13 @@ from __jeep_v1__ import *
 # stop working ENG definition and delete it
 # stop working switching Radians to Degree definition and delete it
 # add LambertW
-# make writen more easy in logarithm & trigonometrical functions
+# make writen more easy in logarithm & trigonometrical functions & dict constructor for right one
 # optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions
 # new definition *Control-Cursor to improve moving cursor with optimize click insert 
 # new functions *integrate and *diff
 # optimize bind : add *integrate {i} and *diff {D,d} and ∞ {I}
-# change colors of operations
+# change colors of operations and of tktex
+# optimize size between First Text Display and Label Display to be more synchronise
 """
 
 btn_prm = {'padx': 18,
@@ -152,19 +153,19 @@ class Calculator:
         self.canvaf = Canvas(self.win, relief='flat', bg='#666666', width=42)
         self.canvaf.grid(row=0, column=0, columnspan=2, sticky=NSEW)
         self.canvaf.rowconfigure(0, weight=1)
-        self.canvaf.columnconfigure(0, weight=1)
         self.canvaf.columnconfigure(1, weight=1)
+        self.canvaf.focus_set()
         # Label Text Display
         self.label = Label(self.canvaf, **ent_prm, textvariable=self.LabelStrVar)
         self.label.grid(row=0, column=0, sticky=NSEW)
-        self.label.configure(font=('Segoe UI Symbol', 32))
+        self.label.configure(font=('Segoe UI Symbol', 32), anchor='e')
         # First Text Display
-        self.FirstTextDisplay = Entry(self.canvaf, width=35, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
+        self.FirstTextDisplay = Entry(self.canvaf, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
         self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
-        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), insertbackground='white')
+        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), insertbackground='white', takefocus=True)
         self.FirstTextDisplay.bind("<Button-1>", self.Info)
-        self.FirstTextDisplay.icursor(0)
         self.FirstTextDisplay.focus_set()
+        self.FirstTextDisplay.icursor(0)
         self.IndexCursor = 0
         # Second Canvas
         self.canvas = Canvas(self.win, relief='flat', bg='#666666', width=42)
@@ -179,7 +180,7 @@ class Calculator:
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray',
                                     cursor="arrow")
         # MathPlot LaTex Display, c='white'
-        self.Figure = Figure(figsize=(2, 1), facecolor='#666666', edgecolor='#666666')
+        self.Figure = Figure(figsize=(2, 1), facecolor='#708190')
         self.CanvasFigure = FigureCanvasTkAgg(self.Figure, master=self.canvas)
         self.TkAgg = self.CanvasFigure.get_tk_widget()
         self.TkAgg.grid(row=1, column=0, sticky=NSEW)
@@ -291,6 +292,8 @@ class Calculator:
                 self.btn[i].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
+        # (
+        self.btn[4]['command'] = lambda n=btn[4]: [self.Input(n), self.Input(')'), self.ChangeDirectionCursor('Left')]
         # + - * / =  'slate gray'
         for l in range(3, 22, 6):
             self.btn[l].configure(bg='light slate gray', activebackground='slate gray4')
