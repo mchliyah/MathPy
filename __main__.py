@@ -6,8 +6,8 @@ from sympy.abc import x, y
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-# version 5.0.1
-# optimize plotting environment
+# version 5.0.2
+# optimize plotting environment by applying evry plot at self
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -19,13 +19,13 @@ btn_prm = {'padx': 18,
            'relief': 'raised',
            'activebackground': '#666666',
            'activeforeground': "white"}
-big_prm = {'padx': 14,
-           'pady': 13,
+big_prm = {'padx': 8,
+           'pady': 7,
            'bd': 1,
            'fg': 'white',
-           'bg': 'slate gray',
-           'font': ('Segoe UI Symbol', 12),
-           'width': 5,
+           'bg': '#292929',
+           'font': ('Segoe UI Symbol', 15),
+           'width': 7,
            'height': 1,
            'relief': 'raised',
            'activebackground': '#80000B',
@@ -121,6 +121,7 @@ class Calculator:
     def __init__(self, master):
         self.ENG = 16
         self.btn_u = []
+        self.btn_a = []
         # expression that will be displayed on screen
         self.expression = ''
         # store expressions & order
@@ -145,12 +146,14 @@ class Calculator:
         self.v = ''
         self.w = ''
         # functions
+        self.fctx = ''
         self.fctx1 = ''
         self.fctx2 = ''
         self.fctxy = ''
-        self.fctxya = ''
+        self.fctxy1 = ''
+        self.fctxy2 = ''
         self.P3d = ''
-        self.P3da = ''
+        self.PA = ''
         self.P3dps = ''
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
@@ -162,7 +165,6 @@ class Calculator:
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
-
         # Master Display ROW 0==========================================================================================
         # First Text Display
         FirstTextDisplay = Entry(master, width=43, **ent_prm, textvariable=self.TextVariable)
@@ -187,11 +189,11 @@ class Calculator:
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0=============================================================
-        big_txt = ['Operation', 'f(x)', 'f(x,y)', "Equation", 'Solve']
-        big_pad = ['Operation', 'Function', 'Plotting', "SimEquation", 'Solve']
+        big_txt = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+        big_pad = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
         self.btn_b = []
         i = 0
-        for k in range(5):
+        for k in range(4):
             self.btn_b.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
             self.btn_b[i].grid(row=0, column=k)
             self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
@@ -253,11 +255,14 @@ class Calculator:
         self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
-        filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
-        filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
-        filemenu.add_command(label='Plotting            P', command=lambda: self.SwitchFunction('Plotting'))
-        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('SimEquation'))
+        filemenu.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
+        filemenu.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot'))
+        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
+        filemenu.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm'))
+        filemenu.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D'))
+        filemenu.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL'))
+        filemenu.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS'))
         filemenu.add_separator()
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
@@ -271,6 +276,18 @@ class Calculator:
         page = side
         # buttons to switch between buttons those will be displayed on middle frame
         if page == '1st':
+            # buttons that will be displayed on top frame ROW 0=============================================================
+            for k in range(4):
+                self.btn_b[k].destroy()
+            big_txt = ['Operation', 'Plot', "Equation", 'Solve']
+            big_pad = ['Operation', 'Plot', 'Equation', 'Solve']
+            self.btn_a = []
+            i = 0
+            for k in range(4):
+                self.btn_a.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
+                self.btn_a[i].grid(row=0, column=k)
+                self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
+                i += 1
             # ROW 0
             # 2nd
             self.btn_m[1].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='orange',
@@ -286,8 +303,21 @@ class Calculator:
                 self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
-
+            if self.mode == 'Operation' or self.mode == 'Plot' or self.mode == 'Equation' or self.mode == 'Solve':
+                self.SwitchFunction(self.mode)
         elif page == '2nd':
+            # buttons that will be displayed on top frame ROW 0=============================================================
+            for k in range(4):
+                self.btn_a[k].destroy()
+            big_txt = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+            big_pad = ['Plot Prm', "Plot3D", 'P3DPL', 'P3DPS']
+            self.btn_b = []
+            i = 0
+            for k in range(4):
+                self.btn_b.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
+                self.btn_b[i].grid(row=0, column=k)
+                self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
+                i += 1
             # ROW 0
             # 1st
             self.btn_m[1].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='orange',
@@ -303,66 +333,115 @@ class Calculator:
                 self.btn_u[i].grid(row=1, column=k)
                 self.btn_u[i]["command"] = lambda n=Trigonometry_pad[i]: self.Input(n)
                 i += 1
+            if self.mode == 'Plot Prm' or self.mode == "Plot3D" or self.mode == 'P3DPL' or self.mode == 'P3DPS':
+                self.SwitchFunction(self.mode)
 
     def SwitchFunction(self, passmode):
         self.mode = passmode
         self.FullTextDisplay.delete(1.0, END)
-
         if self.mode == 'Operation':
             self.FullTextDisplay.insert(END, 'Mode Operation :')
             self.FastTextVariable.set('')
-            self.btn_b[0]['bg'] = 'indian red'
-            for i in range(1, 5):
-                self.btn_b[i]['bg'] = '#292929'
+            self.btn_a[0]['bg'] = 'indian red'
+            for i in range(1, 4):
+                self.btn_a[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['disabled']
             self.btn[11]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
+            self.btn_d[1].config(state=NORMAL)
+            self.btn_d[2].config(state=NORMAL)
 
-        elif self.mode == 'Function':
+        elif self.mode == 'Plot':
             self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
-            self.btn_b[0]['bg'] = '#292929'
-            self.btn_b[1]['bg'] = 'indian red'
-            for i in range(2, 5):
-                self.btn_b[i]['bg'] = '#292929'
+            self.btn_a[0]['bg'] = '#292929'
+            self.btn_a[1]['bg'] = 'indian red'
+            for i in range(2, 4):
+                self.btn_a[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
             self.btn[11]['state'] = ['disabled']
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        elif self.mode == 'Plotting':
-            self.FullTextDisplay.insert(END, 'Mode Plotting : f(x,y)')
-            self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
-            for i in range(2):
-                self.btn_b[i]['bg'] = '#292929'
-            self.btn_b[2]['bg'] = 'indian red'
-            for i in range(3, 5):
-                self.btn_b[i]['bg'] = '#292929'
-            self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['normal']
-            self.btn[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
-
-        elif self.mode == 'SimEquation':
+        elif self.mode == 'Equation':
             self.FullTextDisplay.insert(END, 'Mode Simple Equation : aX² + bX + c = 0')
             self.FastTextVariable.set('aX² + bX + c = 0')
-            for i in range(3):
-                self.btn_b[i]['bg'] = '#292929'
-            self.btn_b[3]['bg'] = 'indian red'
-            self.btn_b[4]['bg'] = '#292929'
+            for i in range(2):
+                self.btn_a[i]['bg'] = '#292929'
+            self.btn_a[2]['bg'] = 'indian red'
+            self.btn_a[3]['bg'] = '#292929'
             self.btn[5].config(state=DISABLED)
             self.btn[11].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
+            self.btn_d[1].config(state=NORMAL)
+            self.btn_d[2].config(state=NORMAL)
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Solve':
             self.FullTextDisplay.insert(END, 'Mode Equation :')
-            for i in range(4):
-                self.btn_b[i]['bg'] = '#292929'
-            self.btn_b[4]['bg'] = 'indian red'
+            for i in range(3):
+                self.btn_a[i]['bg'] = '#292929'
+            self.btn_a[3]['bg'] = 'indian red'
             self.btn[5].config(state=NORMAL)
             self.btn[11].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
+
+        elif self.mode == 'Plot Prm':
+            self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
+            self.FastTextVariable.set(f'f(x)₁ = ')
+            self.btn_b[0]['bg'] = 'indian red'
+            for i in range(1, 4):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['disabled']
+            self.btn[2]['state'] = ['disabled']
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
+
+        elif self.mode == 'Plot3D':
+            self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
+            self.FastTextVariable.set(f'f(x,y)')
+            self.btn_b[0]['bg'] = '#292929'
+            self.btn_b[1]['bg'] = 'indian red'
+            for i in range(2, 4):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['normal']
+            self.btn[2]['state'] = ['disabled']
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
+
+        elif self.mode == 'P3DPL':
+            self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
+            self.FastTextVariable.set('f(x)₁ = ')
+            for i in range(2):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn_b[2]['bg'] = 'indian red'
+            self.btn_b[3]['bg'] = '#292929'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['normal']
+            self.btn[2]['state'] = ['disabled']
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
+
+        elif self.mode == 'P3DPS':
+            self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
+            for i in range(3):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn_b[3]['bg'] = 'indian red'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['normal']
+            self.btn[2]['state'] = ['disabled']
+            self.btn_d[1]['state'] = ['disabled']
+            self.btn_d[2]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
         self.Clear()
@@ -386,16 +465,48 @@ class Calculator:
                                     activeforeground='indian red')
             self.btn[0]['state'] = ['normal']
 
+    def SwitchENG(self, NBR):
+        dot = NBR
+        self.ENG = NBR
+        if dot == int(16):
+            self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(15):
+            self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(12):
+            self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(9):
+            self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(6):
+            self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(3):
+            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(2):
+            self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(1):
+            self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='orange',
+                                    activeforeground='indian red')
+        self.Click()
+
     def Clear(self):
         self.a = ''
         self.b = ''
         self.c = ''
         self.q = ''
         self.p = ''
+        self.fctx = ''
         self.fctx1 = ''
         self.fctx2 = ''
         self.fctxy = ''
-        self.fctxya = ''
+        self.fctxy1 = ''
+        self.fctxy2 = ''
+        self.PA = ''
         self.P3d = ''
         self.P3dps = ''
         self.store_expression = []
@@ -404,17 +515,25 @@ class Calculator:
         self.TextVariable.set('')
         self.FastTextVariable.set('')
 
-        if self.mode == 'Function':
+        if self.mode == 'Plot':
             self.TextVariable.set(f'From : ')
             self.FastTextVariable.set(f'From : A --> To : B')
 
-        elif self.mode == 'Plotting':
+        elif self.mode == 'Equation':
+            self.TextVariable.set(f'a = ')
+            self.FastTextVariable.set('aX² + bX + c = 0')
+
+        elif self.mode == "Plot Prm" or self.mode == "P3DPL":
+            self.TextVariable.set(f'f(x)₁ = ')
+            self.FastTextVariable.set(f'f(x)₁ = ')
+
+        elif self.mode == 'Plot3D':
             self.TextVariable.set(f'f(x,y) = ')
             self.FastTextVariable.set(f'f(x,y) = ')
 
-        elif self.mode == 'SimEquation':
-            self.TextVariable.set(f'a = ')
-            self.FastTextVariable.set('aX² + bX + c = 0')
+        elif self.mode == "P3DPS":
+            self.TextVariable.set(f'f(x,y)₁ = ')
+            self.FastTextVariable.set(f'f(x,y)₁ = ')
 
         self.equal = False
         self.clear = False
@@ -435,16 +554,6 @@ class Calculator:
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
-
-        self.Click()
-
-    def Input(self, keyword):
-        if self.clear:
-            self.Clear()
-
-        self.store_expression.append(str(keyword))
-        self.store_order.append(len(str(keyword)))
-        self.expression += str(keyword)
 
         self.Click()
 
@@ -493,15 +602,6 @@ class Calculator:
                 elif put == 'd':
                     self.SwitchDegRad('Degree')
 
-                elif put == 'o':
-                    self.SwitchFunction("Operation")
-
-                elif put == 'f':
-                    self.SwitchFunction("Function")
-
-                elif put == 'p':
-                    self.SwitchFunction("Plotting")
-
                 elif put == 'slash':
                     self.Input('/')
 
@@ -547,7 +647,7 @@ class Calculator:
                 elif put == 'j':
                     self.Input('1j')
 
-                elif put == 'exclam':
+                elif put == 'exclam' or put == 'f':
                     self.Input('factorial(')
 
                 elif put == 'g':
@@ -569,33 +669,14 @@ class Calculator:
         except IndexError:
             self.FastTextVariable.set('IndexError')
 
-    def SwitchENG(self, NBR):
-        dot = NBR
-        self.ENG = NBR
-        if dot == int(16):
-            self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(15):
-            self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(12):
-            self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(9):
-            self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(6):
-            self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(3):
-            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(2):
-            self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
-                                    activeforeground='indian red')
-        elif dot == int(1):
-            self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='orange',
-                                    activeforeground='indian red')
+    def Input(self, keyword):
+        if self.clear:
+            self.Clear()
+
+        self.store_expression.append(str(keyword))
+        self.store_order.append(len(str(keyword)))
+        self.expression += str(keyword)
+
         self.Click()
 
     def Click(self):
@@ -609,7 +690,7 @@ class Calculator:
                 else:
                     self.FastTextVariable.set(N(eval(self.expression), self.ENG))
 
-            elif self.mode == "Function":
+            elif self.mode == 'Plot':
                 if self.full is None:
                     self.TextVariable.set(f'From : {self.expression}')
                     self.FastTextVariable.set(f'From : {self.expression} --> To : B')
@@ -618,19 +699,11 @@ class Calculator:
                     self.TextVariable.set(f'To : {self.expression}')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {self.expression}')
 
-                elif self.full and not self.equal:
-                    self.TextVariable.set(f'f(x)₁ = {self.expression}')
-                    self.FastTextVariable.set(f'f(x)₁ = {self.expression}')
+                elif self.full:
+                    self.TextVariable.set(f'f(x) = {self.expression}')
+                    self.FastTextVariable.set(f'f(x) = {self.expression}')
 
-                elif self.full and self.equal:
-                    self.TextVariable.set(f'f(x)₂ = {self.expression}')
-                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
-
-            elif self.mode == "Plotting":
-                self.TextVariable.set(f'f(x,y) = {self.expression}')
-                self.FastTextVariable.set(f'f(x,y) = {self.expression}')
-
-            elif self.mode == 'SimEquation':
+            elif self.mode == 'Equation':
                 if self.full is None:
                     self.TextVariable.set(f'a = {self.expression}')
                     self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
@@ -650,6 +723,28 @@ class Calculator:
                 elif self.full:
                     self.TextVariable.set(f'{self.q} = {self.expression}')
                     self.FastTextVariable.set(f'{self.q} = {self.expression}')
+
+            elif self.mode == "Plot Prm" or self.mode == "P3DPL":
+                if self.full is None:
+                    self.TextVariable.set(f'f(x)₁ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.expression}')
+
+                elif self.full:
+                    self.TextVariable.set(f'f(x)₂ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
+
+            elif self.mode == "Plot3D":
+                self.TextVariable.set(f'f(x,y) = {self.expression}')
+                self.FastTextVariable.set(f'f(x,y) = {self.expression}')
+
+            elif self.mode == "P3DPS":
+                if self.full is None:
+                    self.TextVariable.set(f'f(x,y)₁ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x,y)₁ = {self.expression}')
+
+                elif self.full:
+                    self.TextVariable.set(f'f(x,y)₂ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x,y)₁ = {self.fctx1} | f(x,y)₂ = {self.expression}')
 
         except ZeroDivisionError:
             self.FastTextVariable.set(oo)
@@ -713,7 +808,7 @@ class Calculator:
                     except IndexError or SyntaxError:
                         self.FastTextVariable.set('IndexError or SyntaxError')
 
-            elif self.mode == 'Function':
+            elif self.mode == 'Plot':
                 if self.full is None:
                     self.v = int(self.expression)
                     self.FullTextDisplay.insert(END, f'\nfrom : {self.expression}')
@@ -725,74 +820,39 @@ class Calculator:
                     self.w = int(self.expression) + 1
                     self.FullTextDisplay.insert(END, f'\nTo : {self.expression}')
                     self.expression = ""
-                    self.TextVariable.set(f'f(x)₁ = ')
-                    self.FastTextVariable.set(f'f(x)₁ = ')
-                    self.full = True
-
-                elif self.full and not self.equal:
-                    self.fctx1 = str(eval(self.expression))
-                    self.expression = ""
-                    self.TextVariable.set(f'f(x)₂ = ')
-                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
-                    self.equal = True
-
-                elif self.full and self.equal:
-                    try:
-                        self.fctx2 = str(eval(self.expression))
-
-                        self.FullTextDisplay.insert(END, f'\nf(x)₁ = {sympify(self.fctx1)}')
-                        for x in range(self.v, self.w):
-                            if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {eval(self.fctx1)}')
-                            else:
-                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
-
-                        self.FullTextDisplay.insert(END, f'\nf(x)₂ = {sympify(self.fctx2)}')
-                        for x in range(self.v, self.w):
-                            if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'\nf({x})₂ = {eval(self.fctx2)}')
-                            else:
-                                self.FullTextDisplay.insert(END, f'\nf({x})₂ = {N(eval(self.fctx2), self.ENG)}')
-
-                        plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
-                        plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
-
-                        plot(sympify(self.fctx1), sympify(self.fctx2), (self.x, self.v, self.w))
-                        plot3d(sympify(self.fctx1), sympify(self.fctx2), (self.x, self.v, self.w))
-
-                    except SyntaxError:
-                        self.FullTextDisplay.insert(END, f'\nf(x)₁ = {sympify(self.fctx1)}')
-                        for x in range(self.v, self.w):
-                            if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {eval(self.fctx1)}')
-                            else:
-                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
-                        plot(sympify(self.fctx1), (self.x, self.v, self.w))
-                        plot3d(sympify(self.fctx1), (self.x, self.v, self.w))
-
-            elif self.mode == 'Plotting':
-                if self.full is None:
-                    self.fctxy = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxy}')
-                    self.P3d = plot3d(sympify(self.fctxy)).backend
-                    # self.P3dps = plot3d_parametric_surface(sympify(self.fctxy), self.x - self.y)
-                    self.expression = ""
-                    self.TextVariable.set(f'f(x,y) = ')
+                    self.TextVariable.set(f'f(x) = ')
+                    self.FastTextVariable.set(f'f(x) = ')
                     self.full = True
 
                 elif self.full:
-                    self.fctxya = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxya}')
-                    self.expression = ""
-                    self.TextVariable.set(f'f(x,y) = ')
-                    self.P3da = plot3d(sympify(self.fctxya)).backend
-                    self.P3d.append(self.P3da[0])
-                    # self.P3dps.append(sympify(self.fctxya))
+                    if not self.equal:
+                        self.fctx = str(eval(self.expression))
+                        self.FullTextDisplay.insert(END, f'\nf(x) = {sympify(self.fctx)}')
+                        for x in range(self.v, self.w):
+                            if self.ENG == 16:
+                                self.FullTextDisplay.insert(END, f'\nf({x}) = {eval(self.fctx)}')
+                            else:
+                                self.FullTextDisplay.insert(END, f'\nf({x}) = {N(eval(self.fctx), self.ENG)}')
+                        self.P3d = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x) = ')
+                        self.equal = True
 
-                    self.P3d.show()
-                    # self.P3dps.show()
+                    elif self.equal:
+                        self.fctx = str(eval(self.expression))
+                        self.FullTextDisplay.insert(END, f'\nf(x) = {self.fctx}')
+                        for x in range(self.v, self.w):
+                            if self.ENG == 16:
+                                self.FullTextDisplay.insert(END, f'\nf({x}) = {eval(self.fctx)}')
+                            else:
+                                self.FullTextDisplay.insert(END, f'\nf({x}) = {N(eval(self.fctx), self.ENG)}')
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x) = ')
+                        self.PA = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
+                        self.P3d.append(self.PA[0])
+                        self.P3d.show()
 
-            elif self.mode == 'SimEquation':
+            elif self.mode == 'Equation':
                 if self.full is None:
                     self.a = N(eval(self.expression), 3)
                     self.expression = ""
@@ -903,6 +963,110 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.clear = True
                     self.full = None
 
+            elif self.mode == 'Plot Prm':
+                if self.full is None:
+                    self.fctx1 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x)₁ = {self.fctx1}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ =')
+                    self.expression = ""
+                    self.full = True
+
+                elif self.full:
+                    self.fctx2 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx1}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
+                    self.expression = ""
+                    if not self.equal:
+                        self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.equal = True
+                        self.full = None
+
+                    elif self.equal:
+                        self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
+                        self.P3d.append(self.PA[0])
+                        self.P3d.show()
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.full = None
+
+            elif self.mode == 'P3DPL':
+                if self.full is None:
+                    self.fctx1 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x)₁ = {self.fctx1}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
+                    self.expression = ""
+                    self.full = True
+
+                elif self.full:
+                    self.fctx2 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx2}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
+                    self.expression = ""
+                    if not self.equal:
+                        self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.equal = True
+                        self.full = None
+
+                    elif self.equal:
+                        self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
+                        self.P3d.append(self.PA[0])
+                        self.P3d.show()
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.full = None
+
+            elif self.mode == 'Plot3D':
+                if self.full is None:
+                    self.fctxy = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxy}')
+                    self.P3d = plot3d(sympify(self.fctxy))
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x,y) = ')
+                    self.full = True
+
+                elif self.full:
+                    self.fctxy = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y) = {self.fctxy}')
+                    self.PA = plot3d(sympify(self.fctxy))
+                    self.P3d.append(self.PA[0])
+                    self.P3d.show()
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x,y) = ')
+
+            elif self.mode == 'P3DPS':
+                if self.full is None:
+                    self.fctxy1 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y)₁ = {self.fctxy1}')
+                    self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = ')
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x,y)₂ = ')
+                    self.full = True
+
+                elif self.full:
+                    self.fctxy2 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy1}')
+                    self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
+                    self.expression = ""
+                    if not self.equal:
+                        self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
+                                                             self.x - self.y)
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.equal = True
+                        self.full = None
+
+                    elif self.equal:
+                        self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y)
+                        self.P3d.append(self.PA[0])
+                        self.P3d.show()
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x)₁ = ')
+                        self.full = None
+
         except ZeroDivisionError:
             self.FastTextVariable.set(oo)
         except ValueError:
@@ -922,12 +1086,6 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
         self.callback.append(str(self.answer))
 
-    def ShowPlot(self):
-        pass
-
-    def SwitchPlot(self):
-        pass
-
 
 if __name__ == "__main__":
     win = Tk()
@@ -938,7 +1096,6 @@ if __name__ == "__main__":
     Calculator(win)
     # Window configuration
     win.configure(menu=menubare, bg='#666666')
-    # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v5.0.1")
+    win.title("PyMathon v5.0.2")
     win.mainloop()
