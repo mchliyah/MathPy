@@ -12,14 +12,15 @@ from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 import __eci__ as eci
+
 """ 
 # version 5.2.1
-# build hand writen mathematical was optimized
+# build hand writen mathematical was optimized and make it as function "def"
 # the possibility to input and delete directly from First Text Display by making cursor everywhere was optimized and 
-make it for all modes 
+make it for all modes, and add reset for
 # stop working ENG instantly
+# make equation as function "def"
 """
-
 
 btn_prm = {'padx': 18,
            'pady': 2,
@@ -851,24 +852,14 @@ class Calculator:
             self.Delete()
 
         try:
-            if self.mode == 'Operation':
-                self.expression = self.RemoveFromString(self.expression, self.IndexCursor, self.store_order,
-                                                        self.store_expression)
-                if self.permit:
-                    self.IndexCursor -= self.store_order[int(self.n)]
-                    self.store_expression.pop(int(self.n))
-                    self.store_order.pop(int(self.n))
-                else:
-                    pass
-
+            self.expression = self.RemoveFromString(self.expression, self.IndexCursor, self.store_order,
+                                                    self.store_expression)
+            if self.permit:
+                self.IndexCursor -= self.store_order[int(self.n)]
+                self.store_expression.pop(int(self.n))
+                self.store_order.pop(int(self.n))
             else:
-                k = self.store_order[-1]
-                while k > 0:
-                    self.expression = self.expression[:-1]
-                    k -= 1
-
-                self.store_order.pop(-1)
-                self.store_expression.pop(-1)
+                pass
 
         except IndexError:
             self.SecondStrVar.set('IndexError')
@@ -1013,6 +1004,11 @@ class Calculator:
             return string[:index] + str_to_insert + string[index:]
         else:
             return string
+
+    def ResetIndexCursor(self):
+        self.store_expression = []
+        self.store_order = []
+        self.IndexCursor = 0
 
     def Input(self, keyword):
         if self.clear:
@@ -1179,6 +1175,63 @@ class Calculator:
         self.FirstTextDisplay.icursor(self.IndexCursor)
         self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
 
+    def EQ(self, nbr_a, nbr_b, nbr_c):
+        a = float(eval(nbr_a))
+        b = float(eval(nbr_b))
+        c = float(eval(nbr_c))
+        d = float((b ** 2) - 4 * a * c)
+        nd = neg(d)
+        nb = neg(b)
+        self.VariableTXT(f'a = {a} | b = {b} | c = {c}')
+        self.SecondStrVar.set(f'{a}x² + ({b})x + ({c}) = 0')
+        self.DrawTexTk(f'{self.HandWrite(a)}x² + ({self.HandWrite(b)})x + ({self.HandWrite(c)}) = 0')
+        if a > 0 or a < 0:
+            self.FullTextDisplay.insert(END,
+                                        f'The Equation Have Two Solutions For x :',
+                                        f'  ∆ =  b² - 4ac',
+                                        f'  ∆ = {b}² - (4 ⨯ {a} ⨯ {c})',
+                                        f'      = {b ** 2} - ({4 * a * c})',
+                                        f'      = {d}')
+            if d == 0:
+                self.FullTextDisplay.insert(END,
+                                            f'∆=0 : x = -b / 2a',
+                                            f' x₁ = x₂ = ({N(neg(b), 3)}) / (2 ⨯ {a})',
+                                            f' x₁ = x₂ = {N(neg(b) / (2 * a), 3)}')
+            elif d >= 0:
+                self.FullTextDisplay.insert(END,
+                                            f'∆>0 : x = (-b ± √∆) / 2a',
+                                            f' x₁ = ({nb} + √{d}) / (2 ⨯ {a})',
+                                            f'     = {N((nb + sqrt(d)) / (2 * a), 3)}',
+                                            f' x₂ = ({nb} - √{d}) / (2 ⨯ {a})',
+                                            f'     = {N((nb - sqrt(d)) / (2 * a), 3)}')
+            elif d <= 0:
+                self.FullTextDisplay.insert(END,
+                                            f'      = {nd}i²',
+                                            f'∆<0 : x = (-b ± i√∆) / 2a',
+                                            f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {a})',
+                                            f'     = {N((nb + sqrt(nd) * 1j) / (2 * a), 3)}',
+                                            f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {a})',
+                                            f'     = {N((nb - sqrt(nd) * 1j) / (2 * a), 3)}',
+                                            f'  z = a ± ib',
+                                            f'  a = {N(nb / (2 * a), 3)}',
+                                            f'  b = ± {N(sqrt(nd) / (2 * a), 3)}')
+        elif a == 0:
+            if b == 0 and c == 0:
+                self.VariableTXT(f"Empty Solution {{∅}}")
+            elif b == 0:
+                self.VariableTXT(f"Empty Solution {{∅}}")
+            elif c == 0:
+                self.FullTextDisplay.insert(END,
+                                            f'The Equation Have One Solution For x :',
+                                            f'  {b}x = 0',
+                                            f'  x = 0', )
+            else:
+                self.FullTextDisplay.insert(END,
+                                            f'The Equation Have One Solution For x :',
+                                            f'  {b}x = {neg(c)}',
+                                            f'  x = {neg(c)} / {b}',
+                                            f'  x = {neg(c) / b}')
+
     def ShowEqualText(self):
         self.callback_function.append(str(self.expression))
         try:
@@ -1269,73 +1322,21 @@ class Calculator:
 
             elif self.mode == 'Equation':
                 if self.full is None:
-                    self.a = float(eval(self.expression))
+                    self.a = self.expression
                     self.expression = ""
                     self.VariableTXT(f'b =')
                     self.full = False
 
                 elif not self.full:
-                    self.b = float(eval(self.expression))
+                    self.b = self.expression
                     self.expression = ""
                     self.VariableTXT(f'c =')
                     self.full = True
 
                 elif self.full:
-                    c = float(eval(self.expression))
-                    d = float((self.b ** 2) - 4 * self.a * c)
-                    nd = neg(d)
-                    nb = neg(self.b)
+                    self.c = self.expression
                     self.expression = ''
-                    self.VariableTXT(f'a = {self.a} | b = {self.b} | c = {c}')
-                    self.SecondStrVar.set(f'{self.a}x² + ({self.b})x + ({c}) = 0')
-                    self.DrawTexTk(
-                        f'{self.HandWrite(self.a)}x² + ({self.HandWrite(self.b)})x + ({self.HandWrite(c)}) = 0')
-                    if self.a > 0 or self.a < 0:
-                        self.FullTextDisplay.insert(END,
-                                                    f'The Equation Have Two Solutions For x :',
-                                                    f'  ∆ =  b² - 4ac',
-                                                    f'  ∆ = {self.b}² - (4 ⨯ {self.a} ⨯ {c})',
-                                                    f'      = {self.b ** 2} - ({4 * self.a * c})',
-                                                    f'      = {d}')
-                        if d == 0:
-                            self.FullTextDisplay.insert(END,
-                                                        f'∆=0 : x = -b / 2a',
-                                                        f' x₁ = x₂ = ({N(neg(self.b), 3)}) / (2 ⨯ {self.a})',
-                                                        f' x₁ = x₂ = {N(neg(self.b) / (2 * self.a), 3)}')
-                        elif d >= 0:
-                            self.FullTextDisplay.insert(END,
-                                                        f'∆>0 : x = (-b ± √∆) / 2a',
-                                                        f' x₁ = ({nb} + √{d}) / (2 ⨯ {self.a})',
-                                                        f'     = {N((nb + sqrt(d)) / (2 * self.a), 3)}',
-                                                        f' x₂ = ({nb} - √{d}) / (2 ⨯ {self.a})',
-                                                        f'     = {N((nb - sqrt(d)) / (2 * self.a), 3)}')
-                        elif d <= 0:
-                            self.FullTextDisplay.insert(END,
-                                                        f'      = {nd}i²',
-                                                        f'∆<0 : x = (-b ± i√∆) / 2a',
-                                                        f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {self.a})',
-                                                        f'     = {N((nb + sqrt(nd) * 1j) / (2 * self.a), 3)}',
-                                                        f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {self.a})',
-                                                        f'     = {N((nb - sqrt(nd) * 1j) / (2 * self.a), 3)}',
-                                                        f'  z = a ± ib',
-                                                        f'  a = {N(nb / (2 * self.a), 3)}',
-                                                        f'  b = ± {N(sqrt(nd) / (2 * self.a), 3)}')
-                    elif self.a == 0:
-                        if self.b == 0 and c == 0:
-                            self.FirstStrVar.set(f"Empty Solution {{∅}}")
-                        elif self.b == 0:
-                            self.FirstStrVar.set(f"Empty Solution {{∅}}")
-                        elif c == 0:
-                            self.FullTextDisplay.insert(END,
-                                                        f'The Equation Have One Solution For x :',
-                                                        f'  {self.b}x = 0',
-                                                        f'  x = 0', )
-                        else:
-                            self.FullTextDisplay.insert(END,
-                                                        f'The Equation Have One Solution For x :',
-                                                        f'  {self.b}x = {neg(c)}',
-                                                        f'  x = {neg(c)} / {self.b}',
-                                                        f'  x = {neg(c) / self.b}')
+                    self.EQ(self.a, self.b, self.c)
 
                     self.clear = True
                     self.full = None
@@ -1632,8 +1633,7 @@ class Calculator:
         except IndexError:
             self.SecondStrVar.set('IndexError')
 
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
-        self.FirstTextDisplay.icursor(self.IndexCursor)
+        self.ResetIndexCursor()
 
         self.FullTextDisplay.see(END)
 
