@@ -133,90 +133,87 @@ class Calculator:
         self.half = False
         self.exist = None
         # string variable for text input
-        self.FirstStrVar = StringVar()
-        self.SecondStrVar = StringVar()
+        self.TextStrVar = StringVar()
+        self.ErrorStrVar = StringVar()
         self.LabelStrVar = StringVar()
         # ROW 0 First Canvas============================================================================================
-        canvas = Canvas(self.win, relief='flat', bg='#F0F0F0', width=42)
-        canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
-        canvas.rowconfigure(0, weight=1)
-        canvas.columnconfigure(1, weight=1)
-        # Label Text Display
-        self.label = Label(canvas, **ent_prm, textvariable=self.LabelStrVar)
-        self.label.grid(row=0, column=0, sticky=NSEW)
-        self.label.configure(anchor='e')
-        # First Text Display, insertbackground='white'
-        self.FirstTextDisplay = Entry(canvas, **ent_prm, textvariable=self.FirstStrVar, insertwidth=2)
-        self.FirstTextDisplay.grid(row=0, column=1, sticky=NSEW)
-        self.FirstTextDisplay.configure(takefocus=True)
-        self.FirstTextDisplay.bind("<Button-1>", self.Info)
-        self.FirstTextDisplay.focus_set()
+        top_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0', width=42)
+        top_canvas.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        top_canvas.rowconfigure(0, weight=1)
+        top_canvas.columnconfigure(1, weight=1)
+        # Equal Label Display
+        EqualLabelDisplay = Label(top_canvas, **ent_prm, textvariable=self.LabelStrVar)
+        EqualLabelDisplay.grid(row=0, column=0, sticky=NSEW)
+        EqualLabelDisplay.configure(anchor='e')
+        # Text Display, insertbackground='white'
+        self.TextDisplay = Entry(top_canvas, **ent_prm, textvariable=self.TextStrVar, insertwidth=2)
+        self.TextDisplay.grid(row=0, column=1, sticky=NSEW)
+        self.TextDisplay.configure(takefocus=True)
+        self.TextDisplay.bind("<Button-1>", self.Info)
         self.IndexCursor = 0
+        # Error Label Display, cursor="arrow"
+        ErrorLabelDisplay = Label(top_canvas, **ent_prm, textvariable=self.ErrorStrVar)
+        ErrorLabelDisplay.grid(row=0, column=2, sticky=NSEW)
+        ErrorLabelDisplay.configure(anchor='e')
         # ROW 1 set MathPlot LaTex Display==============================================================================
-        self.FigureX = Figure(figsize=(100, 5), facecolor='#212121')
         # self.CanvasFigure = FigureCanvasTkAgg(figure=self.Figure, master=self.win)
         # self.TkAgg = self.CanvasFigure.get_tk_widget()
         # self.TkAgg.grid(row=1, column=0, columnspan=2, sticky=NSEW)
         # bilko = Canvas(self.win)
-        self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.win)
-        self.TkAggX.grid(row=1, column=0, columnspan=2, sticky=NSEW)
-        self.TkAggX.rowconfigure(0, weight=1)
-        self.TkAggX.columnconfigure(0, weight=1)
-        # ROW 2 set frame showing top buttons===========================================================================
-        self.top_frame = Frame(self.win, relief='flat')
-        self.top_frame.grid(row=2, column=0, sticky=NSEW)
-        self.top_frame.rowconfigure(0, weight=1)
-        self.top_frame.columnconfigure(0, weight=1)
-        self.top_frame.columnconfigure(1, weight=1)
-        self.top_frame.columnconfigure(2, weight=1)
-        self.top_frame.columnconfigure(3, weight=1)
-        self.top_frame.columnconfigure(4, weight=1)
-        # Second Text Display
-        SecondTextDisplay = Entry(self.win, width=27, **ent_prm, textvariable=self.SecondStrVar, state='readonly')
-        SecondTextDisplay.grid(row=2, column=1, sticky=NSEW)
-        SecondTextDisplay.configure(fg='white', readonlybackground='#212121', cursor="arrow", justify='center')
-        # ROW 3 set frame showing middle buttons========================================================================
-        self.middle_frame = Frame(self.win, relief='flat')
-        self.middle_frame.grid(row=3, column=0, sticky=NSEW)
-        self.middle_frame.rowconfigure(0, weight=1)
-        self.middle_frame.rowconfigure(1, weight=1)
-        self.middle_frame.rowconfigure(2, weight=1)
-        self.middle_frame.columnconfigure(0, weight=1)
-        self.middle_frame.columnconfigure(1, weight=1)
-        self.middle_frame.columnconfigure(2, weight=1)
-        self.middle_frame.columnconfigure(3, weight=1)
-        self.middle_frame.columnconfigure(4, weight=1)
-        self.middle_frame.columnconfigure(5, weight=1)
-        # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=8, **ent_prm)
-        self.FullTextDisplay.configure(font=('Segoe UI Symbol', 24))
-        self.FullTextDisplay.grid(row=3, column=1, rowspan=2, sticky=NSEW)
-        self.FullTextDisplay.rowconfigure(0, weight=1)
-        self.FullTextDisplay.columnconfigure(0, weight=1)
-        # ROW 4 set frame showing bottom buttons========================================================================
-        self.bottom_frame = Frame(self.win, relief='flat')
-        self.bottom_frame.grid(row=4, column=0, sticky=NSEW)
-        self.bottom_frame.rowconfigure(0, weight=1)
-        self.bottom_frame.rowconfigure(1, weight=1)
-        self.bottom_frame.rowconfigure(2, weight=1)
-        self.bottom_frame.rowconfigure(3, weight=1)
-        self.bottom_frame.rowconfigure(4, weight=1)
-        self.bottom_frame.columnconfigure(0, weight=1)
-        self.bottom_frame.columnconfigure(1, weight=1)
-        self.bottom_frame.columnconfigure(2, weight=1)
-        self.bottom_frame.columnconfigure(3, weight=1)
-        self.bottom_frame.columnconfigure(4, weight=1)
-        self.bottom_frame.columnconfigure(5, weight=1)
-        # buttons that will be fake displayed on top frame ROW 0========================================================
+        self.middle_top_canvas = Canvas(self.win, relief='flat', bg='#212121')
+        self.middle_top_canvas.grid(row=1, column=0, columnspan=2, sticky=NSEW)
+        self.middle_top_canvas.rowconfigure(0, weight=1)
+        self.middle_top_canvas.columnconfigure(0, weight=1)
+
+        self.FigureX = Figure(figsize=(100, 5), facecolor='#212121')
+        self.TkAggX = ScrollableTkAggX(figure=self.FigureX, master=self.middle_top_canvas)
+        self.TkAggWidgetX = self.TkAggX.get_tk_widget()
+        self.TkAggWidgetX.grid(row=0, column=0, sticky=NSEW)
+        self.TkAggWidgetX.rowconfigure(0, weight=1)
+        self.TkAggWidgetX.columnconfigure(0, weight=1)
+        # ROW 2 set canvas showing top buttons==========================================================================
+        self.middle_canvas = Canvas(self.win, relief='flat')
+        self.middle_canvas.grid(row=2, column=0, sticky=NSEW)
+        self.middle_canvas.rowconfigure(0, weight=1)
+        self.middle_canvas.columnconfigure(0, weight=1)
+        self.middle_canvas.columnconfigure(1, weight=1)
+        self.middle_canvas.columnconfigure(2, weight=1)
+        self.middle_canvas.columnconfigure(3, weight=1)
+        self.middle_canvas.columnconfigure(4, weight=1)
+        # buttons that will be fake displayed on middle canvas ROW 0====================================================
         big_txt = ['', '', '', '', '']
         self.btn_b = []
         for k in range(5):
-            self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[k]))
-        # buttons that will be displayed on middle frame ROW 0==========================================================
+            self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[k]))
+        # ROW 2 set canvas showing ScrollableTkAggXY & ScrolledListbox==================================================
+        self.east_canvas = Canvas(self.win, relief='flat', bg='#F0F0F0')
+        self.east_canvas.grid(row=2, column=1, rowspan=3, sticky=NSEW)
+        self.east_canvas.rowconfigure(0, weight=1)
+        self.east_canvas.columnconfigure(0, weight=1)
+
+        self.FullTextDisplay = ScrolledListbox(self.east_canvas)
+
+        self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
+        self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
+        self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
+        self.TkAggWidgetXY = self.TkAggXY.get_tk_widget()
+        # ROW 3 set canvas showing middle bottom buttons================================================================
+        self.middle_bottom_canvas = Canvas(self.win, relief='flat')
+        self.middle_bottom_canvas.grid(row=3, column=0, sticky=NSEW)
+        self.middle_bottom_canvas.rowconfigure(0, weight=1)
+        self.middle_bottom_canvas.rowconfigure(1, weight=1)
+        self.middle_bottom_canvas.rowconfigure(2, weight=1)
+        self.middle_bottom_canvas.columnconfigure(0, weight=1)
+        self.middle_bottom_canvas.columnconfigure(1, weight=1)
+        self.middle_bottom_canvas.columnconfigure(2, weight=1)
+        self.middle_bottom_canvas.columnconfigure(3, weight=1)
+        self.middle_bottom_canvas.columnconfigure(4, weight=1)
+        self.middle_bottom_canvas.columnconfigure(5, weight=1)
+        # buttons that will be displayed on middle bottom canvas ROW 0==================================================
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
         for i1 in range(3):
-            self.btn_m1.append(HoverButton(self.middle_frame, **btn_dif, text=txta[i1]))
+            self.btn_m1.append(HoverButton(self.middle_bottom_canvas, **btn_dif, text=txta[i1]))
             self.btn_m1[i1].grid(row=0, column=i1, sticky=NSEW)
         # Cursor Disposition
         self.btn_m1[0]['command'] = lambda: self.ChangeDirectionCursor('Left')
@@ -226,7 +223,7 @@ class Calculator:
         self.btn_m2 = []
         i2b = 3
         for i2a in range(3):
-            self.btn_m2.append(HoverButton(self.middle_frame, **btn_prm, text=txtb[i2a]))
+            self.btn_m2.append(HoverButton(self.middle_bottom_canvas, **btn_prm, text=txtb[i2a]))
             self.btn_m2[i2a].grid(row=0, column=i2b, sticky=NSEW)
             i2b += 1
         # Answer Stored
@@ -247,7 +244,7 @@ class Calculator:
         # ========================Trigonometry==========================================================================
         self.btn_u = []
         for i3 in range(6):
-            self.btn_u.append(HoverButton(self.middle_frame, **btn_prm))
+            self.btn_u.append(HoverButton(self.middle_bottom_canvas, **btn_prm))
             self.btn_u[i3].grid(row=1, column=i3, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
@@ -255,14 +252,27 @@ class Calculator:
         logarithm_txt = ['log', 'exp', 'W', "∫f(x)", '√n', "n!"]
         self.btn_d = []
         for i4 in range(6):
-            self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=logarithm_txt[i4]))
+            self.btn_d.append(HoverButton(self.middle_bottom_canvas, **btn_prm, text=logarithm_txt[i4]))
             self.btn_d[i4].grid(row=2, column=i4, sticky=NSEW)
             self.btn_d[i4].configure(
                 command=lambda f0=logarithm_pad[i4]: [self.Input(f0), self.Input(')'),
                                                       self.ChangeDirectionCursor('Left')])
 
-        # buttons that will be displayed on bottom frame ROW 0==========================================================
-        # ========================Numbers===============================================================================
+        # ROW 4 set canvas showing bottom buttons=======================================================================
+        self.bottom_canvas = Canvas(self.win, relief='flat')
+        self.bottom_canvas.grid(row=4, column=0, sticky=NSEW)
+        self.bottom_canvas.rowconfigure(0, weight=1)
+        self.bottom_canvas.rowconfigure(1, weight=1)
+        self.bottom_canvas.rowconfigure(2, weight=1)
+        self.bottom_canvas.rowconfigure(3, weight=1)
+        self.bottom_canvas.rowconfigure(4, weight=1)
+        self.bottom_canvas.columnconfigure(0, weight=1)
+        self.bottom_canvas.columnconfigure(1, weight=1)
+        self.bottom_canvas.columnconfigure(2, weight=1)
+        self.bottom_canvas.columnconfigure(3, weight=1)
+        self.bottom_canvas.columnconfigure(4, weight=1)
+        self.bottom_canvas.columnconfigure(5, weight=1)
+        # buttons that will be displayed on bottom canvas ROW 0=========================================================
         btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', 'x', "4", "5", "6", "*", "**2", 'y',
                "1", "2", "3", "/", "**", 'z', "0", '', '.', "=", 'e', "oo"]
 
@@ -272,7 +282,7 @@ class Calculator:
         i5 = 0
         for j in range(5):
             for k in range(6):
-                self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i5]))
+                self.btn.append(HoverButton(self.bottom_canvas, **btnb_prm, text=btn_txt[i5]))
                 self.btn[i5].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i5].configure(command=lambda f1=btn[i5]: self.Input(f1))
                 i5 += 1
@@ -357,10 +367,10 @@ class Calculator:
         self.win.mainloop()
 
     def iCursor(self, cursor):
-        self.FirstTextDisplay.icursor(cursor)
+        self.TextDisplay.icursor(cursor)
 
     def Info(self, event):
-        self.IndexCursor = int(self.FirstTextDisplay.index("@%d" % event.x))
+        self.IndexCursor = int(self.TextDisplay.index("@%d" % event.x))
         try:
             end = len(str(self.expression))
             if self.IndexCursor < end:
@@ -393,9 +403,9 @@ class Calculator:
 
     def SwitchButtons(self, side):
         page = side
-        # buttons to switch between buttons those will be displayed on middle & top frames
+        # buttons to switch between buttons those will be displayed on middle bottom & middle canvas
         if page == '1st':
-            # buttons that will be displayed on top frame ROW 0=========================================================
+            # buttons that will be displayed on middle canvas ROW 0=====================================================
             for i in range(5):
                 self.btn_b[i].destroy()
             big_txt = ['Operation', 'Function', "Simple\nLine\nEquation", 'Line\nEquation\nSolver',
@@ -403,11 +413,11 @@ class Calculator:
             big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrices']
             self.btn_a = []
             for i in range(5):
-                self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
+                self.btn_a.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i]))
                 self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_a[i]["command"] = lambda f3=big_pad[i]: self.SwitchFunction(f3, True)
 
-            # buttons that will be displayed on middle frame ROW 0======================================================
+            # buttons that will be displayed on middle bottom canvas ROW 0==============================================
             # 2nd
             self.btn_m1[2].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"),
                                      font=('Segoe UI Symbol', 16, 'bold'))
@@ -436,7 +446,7 @@ class Calculator:
                 self.SwitchFunction(self.mode, False)
 
         elif page == '2nd':
-            # buttons that will be displayed on top frame ROW 0=========================================================
+            # buttons that will be displayed on middle canvas ROW 0=====================================================
             for i in range(5):
                 self.btn_a[i].destroy()
             big_txt = ['Plot\nf(x)', 'Plot\nParametric', 'Plot 3D\nParametric\nLine', "Plot3D\nf(x,y)",
@@ -444,11 +454,11 @@ class Calculator:
             big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             self.btn_b = []
             for i in range(5):
-                self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
+                self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i]))
                 self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_b[i]["command"] = lambda f5=big_pad[i]: self.SwitchFunction(f5, True)
 
-            # buttons that will be displayed on middle frame ROW 0======================================================
+            # buttons that will be displayed on middle bottom canvas ROW 0==============================================
             # 1st
             self.btn_m1[2].configure(text="2ND", command=lambda: self.SwitchButtons("1st"),
                                      font=('Segoe UI Symbol', 16, 'bold'))
@@ -641,16 +651,18 @@ class Calculator:
             self.btn_b[4].config(bg='#80000B', relief='sunken')
             self.btn_b[4].DBG = '#80000B'
 
+        self.TextDisplay.focus_set()
+
         if self.switched:
             self.Delete()
 
     def SwitchWidget(self, widget):
         figure = widget
         if figure == 'listbox':
-            self.TkAggXY.Destroying()
-            self.FullTextDisplay = ScrolledListbox(self.win, width=52, height=8, **ent_prm)
+            self.TkAggWidgetXY.destroy()
+            self.FullTextDisplay = ScrolledListbox(self.east_canvas, width=52, height=8, **ent_prm)
             self.FullTextDisplay.configure(font=('Segoe UI Symbol', 24))
-            self.FullTextDisplay.grid(row=3, column=1, rowspan=2, sticky=NSEW)
+            self.FullTextDisplay.grid(row=0, column=0, sticky=NSEW)
             self.FullTextDisplay.rowconfigure(0, weight=1)
             self.FullTextDisplay.columnconfigure(0, weight=1)
 
@@ -658,10 +670,11 @@ class Calculator:
             self.FullTextDisplay.destroy()
             self.FigureXY = Figure(figsize=(100, 1), facecolor='#F0F0F0')
             self.AxesXY = self.FigureXY.subplots(ncols=1, nrows=2)
-            self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.win)
-            self.TkAggXY.grid(row=3, column=1, rowspan=2, sticky=NSEW)
-            self.TkAggXY.rowconfigure(0, weight=1)
-            self.TkAggXY.columnconfigure(0, weight=1)
+            self.TkAggXY = ScrollableTkAggXY(figure=self.FigureXY, master=self.east_canvas)
+            self.TkAggWidgetXY = self.TkAggXY.get_tk_widget()
+            self.TkAggWidgetXY.grid(row=0, column=0, sticky=NSEW)
+            self.TkAggWidgetXY.rowconfigure(0, weight=1)
+            self.TkAggWidgetXY.columnconfigure(0, weight=1)
 
     def Delete(self):
         self.a = ''
@@ -689,10 +702,10 @@ class Calculator:
         self.store_expression = []
         self.store_order = []
         self.expression = ''
-        self.FirstStrVar.set('')
-        self.SecondStrVar.set('')
+        self.TextStrVar.set('')
+        self.ErrorStrVar.set('')
         self.iCursor(0)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        self.IndexCursor = int(self.TextDisplay.index(INSERT))
         self.FigureX.clear()
         self.TkAggX.draw()
 
@@ -874,7 +887,7 @@ class Calculator:
                     self.ShowInput()
 
         except IndexError:
-            self.SecondStrVar.set('IndexError')
+            self.ErrorStrVar.set('IndexError')
 
     def Input(self, keyword):
         if self.clear:
@@ -912,19 +925,19 @@ class Calculator:
         mpl_white_rvb = (255. / 255., 255. / 255., 255. / 255.)
         try:
             self.FigureX.clear()
-            self.FigureX.text(0, 0.5, la_text, color=mpl_white_rvb, fontsize=30)
+            self.FigureX.text(0, 0.4, la_text, color=mpl_white_rvb, fontsize=30)
             self.TkAggX.draw()
         except Exception:
             pass
 
     def VariableTXT(self, label_var):
         self.LabelStrVar.set(label_var)
-        self.FirstStrVar.set(self.expression)
+        self.TextStrVar.set(self.expression)
 
     def ShowInput(self):
         try:
             if self.mode == 'Operation':
-                self.FirstStrVar.set(self.expression)
+                self.TextStrVar.set(self.expression)
                 self.DrawTexTk(f'op > {self.DrawBefore(self.expression)} = {self.DrawAfter(eval(self.expression))}')
 
             elif self.mode == 'Function':
@@ -1023,7 +1036,7 @@ class Calculator:
                     self.DrawTexTk(f'f(x,y)₁ = {self.DrawAfter(self.fctxy1)} | '
                                    f'f(x,y)₂ = {self.DrawAfter(self.expression)}')
 
-            self.SecondStrVar.set('')
+            self.ErrorStrVar.set('')
         except Exception:
             pass
 
@@ -1062,7 +1075,7 @@ class Calculator:
 
     def VariableEQL(self, label_var, first_var):
         self.LabelStrVar.set(label_var)
-        self.FirstStrVar.set(first_var)
+        self.TextStrVar.set(first_var)
 
     def ShowEqual(self):
         try:
@@ -1399,17 +1412,17 @@ class Calculator:
             self.ApplyAfterEqual()
 
         except ValueError:
-            self.SecondStrVar.set('ValueError')
+            self.ErrorStrVar.set('ValueError')
         except SyntaxError:
-            self.SecondStrVar.set('SyntaxError')
+            self.ErrorStrVar.set('SyntaxError')
         except NameError:
-            self.SecondStrVar.set('NameError')
+            self.ErrorStrVar.set('NameError')
         except TypeError:
-            self.SecondStrVar.set('TypeError')
+            self.ErrorStrVar.set('TypeError')
         except OverflowError:
-            self.SecondStrVar.set('OverflowMathRangeError')
+            self.ErrorStrVar.set('OverflowMathRangeError')
         except IndexError:
-            self.SecondStrVar.set('IndexError')
+            self.ErrorStrVar.set('IndexError')
 
     def ApplyAfterEqual(self):
         self.iCursor(END)
