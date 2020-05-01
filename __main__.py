@@ -32,15 +32,15 @@ btnb_prm = {'padx': 18,
             'width': 2,
             'height': 1,
             'relief': 'raised',
-            'activeback': '#3E3E3E',
-            'activebackground': '#313131',
+            'activeback': '#3d3d3d',
+            'activebackground': '#2d2d2d',
             'activeforeground': "white"}
 big2_prm = {'padx': 14,
             'pady': 13,
             'bd': 1,
-            'background': '#292929',
+            'background': '#212121',
             'fg': 'white',
-            'bg': '#292929',
+            'bg': '#212121',
             'font': ('Segoe UI Symbol', 12),
             'width': 5,
             'height': 1,
@@ -200,20 +200,20 @@ class Calculator:
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
         for l in range(6, 9):
-            self.btn[l].configure(bg='#292929', activebackground="#111111")
-            self.btn[l].ActiveBack = '#202020'
-            self.btn[l].DefaultBackGround = '#292929'
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
         for l in range(12, 15):
-            self.btn[l].configure(bg='#292929', activebackground="#111111")
-            self.btn[l].ActiveBack = '#202020'
-            self.btn[l].DefaultBackGround = '#292929'
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
         for l in range(18, 21):
-            self.btn[l].configure(bg='#292929', activebackground="#111111")
-            self.btn[l].ActiveBack = '#202020'
-            self.btn[l].DefaultBackGround = '#292929'
-        self.btn[25].configure(bg='#292929', activebackground="#111111")
-        self.btn[25].ActiveBack = '#202020'
-        self.btn[25].DefaultBackGround = '#292929'
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
+        self.btn[25].configure(bg='#212121', activebackground="#111111")
+        self.btn[25].ActiveBack = '#161616'
+        self.btn[25].DefaultBackGround = '#212121'
         # Equals
         self.btn[26].configure(bg='#FF5E00', activebackground='#A74400', command=self.InputEquals)
         self.btn[26].ActiveBack = '#CF4E00'
@@ -336,8 +336,8 @@ class Calculator:
             self.btn_a[0].config(bg='#80000B', relief='sunken')
             self.btn_a[0].DefaultBackGround = '#80000B'
             for i in range(1, 5):
-                self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#292929'
+                self.btn_a[i].config(bg='#212121', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#212121'
 
         elif self.mode == 'Function':
             if self.switched:
@@ -351,13 +351,13 @@ class Calculator:
                 self.btn_d[2]['state'] = ['disabled']
                 self.SwitchDegRad('Radians')
 
-            self.btn_a[0].config(bg='#292929', relief='raised')
-            self.btn_a[0].DefaultBackGround = '#292929'
+            self.btn_a[0].config(bg='#212121', relief='raised')
+            self.btn_a[0].DefaultBackGround = '#212121'
             self.btn_a[1].config(bg='#80000B', relief='sunken')
             self.btn_a[1].DefaultBackGround = '#80000B'
             for i in range(2, 5):
-                self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#292929'
+                self.btn_a[i].config(bg='#212121', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#212121'
 
         elif self.mode == 'Equation':
             if self.switched:
@@ -372,13 +372,13 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             for i in range(2):
-                self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#292929'
+                self.btn_a[i].config(bg='#212121', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#212121'
             self.btn_a[2].config(bg='#80000B', relief='sunken')
             self.btn_a[2].DefaultBackGround = '#80000B'
             for i in range(3, 5):
-                self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#292929'
+                self.btn_a[i].config(bg='#212121', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#212121'
 
         elif self.mode == 'Solve':
             if self.switched:
@@ -392,12 +392,12 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             for i in range(3):
-                self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#292929'
+                self.btn_a[i].config(bg='#212121', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#212121'
             self.btn_a[3].config(bg='#80000B', relief='sunken')
             self.btn_a[3].DefaultBackGround = '#80000B'
-            self.btn_a[4].config(bg='#292929', relief='raised')
-            self.btn_a[4].DefaultBackGround = '#292929'
+            self.btn_a[4].config(bg='#212121', relief='raised')
+            self.btn_a[4].DefaultBackGround = '#212121'
 
         elif self.mode == 'Matrix':
             if self.switched:
@@ -411,8 +411,8 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             for i in range(4):
-                self.btn_a[i].config(bg='#292929', relief='raised')
-                self.btn_a[i].DefaultBackGround = '#292929'
+                self.btn_a[i].config(bg='#212121', relief='raised')
+                self.btn_a[i].DefaultBackGround = '#212121'
             self.btn_a[4].config(bg='#80000B', relief='sunken')
             self.btn_a[4].DefaultBackGround = '#80000B'
 
@@ -431,8 +431,8 @@ class Calculator:
             self.btn_b[0].config(bg='#80000B', relief='sunken')
             self.btn_b[0].DefaultBackGround = '#80000B'
             for i in range(1, 5):
-                self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#292929'
+                self.btn_b[i].config(bg='#212121', relief='raised')
+                self.btn_b[i].DefaultBackGround = '#212121'
 
         elif self.mode == 'Plot Prm':
             if self.switched:
@@ -446,13 +446,13 @@ class Calculator:
                 self.btn_d[2]['state'] = ['disabled']
                 self.SwitchDegRad('Radians')
 
-            self.btn_b[0].config(bg='#292929', relief='raised')
-            self.btn_b[0].DefaultBackGround = '#292929'
+            self.btn_b[0].config(bg='#212121', relief='raised')
+            self.btn_b[0].DefaultBackGround = '#212121'
             self.btn_b[1].config(bg='#80000B', relief='sunken')
             self.btn_b[1].DefaultBackGround = '#80000B'
             for i in range(2, 5):
-                self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#292929'
+                self.btn_b[i].config(bg='#212121', relief='raised')
+                self.btn_b[i].DefaultBackGround = '#212121'
 
         elif self.mode == 'P3DPL':
             if self.switched:
@@ -467,13 +467,13 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             for i in range(2):
-                self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#292929'
+                self.btn_b[i].config(bg='#212121', relief='raised')
+                self.btn_b[i].DefaultBackGround = '#212121'
             self.btn_b[2].config(bg='#80000B', relief='sunken')
             self.btn_b[2].DefaultBackGround = '#80000B'
             for i in range(3, 5):
-                self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#292929'
+                self.btn_b[i].config(bg='#212121', relief='raised')
+                self.btn_b[i].DefaultBackGround = '#212121'
 
         elif self.mode == 'Plot3D':
             if self.switched:
@@ -488,12 +488,12 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             for i in range(3):
-                self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#292929'
+                self.btn_b[i].config(bg='#212121', relief='raised')
+                self.btn_b[i].DefaultBackGround = '#212121'
             self.btn_b[3].config(bg='#80000B', relief='sunken')
             self.btn_b[3].DefaultBackGround = '#80000B'
-            self.btn_b[4].config(bg='#292929', relief='raised')
-            self.btn_b[4].DefaultBackGround = '#292929'
+            self.btn_b[4].config(bg='#212121', relief='raised')
+            self.btn_b[4].DefaultBackGround = '#212121'
 
         elif self.mode == 'P3DPS':
             if self.switched:
@@ -508,8 +508,8 @@ class Calculator:
                 self.SwitchDegRad('Radians')
 
             for i in range(4):
-                self.btn_b[i].config(bg='#292929', relief='raised')
-                self.btn_b[i].DefaultBackGround = '#292929'
+                self.btn_b[i].config(bg='#212121', relief='raised')
+                self.btn_b[i].DefaultBackGround = '#212121'
             self.btn_b[4].config(bg='#80000B', relief='sunken')
             self.btn_b[4].DefaultBackGround = '#80000B'
 
@@ -601,12 +601,12 @@ class Calculator:
             self.FastTextVariable.set('ax² + bx + c = 0')
 
         elif self.mode == 'Solve':
-            self.TextVariable.set(f'e > ')
-            self.FastTextVariable.set('e > ')
+            self.TextVariable.set(f'eq > ')
+            self.FastTextVariable.set('eq > ')
 
         elif self.mode == 'Matrix':
-            self.TextVariable.set(f'e₁ > ')
-            self.FastTextVariable.set('e₁ > ')
+            self.TextVariable.set(f'eq₁ > ')
+            self.FastTextVariable.set('eq₁ > ')
 
         elif self.mode == 'Plot':
             self.TextVariable.set(f'f(x) = ')
@@ -809,33 +809,33 @@ class Calculator:
 
             elif self.mode == 'Solve':
                 if self.full is None:
-                    self.TextVariable.set(f'e > {self.expression}')
-                    self.FastTextVariable.set(f'e > {self.expression}')
+                    self.TextVariable.set(f'eq > {self.expression}')
+                    self.FastTextVariable.set(f'eq > {self.expression}')
                 elif self.full:
-                    self.TextVariable.set(f'e > {self.q} = {self.expression}')
-                    self.FastTextVariable.set(f'e > {self.q} = {self.expression}')
+                    self.TextVariable.set(f'eq > {self.q} = {self.expression}')
+                    self.FastTextVariable.set(f'eq > {self.q} = {self.expression}')
 
             elif self.mode == 'Matrix':
                 if self.full is None:
-                    self.TextVariable.set(f'e₁ > {self.expression}')
-                    self.FastTextVariable.set(f'e₁ > {self.expression}')
+                    self.TextVariable.set(f'eq₁ > {self.expression}')
+                    self.FastTextVariable.set(f'eq₁ > {self.expression}')
                 elif not self.full:
-                    self.TextVariable.set(f'e₁ > {self.q} = {self.expression}')
-                    self.FastTextVariable.set(f'e₁ > {self.q} = {self.expression}')
+                    self.TextVariable.set(f'eq₁ > {self.q} = {self.expression}')
+                    self.FastTextVariable.set(f'eq₁ > {self.q} = {self.expression}')
 
                 elif self.full and self.clear is None:
-                    self.TextVariable.set(f'e₂ > {self.expression}')
-                    self.FastTextVariable.set(f'e₂ > {self.expression}')
+                    self.TextVariable.set(f'eq₂ > {self.expression}')
+                    self.FastTextVariable.set(f'eq₂ > {self.expression}')
                 elif self.full and not self.clear and self.equal is None:
-                    self.TextVariable.set(f'e₂ > {self.j} = {self.expression}')
-                    self.FastTextVariable.set(f'e₂ > {self.j} = {self.expression}')
+                    self.TextVariable.set(f'eq₂ > {self.j} = {self.expression}')
+                    self.FastTextVariable.set(f'eq₂ > {self.j} = {self.expression}')
 
                 elif self.full and not self.clear and not self.equal:
-                    self.TextVariable.set(f'e₃ > {self.expression}')
-                    self.FastTextVariable.set(f'e₃ > {self.expression}')
+                    self.TextVariable.set(f'eq₃ > {self.expression}')
+                    self.FastTextVariable.set(f'eq₃ > {self.expression}')
                 elif self.full and not self.clear and self.equal:
-                    self.TextVariable.set(f'e₃ > {self.m} = {self.expression}')
-                    self.FastTextVariable.set(f'e₃ > {self.m} = {self.expression}')
+                    self.TextVariable.set(f'eq₃ > {self.m} = {self.expression}')
+                    self.FastTextVariable.set(f'eq₃ > {self.m} = {self.expression}')
 
             elif self.mode == 'Plot':
                 self.TextVariable.set(f'f(x) = {self.expression}')
@@ -1042,14 +1042,15 @@ class Calculator:
             elif self.mode == 'Solve':
                 if self.full is None:
                     self.q = str(eval(self.expression))
-                    self.TextVariable.set(f'e > {self.q} = ')
+                    self.TextVariable.set(f'eq > {self.q} = ')
+                    self.FastTextVariable.set(f'eq > {self.q} = ')
                     self.expression = ""
                     self.full = True
 
                 elif self.full:
                     self.p = str(eval(self.expression))
-                    self.TextVariable.set(f'e > {self.q} = {self.p}')
-                    self.FullTextDisplay.insert(END, f'e > {self.q} = {self.p}')
+                    self.TextVariable.set(f'eq > {self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, f'eq > {self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
@@ -1063,15 +1064,15 @@ class Calculator:
             elif self.mode == 'Matrix':
                 if self.full is None:
                     self.q = str(sympify(self.expression))
-                    self.TextVariable.set(f'e₁ > {self.q} = ')
+                    self.TextVariable.set(f'eq₁ > {self.q} = ')
                     self.expression = ""
                     self.full = False
 
                 elif not self.full:
                     self.p = str(sympify(self.expression))
-                    self.TextVariable.set('e₂ > ')
-                    self.FastTextVariable.set('e₂ > ')
-                    self.FullTextDisplay.insert(END, 'New System :', f' e₁ | {self.q} = {self.p}')
+                    self.TextVariable.set('eq₂ > ')
+                    self.FastTextVariable.set('eq₂ > ')
+                    self.FullTextDisplay.insert(END, 'New System :', f' eq₁ | {self.q} = {self.p}')
                     self.expression = ""
                     self.full = True
                     self.clear = None
@@ -1079,7 +1080,7 @@ class Calculator:
                 elif self.full:
                     if self.clear is None:
                         self.j = str(sympify(self.expression))
-                        self.TextVariable.set(f'e₂ > {self.j} = ')
+                        self.TextVariable.set(f'eq₂ > {self.j} = ')
                         self.expression = ""
                         self.equal = None
                         self.clear = False
@@ -1087,21 +1088,21 @@ class Calculator:
                     elif not self.clear:
                         if self.equal is None:
                             self.k = str(sympify(self.expression))
-                            self.TextVariable.set('e₃ > ')
-                            self.FastTextVariable.set('e₃ > ')
-                            self.FullTextDisplay.insert(END, f' e₂ | {self.j} = {self.k}')
+                            self.TextVariable.set('eq₃ > ')
+                            self.FastTextVariable.set('eq₃ > ')
+                            self.FullTextDisplay.insert(END, f' eq₂ | {self.j} = {self.k}')
                             self.expression = ""
                             self.equal = False
 
                         elif not self.equal:
                             self.m = str(sympify(self.expression))
-                            self.TextVariable.set(f'e₃ > {self.m} = ')
+                            self.TextVariable.set(f'eq₃ > {self.m} = ')
                             self.expression = ""
                             self.equal = True
 
                         elif self.equal:
                             self.n = str(sympify(self.expression))
-                            self.FullTextDisplay.insert(END, f' e₃ | {self.m} = {self.n}')
+                            self.FullTextDisplay.insert(END, f' eq₃ | {self.m} = {self.n}')
                             try:
                                 self.lslv = linsolve(
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
