@@ -15,7 +15,7 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 # set the primary entry static height
 # switching modes are more organized for call widgets
 # reduce conditions in definition of delete and switch mode
-# fix the setting zero in Equation Solver
+# fix the setting zero in Equation Solver, and add float answer
 """
 # noinspection NonAsciiCharacters
 π = pi
@@ -23,7 +23,7 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '7.0.0 beta 2.2'
+    __version__ = '7.0.0 beta 3'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
@@ -827,7 +827,12 @@ class Calculator:
                 if keyword.keysym == 'Return' or put == 'equal':
                     pass
                 else:
-                    self.ShowInput()
+                    if self.mode == 'SystemSolver':
+                        self.SSE().StringVariable()
+                    elif self.mode == 'PP2D3DL' or self.mode == "P3DPS":
+                        self.FE().StringVariable()
+                    else:
+                        self.TextDisplay.StringVariable()
 
         except IndexError:
             self.ErrorStrVar.set('IndexError')
@@ -914,7 +919,7 @@ class Calculator:
         if self.mode == 'SystemSolver' or self.mode == 'PP2D3DL' or self.mode == "P3DPS":
             pass
         else:
-            self.TextDisplay.StringVariable('')
+            self.TextDisplay.TextVariable.set('')
             self.LabelStrVar.set(label_var)
 
     def ShowEqual(self):
@@ -1042,9 +1047,30 @@ class Calculator:
                             except Exception:
                                 pass
                         try:
-                            self.FigureXY.DrawLaTex(f'> x = {DrawAfter(self.xexp)} = {DrawAfterNum(self.xexp)}')
-                            self.FigureXY.DrawLaTex(f'> y = {DrawAfter(self.yexp)} = {DrawAfterNum(self.yexp)}')
-                            self.FigureXY.DrawLaTex(f'> z = {DrawAfter(self.zexp)} = {DrawAfterNum(self.zexp)}')
+                            result_exprx = DrawAfter(self.xexp)
+                            result_numx = DrawAfterNum(self.xexp)
+                            dot_zerox = str(result_numx).replace('.0', '')
+                            if dot_zerox == result_exprx or result_exprx == result_numx:
+                                self.FigureXY.DrawLaTex(f'> x = {result_exprx}')
+                            else:
+                                self.FigureXY.DrawLaTex(f'> x = {result_exprx} = {result_numx}')
+
+                            result_expry = DrawAfter(self.yexp)
+                            result_numy = DrawAfterNum(self.yexp)
+                            dot_zeroy = str(result_numy).replace('.0', '')
+                            if dot_zeroy == result_expry or result_expry == result_numy:
+                                self.FigureXY.DrawLaTex(f'> y = {result_expry}')
+                            else:
+                                self.FigureXY.DrawLaTex(f'> y = {result_expry} = {result_numy}')
+
+                            result_exprz = DrawAfter(self.zexp)
+                            result_numz = DrawAfterNum(self.zexp)
+                            dot_zeroz = str(result_numz).replace('.0', '')
+                            if dot_zeroz == result_exprz or result_exprz == result_numz:
+                                self.FigureXY.DrawLaTex(f'> z = {result_exprz}')
+                            else:
+                                self.FigureXY.DrawLaTex(f'> z = {result_exprz} = {result_numz}')
+
                         except Exception:
                             pass
 
@@ -1105,8 +1131,21 @@ class Calculator:
                             except Exception:
                                 pass
                         try:
-                            self.FigureXY.DrawLaTex(f'> x = {DrawAfter(self.xexp)} = {DrawAfterNum(self.xexp)}')
-                            self.FigureXY.DrawLaTex(f'> y = {DrawAfter(self.yexp)} = {DrawAfterNum(self.yexp)}')
+                            result_exprx = DrawAfter(self.xexp)
+                            result_numx = DrawAfterNum(self.xexp)
+                            dot_zerox = str(result_numx).replace('.0', '')
+                            if dot_zerox == result_exprx or result_exprx == result_numx:
+                                self.FigureXY.DrawLaTex(f'> x = {result_exprx}')
+                            else:
+                                self.FigureXY.DrawLaTex(f'> x = {result_exprx} = {result_numx}')
+
+                            result_expry = DrawAfter(self.yexp)
+                            result_numy = DrawAfterNum(self.yexp)
+                            dot_zeroy = str(result_numy).replace('.0', '')
+                            if dot_zeroy == result_expry or result_expry == result_numy:
+                                self.FigureXY.DrawLaTex(f'> y = {result_expry}')
+                            else:
+                                self.FigureXY.DrawLaTex(f'> y = {result_expry} = {result_numy}')
                         except Exception:
                             pass
 
@@ -1125,13 +1164,13 @@ class Calculator:
                     much_sol = len(self.SolutionOS)
                     small_numbers = SmallNumbers(much_sol)
                     for sl in range(much_sol):
-                        result_expr = DrawAfter(self.SolutionOS[sl])
-                        result_num = DrawAfterNum(self.SolutionOS[sl])
-                        dot_zero = str(result_num).replace('.0', '')
-                        if dot_zero == result_expr or result_expr == result_num:
-                            self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {result_expr}')
+                        result_expr_a = DrawAfter(self.SolutionOS[sl])
+                        result_num_a = DrawAfterNum(self.SolutionOS[sl])
+                        dot_zero_a = str(result_num_a).replace('.0', '')
+                        if dot_zero_a == result_expr_a or result_expr_a == result_num_a:
+                            self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {result_expr_a}')
                         else:
-                            self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {result_expr} = {result_num}')
+                            self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {result_expr_a} = {result_num_a}')
 
             elif self.mode == 'Plot':
                 self.fctx = str(eval(self.TextDisplay.expression))
@@ -1200,10 +1239,10 @@ class Calculator:
                     self.equal = True
 
                 elif self.equal:
-                    self.PlotAddFunc = plt.plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2),
-                                                                     self.x - self.y, show=False)
-                    self.PlotAddFunc = MultiPlot3D(self.PlotFirstFunc, self.PlotAddFunc)
-                    self.BackEndPlot.Plot(self.PlotAddFunc)
+                    self.PlotAddFunc = plt.plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
+                                                                       self.x - self.y, show=False)
+                    FIN = MultiPlot3D(self.PlotFirstFunc, self.PlotAddFunc)
+                    self.BackEndPlot.Plot(FIN)
                     self.VariableEQL(f'f(x,y)₁ =')
 
             self.ApplyAfterEqual()
