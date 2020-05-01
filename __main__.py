@@ -51,14 +51,27 @@ big2_prm = {'padx': 14,
 ent_prm = {'fg': 'white',
            'bg': '#4d4d4d',
            'font': ('Segoe UI Symbol', 16),
-           'relief': 'flat', }
+           'relief': 'flat'}
 π = pi
 convert_constant = 1
 inverse_convert_constant = 1
 
 
-class Calculator:
+class Calculator(Canvas):
     def __init__(self, master):
+        # Master Display ===============================================================================================
+        Canvas.__init__(self, master)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+
+        self.bind_all('<Key>', self.KeyboardInput)
+        self.grid_bbox('all')
+        self.configure(scrollregion=self.bbox("all"))
+
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
         self.color = ['', "r", "g", "y", "o", "b"]
         self.sb = ['x', 'y', 'z']
@@ -117,30 +130,27 @@ class Calculator:
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
-        # Master Display ROW 0==========================================================================================
+        # Self Display ROW 0============================================================================================
         # First Text Display
-        FirstTextDisplay = Entry(master, width=43, **ent_prm, textvariable=self.TextVariable, state='readonly')
+        FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable, state='readonly')
         FirstTextDisplay.grid(row=0, column=0, columnspan=2)
         FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), readonlybackground='#4d4d4d')
-        FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
-        SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
+        SecondTextDisplay = Entry(self, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
         SecondTextDisplay.grid(row=1, column=1)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
-        SecondTextDisplay.bind('<Key>', self.KeyboardInput)
         # Full Text Display
-        self.FullTextDisplay = ScrolledListbox(master, width=52, height=13, **ent_prm)
+        self.FullTextDisplay = ScrolledListbox(self, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
-        self.FullTextDisplay.bind('<Key>', self.KeyboardInput)
         self.FullTextDisplay.focus_set()
         # ROW 1 set frame showing top buttons
-        self.top_frame = Frame(master, relief='flat', bg='slate gray')
+        self.top_frame = Frame(self, relief='flat', bg='slate gray')
         self.top_frame.grid(row=1, column=0)
         # ROW 2 set frame showing middle buttons
-        self.middle_frame = Frame(master, relief='flat', bg='#666666')
+        self.middle_frame = Frame(self, relief='flat', bg='#666666')
         self.middle_frame.grid(row=2, column=0)
         # ROW 3 set frame showing bottom buttons
-        bottom_frame = Frame(master, relief='flat', bg='#4d4d4d')
+        bottom_frame = Frame(self, relief='flat', bg='#4d4d4d')
         bottom_frame.grid(row=3, column=0)
         # buttons that will be fake displayed on top frame ROW 0========================================================
         big_txt = ['', '', '', '', '']
@@ -382,7 +392,7 @@ class Calculator:
 
         elif self.mode == 'Solve':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode Line Equation Solver :')
+                self.FullTextDisplay.insert(END, 'Mode Line Equation Solver : eq')
                 self.btn[5].config(state=NORMAL)
                 self.btn[11].config(state=DISABLED)
                 self.btn[17].config(state=DISABLED)
@@ -401,7 +411,7 @@ class Calculator:
 
         elif self.mode == 'Matrix':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode System Equation Solver :')
+                self.FullTextDisplay.insert(END, 'Mode System Equation Solver : eq₁ | eq₂ | eq₃')
                 self.btn[5].config(state=NORMAL)
                 self.btn[11].config(state=NORMAL)
                 self.btn[17].config(state=NORMAL)
@@ -1354,9 +1364,11 @@ if __name__ == "__main__":
     menubare.add_cascade(label="Mode", menu=Mode)
     menubare.add_cascade(label="Float", menu=Switch)
     # run calculator
-    Calculator(win)
+    root = Calculator(win)
+    root.pack(fill="both", expand=True)
+    root.configure(bg='#4d4d4d')
     # Window configuration
     win.configure(menu=menubare, bg='#4d4d4d')
-    win.resizable(False, False)
+    # win.resizable(False, False)
     win.title("PyMathon v5.1.0")
     win.mainloop()
