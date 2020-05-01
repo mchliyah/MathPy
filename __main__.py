@@ -29,6 +29,7 @@ DirectionCursor, RealStringInsertion, RemoveFromString, InsertIntoString, FullRe
 # set geometry("1100x680"), set minsize(width=420, height=680), set resizable(width=True, height=False)
 # create class of FigureXY by resembling all features were making to draw mathematical text in TkAggXY(): {TextMath,
 AddFirstLaTex, AddMultiLaTex}
+# add hovering by hand in all buttons
 """
 # noinspection NonAsciiCharacters
 π = pi
@@ -200,8 +201,7 @@ class Calculator:
         # Text Display, insertbackground='white'
         self.TextDisplay = ManagedEntry(top_canvas, **ent_prm, textvariable=self.TextStrVar, insertwidth=2)
         self.TextDisplay.grid(row=0, column=1, sticky=NSEW)
-        self.TextDisplay.configure(takefocus=True)
-        # Error Label Display, cursor="arrow"
+        # Error Label Display, cursor="arrow", cursor="hand1"
         ErrorLabelDisplay = Label(top_canvas, **ent_prm, textvariable=self.ErrorStrVar)
         ErrorLabelDisplay.grid(row=0, column=2, sticky=NSEW)
         ErrorLabelDisplay.configure(anchor='e')
@@ -241,7 +241,7 @@ class Calculator:
         txta = ['Û', 'Ü', '1ST']
         self.btn_m1 = []
         for i1 in range(3):
-            self.btn_m1.append(HoverButton(self.middle_bottom_canvas, **btn_dif, text=txta[i1]))
+            self.btn_m1.append(HoverButton(self.middle_bottom_canvas, **btn_dif, text=txta[i1], cursor="hand2"))
             self.btn_m1[i1].grid(row=0, column=i1, sticky=NSEW)
         # Cursor Disposition
         self.btn_m1[0]['command'] = lambda: self.TextDisplay.DirectionCursor('Left')
@@ -251,7 +251,7 @@ class Calculator:
         self.btn_m2 = []
         i2b = 3
         for i2a in range(3):
-            self.btn_m2.append(HoverButton(self.middle_bottom_canvas, **btn_prm, text=txtb[i2a]))
+            self.btn_m2.append(HoverButton(self.middle_bottom_canvas, **btn_prm, text=txtb[i2a], cursor="hand2"))
             self.btn_m2[i2a].grid(row=0, column=i2b, sticky=NSEW)
             i2b += 1
         # Answer Stored
@@ -272,7 +272,7 @@ class Calculator:
         # ========================Trigonometry==========================================================================
         self.btn_u = []
         for i3 in range(6):
-            self.btn_u.append(HoverButton(self.middle_bottom_canvas, **btn_prm))
+            self.btn_u.append(HoverButton(self.middle_bottom_canvas, **btn_prm, cursor="hand2"))
             self.btn_u[i3].grid(row=1, column=i3, sticky=NSEW)
         # ROW 2
         # ========================logarithm=============================================================================
@@ -280,7 +280,7 @@ class Calculator:
         logarithm_txt = ['log', 'exp', 'W', "∫f(x)", '√n', "n!"]
         self.btn_d = []
         for i4 in range(6):
-            self.btn_d.append(HoverButton(self.middle_bottom_canvas, **btn_prm, text=logarithm_txt[i4]))
+            self.btn_d.append(HoverButton(self.middle_bottom_canvas, **btn_prm, text=logarithm_txt[i4], cursor="hand2"))
             self.btn_d[i4].grid(row=2, column=i4, sticky=NSEW)
             self.btn_d[i4].configure(
                 command=lambda f0=logarithm_pad[i4]: [self.Input(f0), self.Input(')'),
@@ -295,7 +295,7 @@ class Calculator:
         i5 = 0
         for j in range(5):
             for k in range(6):
-                self.btn.append(HoverButton(self.bottom_canvas, **btnb_prm, text=btn_txt[i5]))
+                self.btn.append(HoverButton(self.bottom_canvas, **btnb_prm, text=btn_txt[i5], cursor="hand2"))
                 self.btn[i5].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i5].configure(command=lambda f1=btn[i5]: self.Input(f1))
                 i5 += 1
@@ -391,7 +391,7 @@ class Calculator:
             big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrices']
             self.btn_a = []
             for i in range(5):
-                self.btn_a.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i]))
+                self.btn_a.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i], cursor="hand2"))
                 self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_a[i]["command"] = lambda f3=big_pad[i]: self.SwitchMode(f3, True)
 
@@ -432,7 +432,7 @@ class Calculator:
             big_pad = ['Plot', 'Plot Prm', 'P3DPL', "Plot3D", 'P3DPS']
             self.btn_b = []
             for i in range(5):
-                self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i]))
+                self.btn_b.append(HoverButton(self.middle_canvas, **big2_prm, text=big_txt[i], cursor="hand2"))
                 self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_b[i]["command"] = lambda f5=big_pad[i]: self.SwitchMode(f5, True)
 
