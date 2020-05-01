@@ -8,12 +8,8 @@ from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
 
-# version 5.1.3
-# add possibility to show two plot in one page
-# optimize set solution of system equation
-# make anchor at last of full text display
-# optimize bind : * equal now are perfect * input keys after equal click are perfect * add more keys
-# more optimize for system equation : now support two equations and three equations at time
+# version 5.2.0  "need more optimization this is beta version"
+# make possibility to input and delete directly from First Text Display by making cursor everywhere, now just for Operation mode
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -58,8 +54,61 @@ ent_prm = {'fg': 'white',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = pi
+n = 0
 convert_constant = 1
 inverse_convert_constant = 1
+
+
+def insert_str(string, str_to_insert, index, str_order):
+    end = len(str(string))
+    how = len(str_order)
+    print(end, '=?', index)
+    now = str(string[:index])
+    reel = ''
+    n = 0
+    while n < how:
+        reel += str(str_order[n])
+        print(n, '<', how)
+        print(now, '=', reel)
+        if now == reel:
+            break
+        n += 1
+    if end == index:
+        return string[:index] + str_to_insert
+    else:
+        return string[:n] + str_to_insert + string[n:]
+
+
+def remove_str(str_to_remove, index, order, str_order):
+    global n
+    now = str(str_to_remove[:index])
+    how = len(str_order)
+    reel = ''
+    n = 0
+    while n < how:
+        reel += str(str_order[n])
+        if now == reel:
+            break
+        n += 1
+    print('tol =', reel)
+    pro = index - order[n]
+    print('n =', n)
+    print('pro =', pro)
+    if index == 0:
+        pass
+    else:
+        end = len(str(str_to_remove))
+        print('end = ind', end, index)
+        if end == index:
+            print('p1 =', str_to_remove[:-order[n]])
+            return str_to_remove[:-order[n]]
+        # elif now != reel:
+        #    return str_to_remove[:index - order[index]] + str_to_remove[index:]
+        elif pro == 0:
+            return str_to_remove[order[n]:]
+        else:
+            print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
+            return str_to_remove[:pro] + str_to_remove[index:]
 
 
 class Calculator(Canvas):
@@ -135,14 +184,16 @@ class Calculator(Canvas):
         self.columnconfigure(1, weight=1)
 
         self.bind_all('<Key>', self.KeyboardInput)
-        self.grid_bbox('all')
-        self.configure(scrollregion=self.bbox("all"))
 
         # Self Display ROW 0============================================================================================
-        # First Text Display
-        FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable, state='readonly')
-        FirstTextDisplay.grid(row=0, column=0, columnspan=2, sticky=NSEW)
-        FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), readonlybackground='#4d4d4d')
+        # First Text Display, readonlybackground='#4d4d4d'# , state='readonly'
+        self.FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable)
+        self.FirstTextDisplay.grid(row=0, column=0, columnspan=2, sticky=NSEW)
+        self.FirstTextDisplay.configure(font=('Segoe UI Symbol', 32))
+        # self.FirstTextDisplay.bind("<Button-1>", self.move_move))
+        self.FirstTextDisplay.bind("<Button-1>", self.Info)
+        self.FirstTextDisplay.focus_set()
+        self.IndexCursor = int(self.FirstTextDisplay.index(0))
         # Second Text Display
         SecondTextDisplay = Entry(self, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
         SecondTextDisplay.grid(row=1, column=1, sticky=NSEW)
@@ -152,7 +203,6 @@ class Calculator(Canvas):
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2, sticky=NSEW)
         self.FullTextDisplay.rowconfigure(0, weight=1)
         self.FullTextDisplay.columnconfigure(0, weight=1)
-        self.FullTextDisplay.focus_set()
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(self, relief='flat', bg='#212121')
         self.top_frame.grid(row=1, column=0, sticky=NSEW)
@@ -198,7 +248,7 @@ class Calculator(Canvas):
         self.btn_m = []
         for i in range(6):
             self.btn_m.append(HoverButton(self.middle_frame, **btn_prm, text=txt[i]))
-            self.btn_m[i].grid(row=0, column=i, sticky=NSEW, padx=1, pady=1)
+            self.btn_m[i].grid(row=0, column=i, sticky=NSEW)
         # Answer Stored
         self.btn_m[3].configure(bg='#20B645', activebackground='#00751E',
                                 command=lambda: self.Input(str(self.callback[-1])))
@@ -219,7 +269,7 @@ class Calculator(Canvas):
         self.btn_u = []
         for i in range(6):
             self.btn_u.append(HoverButton(self.middle_frame, **btn_prm))
-            self.btn_u[i].grid(row=1, column=i, sticky=NSEW, padx=1, pady=1)
+            self.btn_u[i].grid(row=1, column=i, sticky=NSEW)
         # ROW 2
         # ========================Logarithm=============================================================================
         Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
@@ -227,7 +277,7 @@ class Calculator(Canvas):
         self.btn_d = []
         for i in range(6):
             self.btn_d.append(HoverButton(self.middle_frame, **btn_prm, text=Logarithm_txt[i]))
-            self.btn_d[i].grid(row=2, column=i, sticky=NSEW, padx=1, pady=1)
+            self.btn_d[i].grid(row=2, column=i, sticky=NSEW)
             self.btn_d[i].configure(command=lambda n=Logarithm_pad[i]: self.Input(n))
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
@@ -242,7 +292,7 @@ class Calculator(Canvas):
         for j in range(5):
             for k in range(6):
                 self.btn.append(HoverButton(self.bottom_frame, **btnb_prm, text=btn_txt[i]))
-                self.btn[i].grid(row=j, column=k, sticky=NSEW, padx=1, pady=1)
+                self.btn[i].grid(row=j, column=k, sticky=NSEW)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
         # + - * / =
@@ -270,6 +320,11 @@ class Calculator(Canvas):
             self.btn[l].configure(bg='#212121', activebackground="#111111")
             self.btn[l].ActiveBack = '#161616'
             self.btn[l].DefaultBackGround = '#212121'
+        # x y z
+        for l in range(11, 24, 6):
+            self.btn[l].configure(bg='#212121', activebackground="#111111")
+            self.btn[l].ActiveBack = '#161616'
+            self.btn[l].DefaultBackGround = '#212121'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
@@ -290,7 +345,7 @@ class Calculator(Canvas):
         Mode.add_command(label='Line Equation Solver',
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Solve', True)])
         Mode.add_command(label='System Equation Solver',
-                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Matrix', True)])
+                         command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction('Matrices', True)])
         Mode.add_separator()
         Mode.add_command(label='Plot', command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('Plot', True)])
         Mode.add_command(label='Plot Parametric',
@@ -310,6 +365,33 @@ class Calculator(Canvas):
         Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
         Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
 
+    def Info(self, event):
+        self.FirstTextDisplay.icursor("@%d" % event.x)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        self.FirstTextDisplay.icursor(self.IndexCursor)
+        i = 0
+        while i <= 5:
+            self.FirstTextDisplay.icursor("@%d" % event.x)
+            self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+            self.FirstTextDisplay.icursor(self.IndexCursor)
+            i += 1
+        print(self.IndexCursor)
+
+    def move_move(self, event):
+        # now = self.FirstTextDisplay.scan_dragto(event.x, event.y, gain=1)
+        # a = self.FirstTextDisplay.selection_adjust()
+        if event.x < 227:
+            nj = int(N(int(event.x) / 24.85, 1))
+            print(nj, event)
+        elif event.x >= 230:
+            nj = int(N(int(event.x) / 24, 2))
+            print(nj, event)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        self.FirstTextDisplay.icursor(self.IndexCursor)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        # act = self.FirstTextDisplay.scan_mark(self.idx)
+        print(self.IndexCursor)
+
     def SwitchButtons(self, side):
         page = side
         # buttons to switch between buttons those will be displayed on middle & top frames
@@ -319,11 +401,11 @@ class Calculator(Canvas):
                 self.btn_b[i].destroy()
             big_txt = ['Operation', 'Function', "Simple\nLine\nEquation", 'Line\nEquation\nSolver',
                        'System\nEquation\nSolver']
-            big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrix']
+            big_pad = ['Operation', 'Function', 'Equation', 'Solve', 'Matrices']
             self.btn_a = []
             for i in range(5):
                 self.btn_a.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
-                self.btn_a[i].grid(row=0, column=i, sticky=NSEW, padx=1, pady=1)
+                self.btn_a[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_a[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
@@ -350,7 +432,7 @@ class Calculator(Canvas):
             self.btn_b = []
             for i in range(5):
                 self.btn_b.append(HoverButton(self.top_frame, **big2_prm, text=big_txt[i]))
-                self.btn_b[i].grid(row=0, column=i, sticky=NSEW, padx=1, pady=1)
+                self.btn_b[i].grid(row=0, column=i, sticky=NSEW)
                 self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n, True)
 
             # buttons that will be displayed on middle frame ROW 0======================================================
@@ -451,7 +533,7 @@ class Calculator(Canvas):
             self.btn_a[4].config(bg='#212121', relief='raised')
             self.btn_a[4].DefaultBackGround = '#212121'
 
-        elif self.mode == 'Matrix':
+        elif self.mode == 'Matrices':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode System Equation Solver :')
                 self.btn[11].config(state=NORMAL)
@@ -659,7 +741,7 @@ class Calculator(Canvas):
             self.TextVariable.set(f'eq > ')
             self.FastTextVariable.set('eq > ')
 
-        elif self.mode == 'Matrix':
+        elif self.mode == 'Matrices':
             self.TextVariable.set(f'eq₁ > ')
             self.FastTextVariable.set('eq₁ > ')
 
@@ -689,13 +771,24 @@ class Calculator(Canvas):
             self.Delete()
 
         try:
-            k = self.store_order[-1]
-            while k > 0:
-                self.expression = self.expression[:-1]
-                k -= 1
+            if self.mode == 'Operation':
+                if self.IndexCursor == 0:
+                    pass
+                else:
+                    self.expression = remove_str(self.expression, self.IndexCursor, self.store_order,
+                                                 self.store_expression)
+                    self.IndexCursor -= self.store_order[n]
+                    self.store_order.remove(self.store_order[n])
+                    self.store_expression.remove(self.store_expression[n])
 
-            self.store_order.remove(self.store_order[-1])
-            self.store_expression.remove(self.store_expression[-1])
+            else:
+                k = self.store_order[-1]
+                while k > 0:
+                    self.expression = self.expression[:-1]
+                    k -= 1
+
+                self.store_order.remove(self.store_order[-1])
+                self.store_expression.remove(self.store_expression[-1])
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -822,9 +915,17 @@ class Calculator(Canvas):
         if self.clear:
             self.Delete()
 
-        self.store_expression.append(str(keyword))
-        self.store_order.append(len(str(keyword)))
-        self.expression += str(keyword)
+        if self.mode == 'Operation':
+            self.expression = insert_str(self.expression, keyword, self.IndexCursor, self.store_expression)
+            self.store_expression.append(str(keyword))
+            self.store_order.append(len(str(keyword)))
+            self.IndexCursor += int(len(str(keyword)))
+            print('cursor', self.IndexCursor)
+
+        else:
+            self.store_expression.append(str(keyword))
+            self.store_order.append(len(str(keyword)))
+            self.expression += str(keyword)
 
         self.Click()
 
@@ -873,7 +974,7 @@ class Calculator(Canvas):
                     self.TextVariable.set(f'eq > {self.q} = {self.expression}')
                     self.FastTextVariable.set(f'eq > {self.q} = {self.expression}')
 
-            elif self.mode == 'Matrix':
+            elif self.mode == 'Matrices':
                 if self.full is None:
                     self.TextVariable.set(f'eq₁ > {self.expression}')
                     self.FastTextVariable.set(f'eq₁ > {self.expression}')
@@ -933,6 +1034,8 @@ class Calculator(Canvas):
             pass
         except TypeError:
             pass
+        self.FirstTextDisplay.icursor(self.IndexCursor)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
 
     def InputEquals(self):
         self.callback_function.append(str(self.expression))
@@ -1053,7 +1156,7 @@ class Calculator(Canvas):
                         self.FullTextDisplay.insert(END,
                                                     f'The Equation Have Two Solutions For x :',
                                                     f'  ∆ =  b² - 4ac',
-                                                    f'  ∆ = {self.b}² - (4 ⨯ ({self.a}) ⨯ ({c}))',
+                                                    f'  ∆ = {self.b}² - (4 ⨯ {self.a} ⨯ {c})',
                                                     f'      = {self.b ** 2} - ({4 * self.a * c})',
                                                     f'      = {d}')
                         if d == 0:
@@ -1121,7 +1224,7 @@ class Calculator(Canvas):
                     self.clear = True
                     self.full = None
 
-            elif self.mode == 'Matrix':
+            elif self.mode == 'Matrices':
                 if self.full is None:
                     self.q = str(sympify(self.expression))
                     self.TextVariable.set(f'eq₁ > {self.q} = ')
@@ -1507,5 +1610,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#4d4d4d')
     win.geometry("1100x580")
     win.minsize(width=1100, height=580)
-    win.title("PyMathon v5.1.3")
+    win.title("PyMathon v5.2.0")
     win.mainloop()
