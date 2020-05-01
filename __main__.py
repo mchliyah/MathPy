@@ -189,10 +189,10 @@ class Calculator:
         self.btn_m[3].defaultActiveBack = '#009C27'
         self.btn_m[3].defaultBackGround = '#20B645'
         # Clear
-        self.btn_m[4].configure(width=1, bg='firebrick1', activebackground='firebrick3', font=('Marlett', 23),
+        self.btn_m[4].configure(width=1, bg='firebrick2', activebackground='firebrick3', font=('Marlett', 23),
                                 command=lambda: self.Delete())
         self.btn_m[4].defaultActiveBack = 'firebrick3'
-        self.btn_m[4].defaultBackGround = 'firebrick1'
+        self.btn_m[4].defaultBackGround = 'firebrick2'
         # Remove
         self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue3', font=('Wingdings', 21),
                                 command=lambda: self.Remove())
@@ -245,9 +245,9 @@ class Calculator:
         self.btn[25].defaultActiveBack = '#202020'
         self.btn[25].defaultBackGround = '#292929'
         # Equals
-        self.btn[26].configure(bg='#FF771F', activebackground='#FF5E00', command=self.InputEquals)
-        self.btn[26].defaultActiveBack = '#FF5E00'
-        self.btn[26].defaultBackGround = '#FF771F'
+        self.btn[26].configure(bg='#FF5E00', activebackground='#CF4E00', command=self.InputEquals)
+        self.btn[26].defaultActiveBack = '#CF4E00'
+        self.btn[26].defaultBackGround = '#FF5E00'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
@@ -259,16 +259,16 @@ class Calculator:
         File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
         File.add_command(label="Close         Alt+F4", command=Exit)
-        Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation", True))
-        Mode.add_command(label='Function', command=lambda: self.SwitchFunction('Function', True))
-        Mode.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation', True))
-        Mode.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve', True))
+        Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation", True) and self.SwitchButtons('1st'))
+        Mode.add_command(label='Function', command=lambda: self.SwitchFunction('Function', True) and self.SwitchButtons('1st'))
+        Mode.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation', True) and self.SwitchButtons('1st'))
+        Mode.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve', True) and self.SwitchButtons('1st'))
         Mode.add_separator()
-        Mode.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot', True))
-        Mode.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm', True))
-        Mode.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D', True))
-        Mode.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL', True))
-        Mode.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS', True))
+        Mode.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot', True) and self.SwitchButtons('2nd'))
+        Mode.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm', True) and self.SwitchButtons('2nd'))
+        Mode.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D', True) and self.SwitchButtons('2nd'))
+        Mode.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL', True) and self.SwitchButtons('2nd'))
+        Mode.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS', True) and self.SwitchButtons('2nd'))
         Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
         Switch.add_command(label='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(15)))
         Switch.add_command(label='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(12)))
