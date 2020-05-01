@@ -1,14 +1,16 @@
 import tkinter as tk
 import itertools
-from operator import neg
 from random import randint
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.parsing.sympy_parser import parse_expr
-from sympy.plotting import PlotGrid, plot_backends
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from matplotlib.colors import to_hex
+import matplotlib
+
+matplotlib.use('TkAgg')
+from sympy.plotting import PlotGrid, plot_backends
 
 delf = ()
 
@@ -94,7 +96,6 @@ def FirstPlotLaTex(Plot_First_Func, FunctionTX):
 
 def MultiPlot3D(Plot_First_Func3D, Plot_Add_Func3D):
     Plot_First_Func3D.extend(Plot_Add_Func3D)
-    # return Plot_First_Func3D
     return PlotGrid(1, 2, Plot_First_Func3D, Plot_Add_Func3D, show=False)
 
 
@@ -231,8 +232,8 @@ class ManagedEntry(tk.Entry):
                     self.store_order.pop(int(self.n))
                 else:
                     pass
-            self.StringVariable(self.expression)
-            return self.expression
+        self.StringVariable(self.expression)
+        return self.expression
 
     def InsertIntoString(self, str_to_insert):
         end = len(str(self.expression))
@@ -250,11 +251,15 @@ class ManagedEntry(tk.Entry):
         else:
             self.expression = self.expression
 
-        if str_to_insert[-1:] == '(':
-            self.InsertIntoString(')'), self.DirectionCursor('Left')
-
+        self.MoreInsertionTool(str_to_insert)
         self.StringVariable(self.expression)
         return self.expression
+
+    def MoreInsertionTool(self, str_to_insert):
+        if str_to_insert[-1:] == '(':
+            self.InsertIntoString(')'), self.DirectionCursor('Left')
+        if str_to_insert == ',-1':
+            self.DirectionCursor('Left')
 
     def FullReBuild(self, call_back):
         try:
@@ -306,10 +311,11 @@ class ManagedEntry(tk.Entry):
 
 
 class ScrollableTkAggX(tk.Canvas):
-    def __init__(self, figure, master, **kw):
-        # --- create canvas with scrollbar ---
+    def __init__(self, figure, height, master, **kw):
+        self.height = height
         facecolor = str(to_hex(figure.get_facecolor()))
-        super(ScrollableTkAggX, self).__init__(master, background=facecolor, **kw)
+        # --- create canvas with scrollbar ---
+        super(ScrollableTkAggX, self).__init__(master, height=self.height, background=facecolor, **kw)
         self.grid(row=0, column=0, sticky=tk.NSEW)
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
@@ -327,21 +333,11 @@ class ScrollableTkAggX(tk.Canvas):
         self.hbar = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)
         self.hbar.grid(row=1, column=0, sticky=tk.EW)
 
+        # --- put frame in canvas ---
+        self.canvas_frame = self.create_window((0, 0), window=self.fig_wrapper, height=self.height, anchor=tk.NW)
         self.configure(xscrollcommand=self.hbar.set, scrollregion=self.bbox(tk.ALL))
 
-        # when all widgets are in canvas
-        self.bind('<Configure>', self.on_configure_y)
-        # --- put frame in canvas ---
-        self.canvas_frame = self.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
-
     # expand canvas_frame when canvas changes its size
-    def on_configure_y(self, event):
-        # when all widgets are in canvas
-        canvas_height = event.height
-        self.itemconfigure(self.canvas_frame, height=canvas_height)
-        # update scrollregion after starting 'mainloop' - 20
-        self.configure(scrollregion=self.bbox(tk.ALL))
-
     def on_configure_x(self, width):
         # when all widgets are in canvas
         self.itemconfigure(self.canvas_frame, width=width)
@@ -435,7 +431,7 @@ class ScrollableTkAggXY(tk.Canvas):
         self.configure(yscrollcommand=self.vbar.set, xscrollcommand=self.hbar.set, scrollregion=self.bbox(tk.ALL))
 
         # --- put frame in canvas ---
-        self.canvas_frame = self.create_window((0, 0), window=self.fig_wrapper, anchor=tk.NW)
+        self.canvas_frame = self.create_window((0, 0), window=self.fig_wrapper, width=600, height=100, anchor=tk.NW)
 
     # expand canvas_frame when canvas changes its size
     def on_configure(self, width, height):
@@ -541,11 +537,7 @@ class BackEndPlot(tk.Canvas):
         PlotBackEnd = plot_backends['matplotlib'](FunctionToPlot)
         PlotBackEnd.process_series()
 
-        PlottedAxe = PlotBackEnd.ax[0]
-
         self.Figure = PlotBackEnd.fig
-        self.Figure._remove_ax(PlottedAxe)
-        self.Figure.add_axes(PlottedAxe)
         self.Figure.set_size_inches(self.FigSize)
         self.Figure.tight_layout()
 
@@ -553,6 +545,12 @@ class BackEndPlot(tk.Canvas):
         self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
         self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
         self.TkAgg.Draw()
+
+    def Clear(self):
+        self.TkAgg.destroy()
+        self.Figure = Figure(figsize=self.FigSize, facecolor='#F0F0F0')
+        self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
+        self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
 
 
 class SmallNumbers:
@@ -582,7 +580,7 @@ class SmallNumbers:
             nbr += 1
 
 
-class SystemSolverEntry:
+class SystemSolverEntry(tk.Canvas):
     btnb_prm = {'padx': 18,
                 'pady': 1,
                 'bd': 1,
@@ -597,24 +595,29 @@ class SystemSolverEntry:
                 'activeforeground': "white",
                 'relief': 'flat'}
 
-    def __init__(self, master, line, **kwargs):
+    def __init__(self, master, line, height, **kwargs):
         self.Master = master
+        self.height = height
+        super(SystemSolverEntry, self).__init__(master=self.Master, height=self.height, **kwargs)
 
-        self.canvas = tk.Canvas(master=self.Master)
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+
+        self.canvas = tk.Canvas(master=self, height=self.height)
         self.entry = []
         self.widget = 0
         self.u = int(line)
 
-        self.button3 = HoverButton(master=self.Master, text='3⨯3 {x,y,z}', **self.btnb_prm)
+        self.button3 = HoverButton(master=self, text='3⨯3 {x,y,z}', **self.btnb_prm)
         self.button3.grid(row=1, column=2, sticky=tk.NSEW)
 
-        self.button2 = HoverButton(master=self.Master, text='2⨯2 {x,y}', **self.btnb_prm)
+        self.button2 = HoverButton(master=self, text='2⨯2 {x,y}', **self.btnb_prm)
         self.button2.grid(row=1, column=1, sticky=tk.NSEW)
 
-        self.button1 = HoverButton(master=self.Master, text='1⨯1 {x}', **self.btnb_prm)
+        self.button1 = HoverButton(master=self, text='1⨯1 {x}', **self.btnb_prm)
         self.button1.grid(row=1, column=0, sticky=tk.NSEW)
-
-        self.CreateGrid(line=line, **kwargs)
 
     def __call__(self, *args, **kwargs):
         # return self.entry[self.widget]
@@ -627,7 +630,7 @@ class SystemSolverEntry:
     def CreateGrid(self, line, **kwargs):
         self.u = int(line)
         self.canvas.destroy()
-        self.canvas = tk.Canvas(master=self.Master)
+        self.canvas = tk.Canvas(master=self, height=self.height)
         self.canvas.grid(row=0, column=0, columnspan=3, sticky=tk.NSEW)
         if self.u == 1:
             self.canvas.rowconfigure(0, weight=1)
@@ -653,6 +656,7 @@ class SystemSolverEntry:
                 self.entry[k].grid(row=i, column=j, sticky=tk.NSEW)
                 self.entry[k].bind('<Button-1>', self.Press, add="+")
                 k += 1
+
         label = []
         for l0 in range(self.u):
             label.append(tk.Label(self.canvas, text='=', **kwargs))
@@ -680,6 +684,7 @@ class SystemSolverEntry:
             self.button2.DBG = '#80000B'
             self.button1.config(fg="black", bg='#F0F0F0', relief='flat')
             self.button1.DBG = '#F0F0F0'
+
         elif self.u == 1:
             self.entry[1].configure(width=2)
 
@@ -689,6 +694,7 @@ class SystemSolverEntry:
             self.button2.DBG = '#F0F0F0'
             self.button1.config(fg="white", bg='#80000B', relief='sunken')
             self.button1.DBG = '#80000B'
+
         self.widget = self.entry[0]
 
     def Clear(self):
@@ -709,18 +715,24 @@ class SystemSolverEntry:
                 self.entry[o].StringVariable('0')
 
 
-class FanctionEntry:
-    def __init__(self, master, **kwargs):
-        self.Master = master
-        self.canvas = tk.Canvas(self.Master)
-        self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
-        self.canvas.rowconfigure(0, weight=1)
-        self.canvas.rowconfigure(1, weight=1)
-        self.canvas.columnconfigure(1, weight=1)
+class FunctionEntry(tk.Canvas):
+    def __init__(self, master, height, **kwargs):
+        self.height = height
+        super(FunctionEntry, self).__init__(master, height=self.height, **kwargs)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.entry = []
+        self.widget = []
+        self.label = []
 
+    def __call__(self, *args, **kwargs):
+        return self.widget
+
+    def CreateGrid(self, **kwargs):
         self.entry = []
         for p in range(2):
-            self.entry.append(ManagedEntry(self.canvas, width=16, **kwargs))
+            self.entry.append(ManagedEntry(self, width=16, **kwargs))
             self.entry[p].grid(row=p, column=1, sticky=tk.NSEW)
             self.entry[p].bind('<Button-1>', self.Press, add="+")
 
@@ -728,13 +740,10 @@ class FanctionEntry:
 
         self.label = []
         for q in range(2):
-            self.label.append(tk.Label(self.canvas, **kwargs))
+            self.label.append(tk.Label(self, **kwargs))
             self.label[q].grid(row=q, column=0, sticky=tk.NSEW)
 
         self.Clear()
-
-    def __call__(self, *args, **kwargs):
-        return self.widget
 
     def Press(self, event):
         self.widget = event.widget
