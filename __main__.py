@@ -1,4 +1,3 @@
-import tkinter as tk
 from math import log2, log10
 from operator import *
 from tkinter import *
@@ -37,6 +36,9 @@ ent_prm = {'bd': 1,
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = 3.141592653589793
+convert_constant = 1
+inverse_convert_constant = 1
+z = ''
 
 
 def Exit():
@@ -117,6 +119,7 @@ def Fact(arg):
 
 class Calculator:
     def __init__(self, master):
+        self.ENG = 16
         self.btn_u = []
         # expression that will be displayed on screen
         self.expression = ''
@@ -141,6 +144,11 @@ class Calculator:
         # int range numbers of function
         self.v = ''
         self.w = ''
+        # functions
+        self.fctx1 = ''
+        self.fctx2 = ''
+        self.fctxy1 = ''
+        self.fctxy2 = ''
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
@@ -176,8 +184,8 @@ class Calculator:
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0=============================================================
-        big_txt = ['Operation', 'f(x)', 'f(x,y)',"Equation", 'Solve']
-        big_pad = ['Operation', 'Function','Ploting', "SimEquation", 'Solve']
+        big_txt = ['Operation', 'f(x)', 'f(x,y)', "Equation", 'Solve']
+        big_pad = ['Operation', 'Function', 'Plotting', "SimEquation", 'Solve']
         self.btn_b = []
         i = 0
         for k in range(5):
@@ -296,7 +304,7 @@ class Calculator:
         self.mode = passmode
         self.FullTextDisplay.delete(1.0, END)
         if self.mode == 'Operation':
-            self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
+            self.FullTextDisplay.insert(END, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.btn_b[0]['bg'] = 'indian red'
             for i in range(1, 5):
@@ -306,7 +314,7 @@ class Calculator:
             self.btn[2].config(state=NORMAL)
 
         elif self.mode == 'Function':
-            self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
+            self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.btn_b[0]['bg'] = '#292929'
             self.btn_b[1]['bg'] = 'indian red'
@@ -317,8 +325,8 @@ class Calculator:
             self.btn[11]['state'] = ['disabled']
             self.SwitchDegRad('Radians')
 
-        elif self.mode == 'Ploting':
-            self.FullTextDisplay.insert(INSERT, 'Mode Ploting : f(x,y)')
+        elif self.mode == 'Plotting':
+            self.FullTextDisplay.insert(END, 'Mode Plotting : f(x,y)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             for i in range(2):
                 self.btn_b[i]['bg'] = '#292929'
@@ -331,7 +339,7 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'SimEquation':
-            self.FullTextDisplay.insert(INSERT, 'Mode Simple Equation : aX² + bX + c = 0')
+            self.FullTextDisplay.insert(END, 'Mode Simple Equation : aX² + bX + c = 0')
             self.FastTextVariable.set('aX² + bX + c = 0')
             for i in range(3):
                 self.btn_b[i]['bg'] = '#292929'
@@ -343,7 +351,7 @@ class Calculator:
             self.SwitchDegRad('Radians')
 
         elif self.mode == 'Solve':
-            self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
+            self.FullTextDisplay.insert(END, 'Mode Equation :')
             for i in range(4):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn_b[4]['bg'] = 'indian red'
@@ -379,9 +387,10 @@ class Calculator:
         self.c = ''
         self.q = ''
         self.p = ''
-        self.fct = ''
+        self.fctx1 = ''
+        self.fctx2 = ''
         self.fctxy1 = ''
-        self.fctxy2 =''
+        self.fctxy2 = ''
         self.store_expression = []
         self.store_order = []
         self.expression = ''
@@ -390,9 +399,9 @@ class Calculator:
 
         if self.mode == 'Function':
             self.TextVariable.set(f'From : ')
-            self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
+            self.FastTextVariable.set(f'From : A --> To : B')
 
-        elif self.mode == 'Ploting':
+        elif self.mode == 'Plotting':
             self.TextVariable.set(f'f(x,y)₁ = ')
             self.FastTextVariable.set(f'f(x,y)₁ = ')
 
@@ -538,7 +547,8 @@ class Calculator:
                     self.Input('h(')
 
                 elif put == 'x' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
-                        or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
+                        or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9' \
+                        or put == 'y':
                     self.Input(put)
 
                 else:
@@ -592,17 +602,21 @@ class Calculator:
             elif self.mode == "Function":
                 if self.full is None:
                     self.TextVariable.set(f'From : {self.expression}')
-                    self.FastTextVariable.set(f'From : {self.expression} --> To : B | f(x) = Function')
+                    self.FastTextVariable.set(f'From : {self.expression} --> To : B')
 
                 elif not self.full:
                     self.TextVariable.set(f'To : {self.expression}')
-                    self.FastTextVariable.set(f'From : {self.v} --> To : {self.expression} | f(x) = Function')
+                    self.FastTextVariable.set(f'From : {self.v} --> To : {self.expression}')
 
-                elif self.full:
-                    self.TextVariable.set(f'f(x) = {self.expression}')
-                    self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
+                elif self.full and not self.equal:
+                    self.TextVariable.set(f'f(x)₁ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.expression}')
 
-            elif self.mode == "Ploting":
+                elif self.full and self.equal:
+                    self.TextVariable.set(f'f(x)₂ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.expression}')
+
+            elif self.mode == "Plotting":
                 if self.full is None:
                     self.TextVariable.set(f'f(x,y)₁ = {self.expression}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.expression}')
@@ -649,83 +663,108 @@ class Calculator:
         global z
         try:
             if self.mode == 'Operation':
-                if not self.equal:
-                    if self.ENG == 16:
-                        self.answer = eval(self.expression)
-                    else:
-                        self.answer = N(eval(self.expression), self.ENG)
-                    self.FastTextVariable.set('')
-                    self.TextVariable.set(f'{self.expression} = {self.answer}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
-                    self.clear = True
-                    self.equal = True
+                try:
+                    if not self.equal:
+                        if self.ENG == 16:
+                            self.answer = eval(self.expression)
+                        else:
+                            self.answer = N(eval(self.expression), self.ENG)
+                        self.FastTextVariable.set('')
+                        self.TextVariable.set(f'{self.expression} = {self.answer}')
+                        self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
+                        self.clear = True
+                        self.equal = True
 
-                elif self.equal:
-                    self.expression = ''
-                    z = int(len(self.store_expression)) - 1
-                    g = int(len(self.store_expression)) - 1
-                    while True:
-                        trs = str(self.store_expression[z])
-                        if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**' or trs == '^':
-                            while z <= g:
-                                self.expression += str(self.store_expression[z])
-                                z += 1
-                            self.expression = str(self.callback[-1]) + str(self.expression)
-                            if self.ENG == 16:
-                                self.answer = eval(self.expression)
-                            else:
-                                self.answer = N(eval(self.expression), self.ENG)
-                            self.FastTextVariable.set(self.answer)
-                            self.TextVariable.set(f'{self.expression} = {self.answer}')
-                            self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
-                            break
-                        z -= 1
+                    elif self.equal:
+                        self.expression = ''
+                        z = int(len(self.store_expression)) - 1
+                        g = int(len(self.store_expression)) - 1
+                        while True:
+                            trs = str(self.store_expression[z])
+                            if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**' or trs == '^':
+                                while z <= g:
+                                    self.expression += str(self.store_expression[z])
+                                    z += 1
+                                self.expression = str(self.callback[-1]) + str(self.expression)
+                                if self.ENG == 16:
+                                    self.answer = eval(self.expression)
+                                else:
+                                    self.answer = N(eval(self.expression), self.ENG)
+                                self.FastTextVariable.set(self.answer)
+                                self.TextVariable.set(f'{self.expression} = {self.answer}')
+                                self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
+                                break
+                            z -= 1
+                except IndexError or SyntaxError:
+                    try:
+                        self.expression = str(self.callback[-1])
+                        if self.ENG == 16:
+                            self.answer = eval(self.expression)
+                        else:
+                            self.answer = N(eval(self.expression), self.ENG)
+                        self.FastTextVariable.set(self.answer)
+                        self.TextVariable.set(f'{self.expression} = {self.answer}')
+                        self.FullTextDisplay.insert(END, f'\n{self.expression} = {self.answer}')
+                    except IndexError or SyntaxError:
+                        self.FastTextVariable.set('IndexError or SyntaxError')
 
             elif self.mode == 'Function':
                 if self.full is None:
                     self.v = int(self.expression)
-                    self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
+                    self.FullTextDisplay.insert(END, f'\nfrom : {self.expression}')
                     self.expression = ""
                     self.TextVariable.set(f'To : ')
                     self.full = False
 
                 elif not self.full:
                     self.w = int(self.expression) + 1
-                    self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
+                    self.FullTextDisplay.insert(END, f'\nTo : {self.expression}')
                     self.expression = ""
-                    self.TextVariable.set(f'f(x) = ')
+                    self.TextVariable.set(f'f(x)₁ = ')
+                    self.FastTextVariable.set(f'f(x)₁ = ')
+                    self.full = True
+
+                elif self.full and not self.equal:
+                    self.fctx1 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x)₁ = {sympify(self.fctx1)}')
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x)₂ = ')
+                    self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
+                    self.equal = True
+
+                elif self.full and self.equal:
+                    self.fctx2 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {sympify(self.fctx2)}')
+
+                    plot(sympify(self.fctx1), (self.x, self.v, self.w))
+                    plot3d(sympify(self.fctx1), (self.x, self.v, self.w))
+
+                    plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
+                    plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
+                    for x in range(self.v, self.w):
+                        if self.ENG == 16:
+                            self.FullTextDisplay.insert(END, f'\nf({x})₁ = {eval(self.fctx1)}')
+                        else:
+                            self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
+                    for x in range(self.v, self.w):
+                        if self.ENG == 16:
+                            self.FullTextDisplay.insert(END, f'\nf({x})₂ = {eval(self.fctx2)}')
+                        else:
+                            self.FullTextDisplay.insert(END, f'\nf({x})₂ = {N(eval(self.fctx2), self.ENG)}')
+
+            elif self.mode == 'Plotting':
+                if self.full is None:
+                    self.fctxy1 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y)₁ = {self.fctxy1}')
+                    self.expression = ""
+                    self.TextVariable.set(f'f(x,y)₂ = ')
                     self.full = True
 
                 elif self.full:
-                    self.FullTextDisplay.insert(INSERT, f'\nf(x) = {sympify(self.expression)}')
-                    self.fct = str(eval(self.expression))
-                    plot(sympify(self.fct), (self.x, self.v, self.w))
-                    plot3d(sympify(self.fct), (self.x, self.v, self.w))
-                    for x in range(self.v, self.w):
-                        if self.ENG == 16:
-                            self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {eval(self.expression)}')
-                        else:
-                            self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
-
-            elif self.mode == 'Ploting':
-                try:
-                    if self.full is None:
-                        self.fctxy1 = str(eval(self.expression))
-                        self.FullTextDisplay.insert(INSERT, f'\nf(x,y)₁ = {self.fctxy1}')
-                        self.expression = ""
-                        self.TextVariable.set(f'f(x,y)₂ = ')
-                        self.full = True
-
-                    elif self.full:
-                        self.fctxy2 = str(eval(self.expression))
-                        self.FullTextDisplay.insert(INSERT, f'\nf(x,y)₂ = {self.fctxy2}')
-                        plot3d(sympify(self.fctxy1), sympify(self.fctxy2))
-                        plot3d_parametric_line(sympify(self.fctxy1), sympify(self.fctxy2), self.x)
-                        plot_parametric(sympify(self.fctxy1), sympify(self.fctxy2))
-                        plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
-                except TypeError:
+                    self.fctxy2 = str(eval(self.expression))
+                    self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy2}')
+                    plot3d(sympify(self.fctxy1), sympify(self.fctxy2))
                     plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
-
 
             elif self.mode == 'SimEquation':
                 if self.full is None:
@@ -748,7 +787,7 @@ class Calculator:
                     self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
                     self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
                     if self.a > 0 or self.a < 0:
-                        self.FullTextDisplay.insert(INSERT, f'''\n
+                        self.FullTextDisplay.insert(END, f'''\n
 The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
  The Equation Have Two Solutions For X :
@@ -759,13 +798,13 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
       = {N(self.b ** 2, 3)} - ({N(4 * self.a * c, 3)}) 
       = {d}''')
                         if d == 0:
-                            self.FullTextDisplay.insert(INSERT, f'''\n 
+                            self.FullTextDisplay.insert(END, f'''\n 
 ∆=0 : X = -b / 2a
 
     X[1] = X[2] = ({N(neg(self.b), 3)}) / (2 x {self.a})
     X[1] = X[2] = {neg(self.b)} / ({N(2 * self.a, 3)})''')
                         elif d >= 0:
-                            self.FullTextDisplay.insert(INSERT, f'''\n
+                            self.FullTextDisplay.insert(END, f'''\n
 ∆>0 : X = (-b ± √∆) / 2a
 
  X[1] = ({nb} + √{d}) / (2 x {self.a})
@@ -776,7 +815,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
        = ({nb} - √{d}) / ({2 * self.a})
        = {nb} / ({N(2 * self.a, 3)}) - √({d}) / ({N(2 * self.a, 3)})''')
                         elif d <= 0:
-                            self.FullTextDisplay.insert(INSERT, f'''\n      = {nd}i²
+                            self.FullTextDisplay.insert(END, f'''\n      = {nd}i²
 
 ∆<0 : X = (-b ± i√∆) / 2a
 
@@ -799,14 +838,14 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                             self.TextVariable.set(f"Empty Solution {{∅}}")
                         elif c == 0:
                             self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
-                            self.FullTextDisplay.insert(INSERT, f'''\nThe Equation : {self.b}X + ({c}) = 0
+                            self.FullTextDisplay.insert(END, f'''\nThe Equation : {self.b}X + ({c}) = 0
 
  The Equation Have One Solution For X :
 
   {self.b}X = 0
   X = 0''')
                         else:
-                            self.FullTextDisplay.insert(INSERT, f'''\nThe Equation : {self.b}X + ({c}) = 0 
+                            self.FullTextDisplay.insert(END, f'''\nThe Equation : {self.b}X + ({c}) = 0 
 
  The Equation Have One Solution For X :  
 
@@ -827,13 +866,13 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                 elif self.full:
                     self.p = str(eval(self.expression))
                     self.TextVariable.set(f'\n{self.q} = {self.p}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.q} = {self.p}')
+                    self.FullTextDisplay.insert(END, f'\n{self.q} = {self.p}')
                     sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.FastTextVariable.set(sol)
                     for l in range(len(sol)):
-                        self.FullTextDisplay.insert(INSERT, f'\nX[{int(l) + 1}] = {sol[l]}')
+                        self.FullTextDisplay.insert(END, f'\nX[{int(l) + 1}] = {sol[l]}')
 
                     self.clear = True
                     self.full = None
@@ -846,39 +885,14 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             self.FastTextVariable.set('Cannot Solve This Equation')
         except SyntaxError:
             self.FastTextVariable.set('SyntaxError')
-            try:
-                if self.mode == 'Operation' and self.equal:
-                    self.expression = str(self.callback[-1])
-                    if self.ENG == 16:
-                        self.answer = eval(self.expression)
-                    else:
-                        self.answer = N(eval(self.expression), self.ENG)
-                    self.FastTextVariable.set(self.answer)
-                    self.TextVariable.set(f'{self.expression} = {self.answer}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
-            except IndexError:
-                self.FastTextVariable.set('SyntaxError')
         except NameError:
             self.FastTextVariable.set('NameError')
         except TypeError:
             self.FastTextVariable.set('TypeError')
-            pass
         except OverflowError:
             self.FastTextVariable.set('OverflowMathRangeError')
         except IndexError:
             self.FastTextVariable.set('IndexError')
-            try:
-                if self.mode == 'Operation' and self.equal:
-                    self.expression = str(self.callback[-1])
-                    if self.ENG == 16:
-                        self.answer = eval(self.expression)
-                    else:
-                        self.answer = N(eval(self.expression), self.ENG)
-                    self.FastTextVariable.set(self.answer)
-                    self.TextVariable.set(f'{self.expression} = {self.answer}')
-                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.answer}')
-            except IndexError:
-                self.FastTextVariable.set('IndexError')
 
         self.callback.append(str(self.answer))
 
