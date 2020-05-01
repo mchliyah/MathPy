@@ -6,7 +6,6 @@ from sympy.abc import x, y, z
 from sympy.plotting import PlotGrid, plot_backends
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 from matplotlib.colors import to_hex
 
 delf = ()
@@ -480,9 +479,6 @@ class ScrollableTkAggXY(tk.Canvas):
     # expand canvas_frame when canvas changes its size
     def on_configure(self, width, height):
         # when all widgets are in canvas
-        # Size = self.TkAgg.get_width_height()
-        # print('Size', Size)
-        # self.itemconfigure(self.canvas_frame, height=Size[1] - 20)
         self.itemconfigure(self.canvas_frame, width=width + 20, height=height + 20)
         # update scrollregion after starting 'mainloop'
         self.configure(scrollregion=self.bbox(tk.ALL))
@@ -498,32 +494,40 @@ class FigureXY(Figure):
     def __init__(self, fontsize, **kwargs):
         super(FigureXY, self).__init__(tight_layout=True, **kwargs)
         self.fontsize = fontsize
-        self.Text = self.text(0, 0.5, '', fontsize=self.fontsize)
-        self.latex_math = ['']
+        self.Axes = self.add_subplot(1, 1, 1)
+        self.Text = self.Axes.text(0, 1, '', fontsize=self.fontsize)
+        self.latex_math = []
         self.size_w = [0]
         self.size_h = 0
         self.width = max(self.size_w)
-        self.height = int(self.size_h)
+        self.height = float(self.size_h)
 
     def DrawLaTex(self, character):
         self.latex_math.append(character)
         self.clear()
-        # Gap between lines in axes coords
         n_lines = len(self.latex_math)
-        line_axesfrac = (1. / n_lines)
+        # Gap between lines in axes coords
+        self.Axes = self.add_subplot(1, 1, 1)
+        self.Axes.axis('off')
+        self.Axes.set_xticklabels("", visible=False)
+        self.Axes.set_yticklabels("", visible=False)
+        self.Axes.set_ylim((0, n_lines))
+
         # Plotting features demonstration formulae
-        for i_line in range(1, n_lines):
-            baseline = 1 - i_line * line_axesfrac
+        for i_line in range(0, n_lines):
+            baseline = n_lines - i_line
             demo = self.latex_math[i_line]
-            self.Text = self.text(0, baseline - 0.5 * line_axesfrac, demo, fontsize=self.fontsize)
+            self.Text = self.Axes.text(0, baseline - 0.5, demo, fontsize=self.fontsize)
 
         Renderer = self.canvas.get_renderer()
         bb = self.Text.get_window_extent(renderer=Renderer)
-        self.size_w.append(int(bb.width))
-        self.size_h += (int(bb.height) * 2)
+        self.size_w.append((int(bb.width) + 45))
+        self.size_h += (int(bb.height) * 1.5)
 
         self.width = max(self.size_w)
-        self.height = int(self.size_h)
+        self.height = float(self.size_h)
+
+        self.tight_layout(renderer=Renderer)
 
     def Draw(self, TkAggXY):
         TkAggXY.Draw(width=self.width, height=self.height)
