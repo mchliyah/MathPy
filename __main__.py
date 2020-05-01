@@ -3,10 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import _cnfmerge as cnfmerge
 
-# version 2.5
-# Add Menu Switcher In Bare Display
-# Mix Color Between First Text Display And Buttons Switch
-# Change Notation
+# version 2.5.1
+# Add Function Re-Click Equal Button, still Don't work in Keyboard Bind
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -73,6 +71,7 @@ class Calculator:
         # used to switch between modes of Operation, Equation and Function
         self.mode = ''
         # default variable
+        self.equal = False
         self.clear = False
         self.full = False
         self.half = False
@@ -273,6 +272,7 @@ class Calculator:
             self.TextVariable.set(f'From : ')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
 
+        self.equal = False
         self.clear = False
         self.full = False
         self.half = False
@@ -405,11 +405,20 @@ class Calculator:
     def InputEquals(self):
         try:
             if self.mode == 'Operation':
-                self.ans = eval(self.expression)
-                self.FastTextVariable.set('')
-                self.TextVariable.set(f'{self.expression} = {self.ans}')
-                self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
-                self.clear = True
+                if not self.equal:
+                    self.ans = eval(self.expression)
+                    self.FastTextVariable.set('')
+                    self.TextVariable.set(f'{self.expression} = {self.ans}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                    self.clear = True
+                    self.equal = True
+
+                elif self.equal:
+                    self.expression = str(self.storeans[-1])+str(self.store[-2])+str(self.store[-1])
+                    self.ans = eval(self.expression)
+                    self.FastTextVariable.set(self.ans)
+                    self.TextVariable.set(f'{self.expression} = {self.ans}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
 
             elif self.mode == 'Equation':
                 if not self.full:
@@ -530,11 +539,20 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.half = False
 
             elif self.mode == 'Complex':
-                self.ans = eval(self.expression)
-                self.FastTextVariable.set('')
-                self.TextVariable.set(f'{self.expression} = {self.ans}')
-                self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
-                self.clear = True
+                if not self.equal:
+                    self.ans = eval(self.expression)
+                    self.FastTextVariable.set('')
+                    self.TextVariable.set(f'{self.expression} = {self.ans}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
+                    self.clear = True
+                    self.equal = True
+
+                elif self.equal:
+                    self.expression = str(self.storeans[-1]) + str(self.store[-2]) + str(self.store[-1])
+                    self.ans = eval(self.expression)
+                    self.FastTextVariable.set(self.ans)
+                    self.TextVariable.set(f'{self.expression} = {self.ans}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
 
         except ZeroDivisionError:
             self.FastTextVariable.set('ZeroDivisionError')
@@ -561,5 +579,5 @@ if __name__ == "__main__":
     # win.configure(menu=menubare, bg='#666666')
     win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v2.5")
+    win.title("Scientific Calculator v2.5.1")
     win.mainloop()
