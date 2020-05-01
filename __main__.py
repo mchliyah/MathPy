@@ -1,5 +1,5 @@
 from math import log2, log10
-from operator import *
+from operator import neg
 from random import randint
 from tkinter import *
 
@@ -10,7 +10,7 @@ from sympy.solvers.solveset import solvify
 
 from __bibi__ import HoverButton, ScrolledListbox
 
-# version 5.2.0  "need more optimization this is beta version"
+# version 5.2.0  "this is beta version need more optimization"
 # make possibility to input and delete directly from First Text Display by making cursor everywhere, now just for Operation mode
 # optimize code and make self as Tk without Canvas
 # optimize bind : * add control keys for cursor
@@ -61,7 +61,6 @@ ent_prm = {'fg': 'white',
 n = 0
 convert_constant = 1
 inverse_convert_constant = 1
-permit = False
 
 
 def Sin(arg):
@@ -132,67 +131,6 @@ def Fact(arg):
     return factorial(arg)
 
 
-def insert_str(string, str_to_insert, index, str_order):
-    global n, permit
-    end = len(str(string))
-    how = len(str_order)
-    print(end, '=?', index)
-    now = str(string[:index])
-    reel = ''
-    n = 0
-    while n < how:
-        reel += str(str_order[n])
-        print(n, '<', how)
-        print(now, '=', reel)
-        permit = None
-        if now == reel:
-            permit = True
-            break
-        n += 1
-    if index == end or index == 0 or permit:
-        permit = True
-        return string[:index] + str_to_insert + string[index:]
-    else:
-        return string
-
-
-def remove_str(str_to_remove, index, order, str_order):
-    global n, permit
-    now = str(str_to_remove[:index])
-    how = len(str_order)
-    reel = ''
-    n = 0
-    while n < how:
-        reel += str(str_order[n])
-        print(n, '<', how)
-        print(now, '=', reel)
-        permit = False
-        if now == reel:
-            permit = True
-            break
-        n += 1
-    print('tol =', reel)
-    pro = index - order[n]
-    print('n =', n)
-    print('pro =', pro)
-    if index == 0:
-        pass
-    else:
-        end = len(str(str_to_remove))
-        print('end =? ind', end, index)
-        if end == index and permit:
-            print('p1 =', str_to_remove[:-order[n]])
-            return str_to_remove[:-order[n]]
-        elif pro == 0 and permit:
-            return str_to_remove[order[n]:]
-        else:
-            if permit:
-                print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
-                return str_to_remove[:pro] + str_to_remove[index:]
-            else:
-                return str_to_remove
-
-
 class Calculator(Tk):
     def __init__(self):
         Tk.__init__(self)
@@ -205,6 +143,7 @@ class Calculator(Tk):
         # store expressions & order
         self.store_expression = []
         self.store_order = []
+        self.n = 0
         # answer of operation
         self.answer = ''
         # store answers of operation
@@ -254,6 +193,7 @@ class Calculator(Tk):
         self.full = False
         self.half = False
         self.exist = None
+        self.permit = None
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
@@ -466,25 +406,9 @@ class Calculator(Tk):
         self.FirstTextDisplay.icursor(self.IndexCursor)
         i = 0
         while i <= 5:
-            self.FirstTextDisplay.icursor("@%d" % event.x)
             self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
             self.FirstTextDisplay.icursor(self.IndexCursor)
             i += 1
-        print(self.IndexCursor)
-
-    def move_move(self, event):
-        # now = self.FirstTextDisplay.scan_dragto(event.x, event.y, gain=1)
-        # a = self.FirstTextDisplay.selection_adjust()
-        if event.x < 227:
-            nj = int(N(int(event.x) / 24.85, 1))
-            print(nj, event)
-        elif event.x >= 230:
-            nj = int(N(int(event.x) / 24, 2))
-            print(nj, event)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
-        self.FirstTextDisplay.icursor(self.IndexCursor)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
-        # act = self.FirstTextDisplay.scan_mark(self.idx)
         print(self.IndexCursor)
 
     def SwitchButtons(self, side):
@@ -862,9 +786,44 @@ class Calculator(Tk):
         self.clear = False
         self.full = None
         self.exist = None
+        self.permit = None
+
+    def remove_str(self, str_to_remove, index, order, str_order):
+        now = str(str_to_remove[:index])
+        how = len(str_order)
+        reel = ''
+        self.n = 0
+        while self.n < how:
+            reel += str(str_order[self.n])
+            print(self.n, '<', how)
+            print(now, '=', reel)
+            self.permit = False
+            if now == reel:
+                self.permit = True
+                break
+            self.n += 1
+        print('tol =', reel)
+        pro = index - order[self.n]
+        print('n =', self.n)
+        print('pro =', pro)
+        if index == 0:
+            pass
+        else:
+            end = len(str(str_to_remove))
+            print('end =? ind', end, index)
+            if end == index and self.permit:
+                print('p1 =', str_to_remove[:-order[self.n]])
+                return str_to_remove[:-order[self.n]]
+            elif pro == 0 and self.permit:
+                return str_to_remove[order[self.n]:]
+            else:
+                if self.permit:
+                    print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
+                    return str_to_remove[:pro] + str_to_remove[index:]
+                else:
+                    return str_to_remove
 
     def Remove(self):
-        global n, permit
         if self.clear:
             self.Delete()
 
@@ -874,13 +833,13 @@ class Calculator(Tk):
                     print('Remove pass self.IndexCursor == 0')
                     pass
                 else:
-                    self.expression = remove_str(self.expression, self.IndexCursor, self.store_order,
-                                                 self.store_expression)
-                    if permit:
-                        print('Remove permit')
-                        self.store_order.remove(self.store_order[n])
-                        self.store_expression.remove(self.store_expression[n])
-                        self.IndexCursor -= self.store_order[n]
+                    self.expression = self.remove_str(self.expression, self.IndexCursor, self.store_order,
+                                                      self.store_expression)
+                    if self.permit:
+                        print('Remove self.permit')
+                        self.store_order.remove(self.store_order[int(self.n)])
+                        self.store_expression.remove(self.store_expression[int(self.n)])
+                        self.IndexCursor -= self.store_order[int(self.n)]
                     else:
                         print('Remove pass else:')
                         pass
@@ -1029,23 +988,44 @@ class Calculator(Tk):
         except IndexError:
             self.FastTextVariable.set('IndexError')
 
+    def insert_str(self, string, str_to_insert, index, str_order):
+        end = len(str(string))
+        how = len(str_order)
+        print(end, '=?', index)
+        now = str(string[:index])
+        reel = ''
+        self.n = 0
+        while self.n < how:
+            reel += str(str_order[self.n])
+            print(self.n, '<', how)
+            print(now, '=', reel)
+            self.permit = None
+            if now == reel:
+                self.permit = True
+                break
+            self.n += 1
+        if index == end or index == 0 or self.permit:
+            self.permit = True
+            return string[:index] + str_to_insert + string[index:]
+        else:
+            return string
+
     def Input(self, keyword):
-        global n, permit
         if self.clear:
             self.Delete()
 
         if self.mode == 'Operation':
-            self.expression = insert_str(self.expression, keyword, self.IndexCursor, self.store_expression)
-            if permit is None:
-                print('insert permit is None')
+            self.expression = self.insert_str(self.expression, keyword, self.IndexCursor, self.store_expression)
+            if self.permit is None:
+                print('insert self.permit is None')
                 pass
             elif self.IndexCursor == 0:
                 self.store_expression.insert(0, str(keyword))
                 self.store_order.insert(0, len(str(keyword)))
                 self.IndexCursor += int(len(str(keyword)))
             else:
-                self.store_expression.insert(n + 1, str(keyword))
-                self.store_order.insert(n + 1, len(str(keyword)))
+                self.store_expression.insert(int(self.n) + 1, str(keyword))
+                self.store_order.insert(int(self.n) + 1, len(str(keyword)))
                 self.IndexCursor += int(len(str(keyword)))
             print('cursor', self.IndexCursor)
 
