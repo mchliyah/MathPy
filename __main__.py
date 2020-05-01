@@ -10,6 +10,8 @@ from sympy.solvers.solveset import solvify
 
 # version 5.2.0  "need more optimization this is beta version"
 # make possibility to input and delete directly from First Text Display by making cursor everywhere, now just for Operation mode
+# optimize code and make self as Tk without Canvas
+# optimize bind : * add control keys for cursor
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -60,6 +62,74 @@ inverse_convert_constant = 1
 permit = False
 
 
+def Sin(arg):
+    return sin(arg * convert_constant)
+
+
+def Cos(arg):
+    return cos(arg * convert_constant)
+
+
+def Tan(arg):
+    return tan(arg * convert_constant)
+
+
+def aSin(arg):
+    return inverse_convert_constant * (asin(arg))
+
+
+def aCos(arg):
+    return inverse_convert_constant * (acos(arg))
+
+
+def aTan(arg):
+    return inverse_convert_constant * (atan(arg))
+
+
+def Sinh(arg):
+    return sinh(arg)
+
+
+def Cosh(arg):
+    return cosh(arg)
+
+
+def Tanh(arg):
+    return tanh(arg)
+
+
+def aSinh(arg):
+    return asinh(arg)
+
+
+def aCosh(arg):
+    return acosh(arg)
+
+
+def aTanh(arg):
+    return atanh(arg)
+
+
+def Ln(arg):
+    return log(arg)
+
+
+def Log(arg):
+    return log10(arg)
+
+
+def Log2(arg):
+    return log2(arg)
+
+
+def Exp(arg):
+    return exp(arg)
+
+
+def Fact(arg):
+    return factorial(arg)
+
+
 def insert_str(string, str_to_insert, index, str_order):
     global n, permit
     end = len(str(string))
@@ -72,24 +142,20 @@ def insert_str(string, str_to_insert, index, str_order):
         reel += str(str_order[n])
         print(n, '<', how)
         print(now, '=', reel)
-        inser = False
+        permit = None
         if now == reel:
-            inser = True
+            permit = True
             break
         n += 1
-    if end == index:
-        inser = False
-        return string[:index] + str_to_insert
+    if index == end or index == 0 or permit:
+        permit = True
+        return string[:index] + str_to_insert + string[index:]
     else:
-        if inser:
-            return string[:index] + str_to_insert + string[index:]
-        else:
-            inser = None
-            return string
+        return string
 
 
 def remove_str(str_to_remove, index, order, str_order):
-    global n
+    global n, permit
     now = str(str_to_remove[:index])
     how = len(str_order)
     reel = ''
@@ -98,9 +164,9 @@ def remove_str(str_to_remove, index, order, str_order):
         reel += str(str_order[n])
         print(n, '<', how)
         print(now, '=', reel)
-        inser = False
+        permit = False
         if now == reel:
-            inser = True
+            permit = True
             break
         n += 1
     print('tol =', reel)
@@ -112,21 +178,22 @@ def remove_str(str_to_remove, index, order, str_order):
     else:
         end = len(str(str_to_remove))
         print('end =? ind', end, index)
-        if end == index and inser:
+        if end == index and permit:
             print('p1 =', str_to_remove[:-order[n]])
             return str_to_remove[:-order[n]]
-        elif pro == 0 and inser:
+        elif pro == 0 and permit:
             return str_to_remove[order[n]:]
         else:
-            if inser:
+            if permit:
                 print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
                 return str_to_remove[:pro] + str_to_remove[index:]
             else:
                 return str_to_remove
 
 
-class Calculator(Canvas):
-    def __init__(self, master):
+class Calculator(Tk):
+    def __init__(self):
+        Tk.__init__(self)
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
         self.ENG = 16
         self.btn_u = []
@@ -188,17 +255,6 @@ class Calculator(Canvas):
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
-        # Master Display ===============================================================================================
-        Canvas.__init__(self, master)
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
-        self.rowconfigure(3, weight=1)
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-
-        self.bind_all('<Key>', self.KeyboardInput)
-
         # Self Display ROW 0============================================================================================
         # First Text Display, readonlybackground='#4d4d4d'# , state='readonly'
         self.FirstTextDisplay = Entry(self, width=43, **ent_prm, textvariable=self.TextVariable)
@@ -343,13 +399,20 @@ class Calculator(Canvas):
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
+        menubare = Menu(self)
+        File = Menu(menubare, tearoff=0)
+        Mode = Menu(menubare, tearoff=0)
+        Switch = Menu(menubare, tearoff=0)
+        menubare.add_cascade(label="File", menu=File)
+        menubare.add_cascade(label="Mode", menu=Mode)
+        menubare.add_cascade(label="Float", menu=Switch)
         File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
         File.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
         File.add_separator()
         File.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
         File.add_separator()
-        File.add_command(label="Close         Alt+F4", command=Exit)
+        File.add_command(label="Close         Alt+F4", command=self.Exit)
         Mode.add_command(label="Operation",
                          command=lambda: [self.SwitchButtons('1st'), self.SwitchFunction("Operation", True)])
         Mode.add_command(label='Function',
@@ -378,6 +441,22 @@ class Calculator(Canvas):
         Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
         Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
         Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
+        # Master Display ===============================================================================================
+        # Window configuration
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+
+        self.bind_all('<Key>', self.KeyboardInput)
+
+        self.configure(menu=menubare, bg='#4d4d4d')
+        self.geometry("1100x580")
+        self.minsize(width=1100, height=580)
+        self.title("PyMathon v5.2.0")
+        self.mainloop()
 
     def Info(self, event):
         self.FirstTextDisplay.icursor("@%d" % event.x)
@@ -789,15 +868,18 @@ class Calculator(Canvas):
         try:
             if self.mode == 'Operation':
                 if self.IndexCursor == 0:
+                    print('Remove pass self.IndexCursor == 0')
                     pass
                 else:
                     self.expression = remove_str(self.expression, self.IndexCursor, self.store_order,
                                                  self.store_expression)
-                    if inser:
-                        self.IndexCursor -= self.store_order[n]
+                    if permit:
+                        print('Remove permit')
                         self.store_order.remove(self.store_order[n])
                         self.store_expression.remove(self.store_expression[n])
+                        self.IndexCursor -= self.store_order[n]
                     else:
+                        print('Remove pass else:')
                         pass
 
             else:
@@ -916,16 +998,28 @@ class Calculator(Canvas):
             elif put == 'p':
                 self.Input('π')
 
-            elif put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or put == '3' \
-                    or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
+            elif put == 'a' or put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or \
+                    put == '3' or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
                 self.Input(put)
-            else:
-                pass
+
+            elif keyword.keysym == 'Right':
+                end = len(str(self.expression))
+                if self.IndexCursor < end:
+                    self.IndexCursor += 1
+                else:
+                    pass
+
+            elif keyword.keysym == 'Left':
+                if self.IndexCursor > 0:
+                    self.IndexCursor -= 1
+                else:
+                    pass
 
             if keyword.keysym == 'Return' or put == 'equal':
                 pass
+
             else:
-                self.Click()
+                pass
 
         except IndexError:
             self.FastTextVariable.set('IndexError')
@@ -937,13 +1031,14 @@ class Calculator(Canvas):
 
         if self.mode == 'Operation':
             self.expression = insert_str(self.expression, keyword, self.IndexCursor, self.store_expression)
-            if inser is None:
+            if permit is None:
+                print('insert permit is None')
                 pass
-            elif not inser:
-                self.store_expression.append(str(keyword))
-                self.store_order.append(len(str(keyword)))
+            elif self.IndexCursor == 0:
+                self.store_expression.insert(0, str(keyword))
+                self.store_order.insert(0, len(str(keyword)))
                 self.IndexCursor += int(len(str(keyword)))
-            elif inser:
+            else:
                 self.store_expression.insert(n+1, str(keyword))
                 self.store_order.insert(n+1, len(str(keyword)))
                 self.IndexCursor += int(len(str(keyword)))
@@ -1547,95 +1642,10 @@ class Calculator(Canvas):
 
         self.FullTextDisplay.see(END)
 
-
-def Exit():
-    return win.destroy()
-
-
-def Sin(arg):
-    return sin(arg * convert_constant)
-
-
-def Cos(arg):
-    return cos(arg * convert_constant)
-
-
-def Tan(arg):
-    return tan(arg * convert_constant)
-
-
-def aSin(arg):
-    return inverse_convert_constant * (asin(arg))
-
-
-def aCos(arg):
-    return inverse_convert_constant * (acos(arg))
-
-
-def aTan(arg):
-    return inverse_convert_constant * (atan(arg))
-
-
-def Sinh(arg):
-    return sinh(arg)
-
-
-def Cosh(arg):
-    return cosh(arg)
-
-
-def Tanh(arg):
-    return tanh(arg)
-
-
-def aSinh(arg):
-    return asinh(arg)
-
-
-def aCosh(arg):
-    return acosh(arg)
-
-
-def aTanh(arg):
-    return atanh(arg)
-
-
-def Ln(arg):
-    return log(arg)
-
-
-def Log(arg):
-    return log10(arg)
-
-
-def Log2(arg):
-    return log2(arg)
-
-
-def Exp(arg):
-    return exp(arg)
-
-
-def Fact(arg):
-    return factorial(arg)
+    def Exit(self):
+        return self.destroy()
 
 
 if __name__ == "__main__":
-    win = Tk()
-    menubare = Menu(win)
-    File = Menu(menubare, tearoff=0)
-    Mode = Menu(menubare, tearoff=0)
-    Switch = Menu(menubare, tearoff=0)
-    menubare.add_cascade(label="File", menu=File)
-    menubare.add_cascade(label="Mode", menu=Mode)
-    menubare.add_cascade(label="Float", menu=Switch)
     # run calculator
-    root = Calculator(win)
-    root.pack(fill="both", expand=True)
-    root.configure(bg='#4d4d4d')
-    # Window configuration
-    win.configure(menu=menubare, bg='#4d4d4d')
-    win.geometry("1100x580")
-    win.minsize(width=1100, height=580)
-    win.title("PyMathon v5.2.0")
-    win.mainloop()
+    Calculator()
