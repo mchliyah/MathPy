@@ -1,13 +1,16 @@
+from __init__ import HoverButton, ScrolledListbox
 from math import log2, log10
+from random import randint
 from operator import *
-from __init__ import *
+from tkinter import *
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-# version 5.1.1
-# optimize window to be resizable
+# version 5.1.2
+# optimize import
+# optimize plotting: *colors *improvements
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -58,9 +61,7 @@ inverse_convert_constant = 1
 
 class Calculator(Canvas):
     def __init__(self, master):
-
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
-        self.color = ['', "r", "g", "y", "o", "b"]
         self.sb = ['x', 'y', 'z']
         self.ENG = 16
         self.btn_u = []
@@ -1163,7 +1164,7 @@ class Calculator(Canvas):
                 if self.full is None:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                    self.P3d = plot(sympify(self.fctx))
+                    self.P3d = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10))
                     self.expression = ""
                     self.TextVariable.set(f'f(x) = ')
                     self.full = True
@@ -1171,15 +1172,17 @@ class Calculator(Canvas):
                 elif self.full:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                    self.PA = plot(sympify(self.fctx))
+                    self.PA = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
                     self.P3d.append(self.PA[0])
-                    for s in range(1, len(self.callback_function)):
-                        self.P3d[s].line_color = self.color[s]
+
+                    s = int(len(self.callback_function) - 1)
+                    RD = randint(1048576, 16777000)
+                    TV = hex(RD)
+                    TV = TV[2:8].upper()
+                    self.P3d[s].line_color = str('#') + str(TV)
                     self.P3d.show()
                     self.expression = ""
                     self.TextVariable.set(f'f(x) = ')
-
-                self.callback.append(str(self.fctx))
 
             elif self.mode == 'Plot Prm':
                 if self.full is None:
@@ -1195,18 +1198,22 @@ class Calculator(Canvas):
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
-                        self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
+                        self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
+                                                   xlim=(-10, 10))
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.equal = True
                         self.full = None
 
                     elif self.equal:
-                        self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
+                        self.PA = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
+                                                  xlim=(-10, 10), show=False)
                         self.P3d.append(self.PA[0])
-                        d = int(len(self.callback_function) / 2)
-                        for s in range(1, d):
-                            self.P3d[s].line_color = self.color[s]
+                        s = int((len(self.callback_function) / 2) - 1)
+                        RD = randint(1048576, 16777000)
+                        TV = hex(RD)
+                        TV = TV[2:8].upper()
+                        self.P3d[s].line_color = str('#') + str(TV)
                         self.P3d.show()
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
@@ -1226,18 +1233,22 @@ class Calculator(Canvas):
                     self.FullTextDisplay.insert(END, f'f(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
                     if not self.equal:
-                        self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
+                        self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
+                                                          ylim=(-10, 10), xlim=(-10, 10))
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
                         self.equal = True
                         self.full = None
 
                     elif self.equal:
-                        self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
+                        self.PA = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
+                                                         ylim=(-10, 10), xlim=(-10, 10), show=False)
                         self.P3d.append(self.PA[0])
-                        d = int(len(self.callback_function) / 2)
-                        for s in range(1, d):
-                            self.P3d[s].line_color = self.color[s]
+                        s = int((len(self.callback_function) / 2) - 1)
+                        RD = randint(1048576, 16777000)
+                        TV = hex(RD)
+                        TV = TV[2:8].upper()
+                        self.P3d[s].line_color = str('#') + str(TV)
                         self.P3d.show()
                         self.expression = ""
                         self.TextVariable.set(f'f(x)₁ = ')
@@ -1255,7 +1266,7 @@ class Calculator(Canvas):
                 elif self.full:
                     self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
-                    self.PA = plot3d(sympify(self.fctxy))
+                    self.PA = plot3d(sympify(self.fctxy), show=False)
                     self.P3d.append(self.PA[0])
                     self.P3d.show()
                     self.expression = ""
@@ -1283,7 +1294,8 @@ class Calculator(Canvas):
                         self.full = None
 
                     elif self.equal:
-                        self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y)
+                        self.PA = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2), self.x - self.y,
+                                                            show=False)
                         self.P3d.append(self.PA[0])
                         self.P3d.show()
                         self.expression = ""
@@ -1401,5 +1413,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#4d4d4d')
     win.geometry("1100x580")
     win.minsize(width=1100, height=580)
-    win.title("PyMathon v5.1.1")
+    win.title("PyMathon v5.1.2")
     win.mainloop()
