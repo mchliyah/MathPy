@@ -68,8 +68,8 @@ big_prm = {'padx': 8,
            'width': 7,
            'height': 1,
            'relief': 'raised',
-           'activeback': '#80000B',
-           'activebackground': '#80000B',
+           'activeback': '#49000A',
+           'activebackground': '#49000A',
            'activeforeground': "white"}
 big2_prm = {'padx': 14,
             'pady': 13,
@@ -81,8 +81,8 @@ big2_prm = {'padx': 14,
             'width': 5,
             'height': 1,
             'relief': 'raised',
-            'activeback': '#80000B',
-            'activebackground': '#80000B',
+            'activeback': '#49000A',
+            'activebackground': '#49000A',
             'activeforeground': "white"}
 ent_prm = {'bd': 1,
            'fg': 'white',
@@ -188,14 +188,14 @@ class Calculator:
         self.btn_m[3].defaultActiveBack = '#009C27'
         self.btn_m[3].defaultBackGround = '#20B645'
         # Clear
-        self.btn_m[4].configure(width=1, bg='IndianRed', activebackground='firebrick3', font=('Marlett', 23),
+        self.btn_m[4].configure(width=1, bg='firebrick1', activebackground='firebrick3', font=('Marlett', 23),
                                 command=lambda: self.Delete())
         self.btn_m[4].defaultActiveBack = 'firebrick3'
-        self.btn_m[4].defaultBackGround = 'IndianRed'
+        self.btn_m[4].defaultBackGround = 'firebrick1'
         # Remove
-        self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue4', font=('Wingdings', 21),
+        self.btn_m[5].configure(width=1, bg='Royalblue2', activebackground='Royalblue3', font=('Wingdings', 21),
                                 command=lambda: self.Remove())
-        self.btn_m[5].defaultActiveBack = 'Royalblue4'
+        self.btn_m[5].defaultActiveBack = 'Royalblue3'
         self.btn_m[5].defaultBackGround = 'Royalblue2'
 
         # ========================Trigonometry======================================================================
@@ -295,7 +295,7 @@ class Calculator:
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 2nd
             self.btn_m[1].configure(text="1ST", command=lambda: self.SwitchButtons("2nd"), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['Cos(', 'Sin(', "Tan(", 'Cosh(', 'Sinh(', "Tanh("]
@@ -321,7 +321,7 @@ class Calculator:
             # buttons that will be displayed on middle frame ROW 0======================================================
             # 1st
             self.btn_m[1].configure(text="2ND", command=lambda: self.SwitchButtons("1st"), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
             # ROW 1
             # ========================Trigonometry======================================================================
             Trigonometry_pad = ['aCos(', 'aSin(', "aTan(", 'aCosh(', 'aSinh(', "aTanh("]
@@ -343,154 +343,163 @@ class Calculator:
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Operation :')
                 self.FastTextVariable.set('')
-            self.btn_a[0].config(bg='indian red', relief='sunken')
-            self.btn_a[0].defaultBackGround = 'indian red'
+                self.btn[5]['state'] = ['disabled']
+                self.btn[11]['state'] = ['disabled']
+                self.btn[2].config(state=NORMAL)
+                self.btn_d[1].config(state=NORMAL)
+                self.btn_d[2].config(state=NORMAL)
+
+            self.btn_a[0].config(bg='#80000B', relief='sunken')
+            self.btn_a[0].defaultBackGround = '#80000B'
             for i in range(1, 4):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].defaultBackGround = '#292929'
-            self.btn[5]['state'] = ['disabled']
-            self.btn[11]['state'] = ['disabled']
-            self.btn[2].config(state=NORMAL)
-            self.btn_d[1].config(state=NORMAL)
-            self.btn_d[2].config(state=NORMAL)
 
         elif self.mode == 'Function':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
                 self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
+                self.btn[5]['state'] = ['normal']
+                self.btn[2]['state'] = ['disabled']
+                self.btn[11]['state'] = ['disabled']
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
             self.btn_a[0].config(bg='#292929', relief='raised')
             self.btn_a[0].defaultBackGround = '#292929'
-            self.btn_a[1].config(bg='indian red', relief='sunken')
-            self.btn_a[1].defaultBackGround = 'indian red'
+            self.btn_a[1].config(bg='#80000B', relief='sunken')
+            self.btn_a[1].defaultBackGround = '#80000B'
             for i in range(2, 4):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].defaultBackGround = '#292929'
-            self.btn[5]['state'] = ['normal']
-            self.btn[2]['state'] = ['disabled']
-            self.btn[11]['state'] = ['disabled']
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
 
         elif self.mode == 'Equation':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Simple Equation : aX² + bX + c = 0')
                 self.FastTextVariable.set('aX² + bX + c = 0')
+                self.btn[5].config(state=DISABLED)
+                self.btn[11].config(state=DISABLED)
+                self.btn[2].config(state=DISABLED)
+                self.btn_d[1].config(state=NORMAL)
+                self.btn_d[2].config(state=NORMAL)
+                self.SwitchDegRad('Radians')
+
             for i in range(2):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].defaultBackGround = '#292929'
-            self.btn_a[2].config(bg='indian red', relief='sunken')
-            self.btn_a[2].defaultBackGround = 'indian red'
+            self.btn_a[2].config(bg='#80000B', relief='sunken')
+            self.btn_a[2].defaultBackGround = '#80000B'
             self.btn_a[3].config(bg='#292929', relief='raised')
             self.btn_a[3].defaultBackGround = '#292929'
-            self.btn[5].config(state=DISABLED)
-            self.btn[11].config(state=DISABLED)
-            self.btn[2].config(state=DISABLED)
-            self.btn_d[1].config(state=NORMAL)
-            self.btn_d[2].config(state=NORMAL)
-            self.SwitchDegRad('Radians')
 
         elif self.mode == 'Solve':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Equation :')
+                self.btn[5].config(state=NORMAL)
+                self.btn[11].config(state=DISABLED)
+                self.btn[2].config(state=DISABLED)
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
             for i in range(3):
                 self.btn_a[i].config(bg='#292929', relief='raised')
                 self.btn_a[i].defaultBackGround = '#292929'
-            self.btn_a[3].config(bg='indian red', relief='sunken')
-            self.btn_a[3].defaultBackGround = 'indian red'
-            self.btn[5].config(state=NORMAL)
-            self.btn[11].config(state=DISABLED)
-            self.btn[2].config(state=DISABLED)
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
+            self.btn_a[3].config(bg='#80000B', relief='sunken')
+            self.btn_a[3].defaultBackGround = '#80000B'
 
         elif self.mode == 'Plot':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
                 self.FastTextVariable.set(f'f(x)₁ = ')
-            self.btn_b[0].config(bg='indian red', relief='sunken')
-            self.btn_b[0].defaultBackGround = 'indian red'
+                self.btn[5]['state'] = ['normal']
+                self.btn[11]['state'] = ['disabled']
+                self.btn[2]['state'] = ['disabled']
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
+            self.btn_b[0].config(bg='#80000B', relief='sunken')
+            self.btn_b[0].defaultBackGround = '#80000B'
             for i in range(1, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
-            self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['disabled']
-            self.btn[2]['state'] = ['disabled']
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
 
         elif self.mode == 'Plot Prm':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
                 self.FastTextVariable.set(f'f(x)₁ = ')
+                self.btn[5]['state'] = ['normal']
+                self.btn[11]['state'] = ['disabled']
+                self.btn[2]['state'] = ['disabled']
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
             self.btn_b[0].config(bg='#292929', relief='raised')
             self.btn_b[0].defaultBackGround = '#292929'
-            self.btn_b[1].config(bg='indian red', relief='sunken')
-            self.btn_b[1].defaultBackGround = 'indian red'
+            self.btn_b[1].config(bg='#80000B', relief='sunken')
+            self.btn_b[1].defaultBackGround = '#80000B'
             for i in range(2, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
-            self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['disabled']
-            self.btn[2]['state'] = ['disabled']
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
 
         elif self.mode == 'P3DPL':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
                 self.FastTextVariable.set('f(x)₁ = ')
+                self.btn[5]['state'] = ['normal']
+                self.btn[11]['state'] = ['disabled']
+                self.btn[2]['state'] = ['disabled']
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
             for i in range(2):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
-            self.btn_b[2].config(bg='indian red', relief='sunken')
-            self.btn_b[2].defaultBackGround = 'indian red'
+            self.btn_b[2].config(bg='#80000B', relief='sunken')
+            self.btn_b[2].defaultBackGround = '#80000B'
             for i in range(3, 5):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
-            self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['disabled']
-            self.btn[2]['state'] = ['disabled']
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
 
         elif self.mode == 'Plot3D':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
                 self.FastTextVariable.set(f'f(x,y)')
+                self.btn[5]['state'] = ['normal']
+                self.btn[11]['state'] = ['normal']
+                self.btn[2]['state'] = ['disabled']
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
             for i in range(3):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
-            self.btn_b[3].config(bg='indian red', relief='sunken')
-            self.btn_b[3].defaultBackGround = 'indian red'
+            self.btn_b[3].config(bg='#80000B', relief='sunken')
+            self.btn_b[3].defaultBackGround = '#80000B'
             self.btn_b[4].config(bg='#292929', relief='raised')
             self.btn_b[4].defaultBackGround = '#292929'
-            self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['normal']
-            self.btn[2]['state'] = ['disabled']
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
 
         elif self.mode == 'P3DPS':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
                 self.FastTextVariable.set(f'f(x,y)₁ = ')
+                self.btn[5]['state'] = ['normal']
+                self.btn[11]['state'] = ['normal']
+                self.btn[2]['state'] = ['disabled']
+                self.btn_d[1]['state'] = ['disabled']
+                self.btn_d[2]['state'] = ['disabled']
+                self.SwitchDegRad('Radians')
+
             for i in range(4):
                 self.btn_b[i].config(bg='#292929', relief='raised')
                 self.btn_b[i].defaultBackGround = '#292929'
-            self.btn_b[4].config(bg='indian red', relief='sunken')
-            self.btn_b[4].defaultBackGround = 'indian red'
-            self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['normal']
-            self.btn[2]['state'] = ['disabled']
-            self.btn_d[1]['state'] = ['disabled']
-            self.btn_d[2]['state'] = ['disabled']
-            self.SwitchDegRad('Radians')
+            self.btn_b[4].config(bg='#80000B', relief='sunken')
+            self.btn_b[4].defaultBackGround = '#80000B'
 
         if self.switched:
             self.Delete()
@@ -503,7 +512,7 @@ class Calculator:
             inverse_convert_constant = 180 / π
             # Degree -> Radians
             self.btn_m[0].configure(text='DEG', command=lambda: self.SwitchDegRad('Radians'), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
             self.btn[0]['state'] = ['disabled']
 
         elif switch == 'Radians':
@@ -511,7 +520,7 @@ class Calculator:
             inverse_convert_constant = 1
             # Radians -> Degree
             self.btn_m[0].configure(text='RAD', command=lambda: self.SwitchDegRad('Degree'), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
             self.btn[0]['state'] = ['normal']
 
     def SwitchENG(self, NBR):
@@ -520,28 +529,28 @@ class Calculator:
 
         if dot == int(16):
             self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(15):
             self.btn_m[2].configure(text='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(12)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(12):
             self.btn_m[2].configure(text='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(9)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(9):
             self.btn_m[2].configure(text='ENG₍₉₎', command=lambda: self.SwitchENG(int(6)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(6):
             self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(3):
             self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(2):
             self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         elif dot == int(1):
             self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='orange',
-                                    activeforeground='indian red')
+                                    activeforeground='#80000B')
         self.Click()
 
     def Delete(self):
