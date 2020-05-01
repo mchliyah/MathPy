@@ -137,11 +137,13 @@ class Calculator(Canvas):
         FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), readonlybackground='#4d4d4d')
         # Second Text Display
         SecondTextDisplay = Entry(self, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
-        SecondTextDisplay.grid(row=1, column=1, sticky=NSEW, padx=1, pady=1)
+        SecondTextDisplay.grid(row=1, column=1, sticky=NSEW)
         SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
         # Full Text Display
         self.FullTextDisplay = ScrolledListbox(self, width=52, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2, sticky=NSEW)
+        self.FullTextDisplay.rowconfigure(0, weight=1)
+        self.FullTextDisplay.columnconfigure(0, weight=1)
         self.FullTextDisplay.focus_set()
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(self, relief='flat', bg='#212121')
@@ -286,13 +288,13 @@ class Calculator(Canvas):
         Mode.add_command(label='Plot 3D Parametric Surface',
                          command=lambda: [self.SwitchButtons('2nd'), self.SwitchFunction('P3DPS', True)])
         Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
-        Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
-        Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
-        Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
-        Switch.add_command(label='ENG₆', command=lambda: self.SwitchENG(int(6)))
-        Switch.add_command(label='ENG₃', command=lambda: self.SwitchENG(int(3)))
-        Switch.add_command(label='ENG₂', command=lambda: self.SwitchENG(int(2)))
         Switch.add_command(label='ENG₁', command=lambda: self.SwitchENG(int(1)))
+        Switch.add_command(label='ENG₂', command=lambda: self.SwitchENG(int(2)))
+        Switch.add_command(label='ENG₃', command=lambda: self.SwitchENG(int(3)))
+        Switch.add_command(label='ENG₆', command=lambda: self.SwitchENG(int(6)))
+        Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
+        Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
+        Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
 
     def SwitchButtons(self, side):
         page = side
@@ -934,7 +936,7 @@ class Calculator(Canvas):
                         self.w = int(len(self.store_expression)) - 1
                         while True:
                             trs = str(self.store_expression[self.v])
-                            if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**' or trs == '^':
+                            if trs == '**' or trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '^':
                                 while self.v <= self.w:
                                     self.expression += str(self.store_expression[self.v])
                                     self.v += 1
@@ -961,6 +963,8 @@ class Calculator(Canvas):
                     except IndexError or SyntaxError:
                         self.FastTextVariable.set('IndexError or SyntaxError')
 
+                self.callback.append(str(self.answer))
+
             elif self.mode == 'Function':
                 if self.full is None:
                     self.v = int(self.expression)
@@ -983,9 +987,9 @@ class Calculator(Canvas):
                         self.FullTextDisplay.insert(END, f'f(x) = {sympify(self.fctx)}')
                         for x in range(self.v, self.w):
                             if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {sympify(self.fctx)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
                             else:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {N(sympify(self.fctx), self.ENG)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
                         self.P3d = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
                         self.expression = ""
                         self.TextVariable.set(f'f(x) = ')
@@ -996,9 +1000,9 @@ class Calculator(Canvas):
                         self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                         for x in range(self.v, self.w):
                             if self.ENG == 16:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {sympify(self.fctx)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {eval(self.fctx)}')
                             else:
-                                self.FullTextDisplay.insert(END, f'f({x}) = {N(sympify(self.fctx), self.ENG)}')
+                                self.FullTextDisplay.insert(END, f'f({x}) = {N(eval(self.fctx), self.ENG)}')
                         self.expression = ""
                         self.TextVariable.set(f'f(x) = ')
                         self.PA = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
@@ -1175,6 +1179,8 @@ class Calculator(Canvas):
                     self.expression = ""
                     self.TextVariable.set(f'f(x) = ')
 
+                self.callback.append(str(self.fctx))
+
             elif self.mode == 'Plot Prm':
                 if self.full is None:
                     self.fctx1 = str(eval(self.expression))
@@ -1301,8 +1307,6 @@ class Calculator(Canvas):
         except IndexError:
             self.FastTextVariable.set('IndexError')
 
-        self.callback.append(str(self.answer))
-
 
 def Exit():
     return win.destroy()
@@ -1395,7 +1399,7 @@ if __name__ == "__main__":
     root.configure(bg='#4d4d4d')
     # Window configuration
     win.configure(menu=menubare, bg='#4d4d4d')
-    win.geometry("1000x560")
-    win.minsize(width=1000, height=560)
+    win.geometry("1100x580")
+    win.minsize(width=1100, height=580)
     win.title("PyMathon v5.1.1")
     win.mainloop()
