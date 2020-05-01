@@ -56,16 +56,6 @@ def LaTex(Math_Expression):
     return TEX
 
 
-def TwoPlotMultiColor(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
-    Plot_First_Func2D.extend(Plot_Add_Func2D)
-    RD = randint(1048576, 16777000)
-    HX = hex(RD)
-    HX = HX[2:8].upper()
-    Plot_First_Func2D[-1].line_color = str('#') + str(HX)
-    Plot_First_Func2D[-1].label = LaTex(sympify(Function2D))
-    PlotGrid(1, 2, Plot_First_Func2D, Plot_Add_Func2D, legend=True)
-
-
 def MultiPlot2D(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
     Plot_First_Func2D.extend(Plot_Add_Func2D)
     RD = randint(1048576, 16777000)
@@ -73,8 +63,23 @@ def MultiPlot2D(Plot_First_Func2D, Plot_Add_Func2D, Function2D):
     HX = HX[2:8].upper()
     Plot_First_Func2D[-1].line_color = str('#') + str(HX)
     Plot_First_Func2D[-1].label = LaTex(sympify(Function2D))
-    # Plot_First_Func2D
     return PlotGrid(1, 2, Plot_First_Func2D, Plot_Add_Func2D, legend=True, show=False)
+
+
+def MultiPlot2D3D(Plot_First_Func2D, Plot_Add_Func2D, Plot_First_Func3D, Plot_Add_Func3D, Function2D):
+    RD = randint(1048576, 16777000)
+    HX = hex(RD)
+    HX = HX[2:8].upper()
+
+    Plot_First_Func2D.extend(Plot_Add_Func2D)
+    Plot_First_Func2D[-1].line_color = str('#') + str(HX)
+    Plot_First_Func2D[-1].label = LaTex(sympify(Function2D))
+
+    Plot_First_Func3D.extend(Plot_Add_Func3D)
+    Plot_First_Func3D[-1].line_color = str('#') + str(HX)
+    Plot_First_Func3D[-1].label = LaTex(sympify(Function2D))
+
+    return PlotGrid(1, 2, Plot_First_Func2D, Plot_First_Func3D, legend=True, show=False)
 
 
 def OnePlotLaTex(Plot_First_Func, FunctionTX):
@@ -93,67 +98,6 @@ def MultiPlot3D(Plot_First_Func3D, Plot_Add_Func3D):
     return PlotGrid(1, 2, Plot_First_Func3D, Plot_Add_Func3D, show=False)
 
 
-def EQT(nbr_a, nbr_b, nbr_c):
-    global delf
-    delf = ()
-    a = float(eval(nbr_a))
-    b = float(eval(nbr_b))
-    c = float(eval(nbr_c))
-    d = float((b ** 2) - 4 * a * c)
-    nd = neg(d)
-    nb = neg(b)
-    delf += ('____________________________________________',
-             '',
-             f"eq > {eval(str(a * x ** 2 + b * x + c))} = 0")
-    if a > 0 or a < 0:
-        delf += (
-            f'The Equation Have Two Solutions For x :',
-            f'  ∆ =  b² - 4ac',
-            f'  ∆ = {b}² - (4 ⨯ {a} ⨯ {c})',
-            f'      = {b ** 2} - ({4 * a * c})',
-            f'      = {d}')
-        if d == 0:
-            delf += (
-                f'∆=0 : x = -b / 2a',
-                f' x₁ = x₂ = ({N(neg(b), 3)}) / (2 ⨯ {a})',
-                f' x₁ = x₂ = {N(neg(b) / (2 * a), 3)}')
-        elif d >= 0:
-            delf += (
-                f'∆>0 : x = (-b ± √∆) / 2a',
-                f' x₁ = ({nb} + √{d}) / (2 ⨯ {a})',
-                f'     = {N((nb + sqrt(d)) / (2 * a), 3)}',
-                f' x₂ = ({nb} - √{d}) / (2 ⨯ {a})',
-                f'     = {N((nb - sqrt(d)) / (2 * a), 3)}')
-        elif d <= 0:
-            delf += (
-                f'      = {nd}i²',
-                f'∆<0 : x = (-b ± i√∆) / 2a',
-                f' x₁ = ({nb} + i√({nd})) / (2 ⨯ {a})',
-                f'     = {N((nb + sqrt(nd) * 1j) / (2 * a), 3)}',
-                f' x₂ = ({nb} - i√({nd})) / (2 ⨯ {a})',
-                f'     = {N((nb - sqrt(nd) * 1j) / (2 * a), 3)}',
-                f'  z = a ± ib',
-                f'  a = {N(nb / (2 * a), 3)}',
-                f'  b = ± {N(sqrt(nd) / (2 * a), 3)}')
-    elif a == 0:
-        if b == 0 and c == 0:
-            delf += ('', "Empty Solution {{∅}}")
-        elif b == 0:
-            delf += ('', "Empty Solution {{∅}}")
-        elif c == 0:
-            delf += (
-                f'The Equation Have One Solution For x :',
-                f'  {b}x = 0',
-                f'  x = 0',)
-        else:
-            delf += (
-                f'The Equation Have One Solution For x :',
-                f'  {b}x = {neg(c)}',
-                f'  x = {neg(c)} / {b}',
-                f'  x = {neg(c) / b}')
-    return delf
-
-
 class HoverButton(tk.Button):
     def __init__(self, master=None, cnf=None, **kwargs):
         if cnf is None:
@@ -170,39 +114,6 @@ class HoverButton(tk.Button):
 
     def Leave(self, event):
         self['bg'] = self.DBG
-
-
-class ScrolledListbox(tk.Listbox):
-    def __init__(self, master, *args, **kwargs):
-        self.canvas = tk.Canvas(master)
-        self.canvas.rowconfigure(0, weight=1)
-        self.canvas.columnconfigure(0, weight=1)
-
-        tk.Listbox.__init__(self, self.canvas, *args, **kwargs)
-        self.grid(row=0, column=0, sticky=tk.NSEW)
-
-        self.vbar = tk.Scrollbar(self.canvas, orient=tk.VERTICAL)
-        self.hbar = tk.Scrollbar(self.canvas, orient=tk.HORIZONTAL)
-
-        self.configure(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
-
-        self.vbar.grid(row=0, column=1, sticky=tk.NS)
-        self.vbar.configure(command=self.yview)
-        self.hbar.grid(row=1, column=0, sticky=tk.EW)
-        self.hbar.configure(command=self.xview)
-
-        # Copy geometry methods of self.canvas without overriding Listbox
-        # methods -- hack!
-        listbox_meths = vars(tk.Listbox).keys()
-        methods = vars(tk.Pack).keys() | vars(tk.Grid).keys() | vars(tk.Place).keys()
-        methods = methods.difference(listbox_meths)
-
-        for m in methods:
-            if m[0] != '_' and m != 'config' and m != 'configure':
-                setattr(self, m, getattr(self.canvas, m))
-
-    def __str__(self):
-        return str(self.canvas)
 
 
 class ManagedEntry(tk.Entry):
@@ -338,6 +249,10 @@ class ManagedEntry(tk.Entry):
             self.index_cursor += int(len(str(str_to_insert)))
         else:
             self.expression = self.expression
+
+        if str_to_insert[-1:] == '(':
+            self.InsertIntoString(')'), self.DirectionCursor('Left')
+
         self.StringVariable(self.expression)
         return self.expression
 
@@ -380,7 +295,7 @@ class ManagedEntry(tk.Entry):
                 self.answer = eval(self.expression)
                 return self.answer
 
-    def ResetClear(self):
+    def Clear(self):
         self.StringVariable('')
         self.icursor(0)
         self.expression = ''
@@ -423,8 +338,8 @@ class ScrollableTkAggX(tk.Canvas):
     def on_configure_y(self, event):
         # when all widgets are in canvas
         canvas_height = event.height
-        self.itemconfigure(self.canvas_frame, height=canvas_height - 20)
-        # update scrollregion after starting 'mainloop'
+        self.itemconfigure(self.canvas_frame, height=canvas_height)
+        # update scrollregion after starting 'mainloop' - 20
         self.configure(scrollregion=self.bbox(tk.ALL))
 
     def on_configure_x(self, width):
@@ -444,15 +359,49 @@ class FigureX(Figure):
         super(FigureX, self).__init__(tight_layout=True, **kwargs)
         self.fontsize = fontsize
         self.mpl_rgb = rgbcolor
-        self.width = 0
+        self.size_w = [0]
+        self.width = max(self.size_w)
 
-    def DrawTexTk(self, la_text):
+    def DrawOneLaTex(self, la_text):
         self.clear()
-        Text = self.text(0, 0.4, la_text, color=self.mpl_rgb, fontsize=self.fontsize)
+        Text = self.text(0, 0.5, la_text, color=self.mpl_rgb, fontsize=self.fontsize)
 
         Renderer = self.canvas.get_renderer()
         bb = Text.get_window_extent(renderer=Renderer)
         self.width = int(bb.width)
+
+        self.tight_layout(renderer=Renderer)
+
+    def DrawBiLaTex(self, la_text1, la_text2):
+        self.size_w = [0]
+        self.clear()
+        Text1 = self.text(0, 0.75, la_text1, color=self.mpl_rgb, fontsize=self.fontsize)
+        Text2 = self.text(0, 0.3, la_text2, color=self.mpl_rgb, fontsize=self.fontsize)
+
+        Renderer = self.canvas.get_renderer()
+        bb1 = Text1.get_window_extent(renderer=Renderer)
+        bb2 = Text2.get_window_extent(renderer=Renderer)
+        self.size_w.append((int(bb1.width) + 1))
+        self.size_w.append((int(bb2.width) + 1))
+        self.width = max(self.size_w)
+
+        self.tight_layout(renderer=Renderer)
+
+    def DrawTriLaTex(self, la_text1, la_text2, la_text3):
+        self.size_w = [0]
+        self.clear()
+        Text1 = self.text(0, 0.8, la_text1, color=self.mpl_rgb, fontsize=self.fontsize)
+        Text2 = self.text(0, 0.5, la_text2, color=self.mpl_rgb, fontsize=self.fontsize)
+        Text3 = self.text(0, 0.2, la_text3, color=self.mpl_rgb, fontsize=self.fontsize)
+
+        Renderer = self.canvas.get_renderer()
+        bb1 = Text1.get_window_extent(renderer=Renderer)
+        bb2 = Text2.get_window_extent(renderer=Renderer)
+        bb3 = Text3.get_window_extent(renderer=Renderer)
+        self.size_w.append((int(bb1.width) + 1))
+        self.size_w.append((int(bb2.width) + 1))
+        self.size_w.append((int(bb3.width) + 1))
+        self.width = max(self.size_w)
 
         self.tight_layout(renderer=Renderer)
 
@@ -611,12 +560,13 @@ class SmallNumbers:
         self.how_much_numbers = int(how_much_numbers)
         self.work_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
         self.generated_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
-        start = 10
-        end = 100
-        for cmb in range(2, len(str(self.how_much_numbers)) + 1):
-            self.ListOfCombinations(is_upper_then=start, is_under_then=end, combinations=cmb)
-            start *= 10
-            end *= 10
+        if self.how_much_numbers >= 10:
+            start = 10
+            end = 100
+            for cmb in range(2, len(str(self.how_much_numbers)) + 1):
+                self.ListOfCombinations(is_upper_then=start, is_under_then=end, combinations=cmb)
+                start *= 10
+                end *= 10
 
     def __call__(self, call_number, *args, **kwargs):
         return self.generated_list[call_number]
@@ -630,3 +580,167 @@ class SmallNumbers:
                 if self.how_much_numbers == nbr:
                     break
             nbr += 1
+
+
+class SystemSolverEntry:
+    btnb_prm = {'padx': 18,
+                'pady': 1,
+                'bd': 1,
+                'background': '#F0F0F0',
+                'fg': 'black',
+                'bg': '#F0F0F0',
+                'font': ('DejaVu Sans', 7),
+                'width': 2,
+                'height': 1,
+                'activeback': '#B0000B',
+                'activebackground': '#80000B',
+                'activeforeground': "white",
+                'relief': 'flat'}
+
+    def __init__(self, master, line, **kwargs):
+        self.Master = master
+
+        self.canvas = tk.Canvas(master=self.Master)
+        self.entry = []
+        self.widget = 0
+        self.u = int(line)
+
+        self.button3 = HoverButton(master=self.Master, text='3⨯3 {x,y,z}', **self.btnb_prm)
+        self.button3.grid(row=1, column=2, sticky=tk.NSEW)
+
+        self.button2 = HoverButton(master=self.Master, text='2⨯2 {x,y}', **self.btnb_prm)
+        self.button2.grid(row=1, column=1, sticky=tk.NSEW)
+
+        self.button1 = HoverButton(master=self.Master, text='1⨯1 {x}', **self.btnb_prm)
+        self.button1.grid(row=1, column=0, sticky=tk.NSEW)
+
+        self.CreateGrid(line=line, **kwargs)
+
+    def __call__(self, *args, **kwargs):
+        # return self.entry[self.widget]
+        return self.widget
+
+    def Press(self, event):
+        self.widget = event.widget
+        # self.widget = int(eval(str(event.widget)[-1:].replace('y', '1'))) - 1
+
+    def CreateGrid(self, line, **kwargs):
+        self.u = int(line)
+        self.canvas.destroy()
+        self.canvas = tk.Canvas(master=self.Master)
+        self.canvas.grid(row=0, column=0, columnspan=3, sticky=tk.NSEW)
+        if self.u == 1:
+            self.canvas.rowconfigure(0, weight=1)
+            self.canvas.columnconfigure(0, weight=1)
+            self.canvas.columnconfigure(2, weight=1)
+        elif self.u == 2:
+            self.canvas.rowconfigure(0, weight=1)
+            self.canvas.rowconfigure(1, weight=1)
+            self.canvas.columnconfigure(0, weight=1)
+            self.canvas.columnconfigure(2, weight=1)
+        elif self.u == 3:
+            self.canvas.rowconfigure(0, weight=1)
+            self.canvas.rowconfigure(1, weight=1)
+            self.canvas.rowconfigure(2, weight=1)
+            self.canvas.columnconfigure(0, weight=1)
+            self.canvas.columnconfigure(2, weight=1)
+
+        self.entry = []
+        k = 0
+        for i in range(self.u):
+            for j in range(0, 3, 2):
+                self.entry.append(ManagedEntry(self.canvas, **kwargs))
+                self.entry[k].grid(row=i, column=j, sticky=tk.NSEW)
+                self.entry[k].bind('<Button-1>', self.Press, add="+")
+                k += 1
+        label = []
+        for l0 in range(self.u):
+            label.append(tk.Label(self.canvas, text='=', **kwargs))
+            label[l0].grid(row=l0, column=1, sticky=tk.NSEW)
+            label[l0].configure(justify=tk.CENTER)
+
+        if self.u == 3:
+            for m in range(1, 6, 2):
+                self.entry[m].configure(width=2)
+
+            self.button3.config(fg="white", bg='#80000B', relief='sunken')
+            self.button3.DBG = '#80000B'
+            self.button2.config(fg="black", bg='#F0F0F0', relief='flat')
+            self.button2.DBG = '#F0F0F0'
+            self.button1.config(fg="black", bg='#F0F0F0', relief='flat')
+            self.button1.DBG = '#F0F0F0'
+
+        elif self.u == 2:
+            for m in range(1, 4, 2):
+                self.entry[m].configure(width=2)
+
+            self.button3.config(fg="black", bg='#F0F0F0', relief='flat')
+            self.button3.DBG = '#F0F0F0'
+            self.button2.config(fg="white", bg='#80000B', relief='sunken')
+            self.button2.DBG = '#80000B'
+            self.button1.config(fg="black", bg='#F0F0F0', relief='flat')
+            self.button1.DBG = '#F0F0F0'
+        elif self.u == 1:
+            self.entry[1].configure(width=2)
+
+            self.button3.config(fg="black", bg='#F0F0F0', relief='flat')
+            self.button3.DBG = '#F0F0F0'
+            self.button2.config(fg="black", bg='#F0F0F0', relief='flat')
+            self.button2.DBG = '#F0F0F0'
+            self.button1.config(fg="white", bg='#80000B', relief='sunken')
+            self.button1.DBG = '#80000B'
+        self.widget = self.entry[0]
+
+    def Clear(self):
+        if self.u == 3:
+            for o in range(6):
+                self.entry[o].Clear()
+                self.entry[o].InsertIntoString('0')
+                self.entry[o].StringVariable('0')
+        elif self.u == 2:
+            for o in range(4):
+                self.entry[o].Clear()
+                self.entry[o].InsertIntoString('0')
+                self.entry[o].StringVariable('0')
+        elif self.u == 1:
+            for o in range(2):
+                self.entry[o].Clear()
+                self.entry[o].InsertIntoString('0')
+                self.entry[o].StringVariable('0')
+
+
+class FanctionEntry:
+    def __init__(self, master, **kwargs):
+        self.Master = master
+        self.canvas = tk.Canvas(self.Master)
+        self.canvas.grid(row=0, column=0, sticky=tk.NSEW)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.rowconfigure(1, weight=1)
+        self.canvas.columnconfigure(1, weight=1)
+
+        self.entry = []
+        for p in range(2):
+            self.entry.append(ManagedEntry(self.canvas, width=16, **kwargs))
+            self.entry[p].grid(row=p, column=1, sticky=tk.NSEW)
+            self.entry[p].bind('<Button-1>', self.Press, add="+")
+
+        self.widget = self.entry[0]
+
+        self.label = []
+        for q in range(2):
+            self.label.append(tk.Label(self.canvas, **kwargs))
+            self.label[q].grid(row=q, column=0, sticky=tk.NSEW)
+
+        self.Clear()
+
+    def __call__(self, *args, **kwargs):
+        return self.widget
+
+    def Press(self, event):
+        self.widget = event.widget
+
+    def Clear(self):
+        for s in range(2):
+            self.entry[s].Clear()
+            self.entry[s].InsertIntoString('0')
+            self.entry[s].StringVariable('0')
