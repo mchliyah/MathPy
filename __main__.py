@@ -1,12 +1,14 @@
+import tkinter as tk
 from math import *
 from operator import *
 from tkinter import *
-from tkinter import ttk, _cnfmerge as cnfmerge
+from sympy import Eq
+from sympy.solvers import solveset
+from sympy.abc import x
 
-# version 3.2.3
-# Add Two Command In File Menu To Switch Between 1st Page & 2nd Page
-# Add New Keyboard Bind: {a, A}: 1st Page, {b, B}: 2nd Page, {r, R}: Radians, {d, D}: Degree,
-# {o, O}: Operation, And Change From {f, F}: factorial To {f, F}: Function But factorial Still Have {!}
+# version 3.3
+# Add new Equation Solver
+# Reorganize & Resize and Add new Buttons & Commands
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -24,7 +26,7 @@ big_prm = {'padx': 16,
            'fg': 'white',
            'bg': 'slate gray',
            'font': ('Segoe UI Symbol', 16),
-           'width': 5,
+           'width': 4,
            'height': 1,
            'relief': 'raised',
            'activebackground': 'dim gray',
@@ -34,13 +36,14 @@ ent_prm = {'bd': 4,
            'bg': 'gray94',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
+π = 3.141592653589793
 
 
 class EntryBox(Entry):
     def __init__(self, master=None, cnf=None, **kw):
         if cnf is None:
             cnf = {}
-        kw = cnfmerge((kw, cnf))
+        kw = tk._cnfmerge((kw, cnf))
         kw['justify'] = kw.get('justify', 'left')
         kw['state'] = 'readonly'
         super(EntryBox, self).__init__(master=master, **kw)
@@ -113,6 +116,9 @@ class Calculator:
         self.a = ''
         self.b = ''
         self.c = ''
+        self.q = ''
+        self.p = ''
+        self.x = x
         # int range numbers of function
         self.v = ''
         self.w = ''
@@ -138,7 +144,7 @@ class Calculator:
         SecondTextDisplay.grid(row=1, column=1)
         SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 25), justify='right')
         # Full Text Display
-        self.FullTextDisplay = Text(master, width=54, height=13, **ent_prm)
+        self.FullTextDisplay = Text(master, width=54, height=15, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
@@ -155,15 +161,19 @@ class Calculator:
         self.Operation = Button(self.top_frame, **big_prm, text="Operation",
                                 command=lambda: self.SwitchFunction("Operation"))
         self.Operation.grid(row=0, column=2, columnspan=2)
-        # Equation
-        self.Equation = Button(self.top_frame, **big_prm, text="Equation",
-                               command=lambda: self.SwitchFunction("Equation"))
-        self.Equation.grid(row=0, column=4, columnspan=2)
         # Function
         self.Function = Button(self.top_frame, **big_prm, text="Function",
                                command=lambda: self.SwitchFunction("Function"))
-        self.Function.grid(row=0, column=6, columnspan=2)
-
+        self.Function.grid(row=0, column=4, columnspan=2)
+        # Equation
+        self.Equation_2nd = Button(self.top_frame, **big_prm, text="Eq2&1",
+                                   command=lambda: self.SwitchFunction('Equation 2nd'))
+        self.Equation_2nd.grid(row=0, column=6)
+        self.Equation_2nd['width'] = 2
+        self.Equation = Button(self.top_frame, **big_prm, text="EqAll",
+                               command=lambda: self.SwitchFunction('Equation'))
+        self.Equation.grid(row=0, column=7)
+        self.Equation['width'] = 2
         # buttons that will be displayed on middle frame ROW 0==========================================================
         pad = ['(', ')', "", '', '', ""]
         txt = ['(', ')', "", 'Answer', 'r', "Õ"]
@@ -196,13 +206,13 @@ class Calculator:
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ["7", "8", "9", "+", '**2', 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*",
-               "sqrt(", 'e', '0', ".", "=", "/", "factorial(", 'pi']
-        btn_txt = ["7", "8", "9", "+", u'n\u00B2', 'x', "4", "5", "6", "-", "nˣ", "j", "1", "2", "3",
-                   "*", "√n", 'e', '0', ".", "=", "/", "!n", 'π']
+        btn = ['π', 'e', "1j", '^', '**3', 'x', "7", "8", "9", "+", '**2', 'e-', "4", "5", "6", "-", "**", 'e', "1",
+               "2", "3", "*", "sqrt(", "isqrt(", '0', ".", "=", "/", "factorial(", '/100']
+        btn_txt = ['π', 'e', "j", '^', u'n\u00B3', 'x', "7", "8", "9", "+", u'n\u00B2', 'nx10ˉˣ', "4", "5", "6", "-",
+                   "nˣ", 'nx10ˣ', "1", "2", "3", "*", "√n", '√n~', '0', ".", "=", "/", "!n", "n%"]
         self.btn = []
         i = 0
-        for j in range(4):
+        for j in range(5):
             for k in range(6):
                 self.btn.append(Button(bottom_frame, **btn_prm, text=btn_txt[i]))
                 self.btn[i].grid(row=j, column=k)
@@ -210,14 +220,15 @@ class Calculator:
                                       command=lambda n=btn[i]: self.Input(n))
                 i += 1
         # Equals
-        self.btn[20].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
+        self.btn[26].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
 
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
         # Switch Menu In Bare Display=================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
-        filemenu.add_command(label='Equation', command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
+        filemenu.add_command(label="Equation 1st & 2nd", command=lambda: self.SwitchFunction('Equation 2nd'))
+        filemenu.add_command(label='Equation', command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_separator()
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
@@ -273,28 +284,40 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.Operation['bg'] = 'indian red'
+            self.Equation_2nd['bg'] = 'slate gray'
             self.Equation['bg'] = 'slate gray'
             self.Function['bg'] = 'slate gray'
             self.btn[5]['state'] = ['disabled']
-            self.btn[11].config(state=NORMAL)
+            self.btn[2].config(state=NORMAL)
 
-        elif self.mode == 'Equation':
+        elif self.mode == 'Equation 2nd':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
             self.FastTextVariable.set('aX² + bX + c = 0')
-            self.Equation['bg'] = 'indian red'
+            self.Equation_2nd['bg'] = 'indian red'
+            self.Equation['bg'] = 'slate gray'
             self.Function['bg'] = 'slate gray'
             self.Operation['bg'] = 'slate gray'
             self.btn[5].config(state=DISABLED)
-            self.btn[11].config(state=DISABLED)
+            self.btn[2].config(state=DISABLED)
 
         elif self.mode == 'Function':
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.Function['bg'] = 'indian red'
+            self.Equation_2nd['bg'] = 'slate gray'
             self.Equation['bg'] = 'slate gray'
             self.Operation['bg'] = 'slate gray'
             self.btn[5]['state'] = ['normal']
-            self.btn[11]['state'] = ['disabled']
+            self.btn[2]['state'] = ['disabled']
+
+        elif self.mode == 'Equation':
+            self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
+            self.Function['bg'] = 'slate gray'
+            self.Equation_2nd['bg'] = 'slate gray'
+            self.Equation['bg'] = 'indian red'
+            self.Operation['bg'] = 'slate gray'
+            self.btn[5].config(state=NORMAL)
+            self.btn[2].config(state=DISABLED)
 
         self.Clear()
 
@@ -320,13 +343,18 @@ class Calculator:
             Rad_Deg.configure(fg='orange', activeforeground='indian red')
 
     def Clear(self):
+        self.a = ''
+        self.b = ''
+        self.c = ''
+        self.q = ''
+        self.p = ''
         self.store_expression = []
         self.store_order = []
         self.expression = ''
         self.TextVariable.set('')
         self.FastTextVariable.set('')
 
-        if self.mode == 'Equation':
+        if self.mode == 'Equation 2nd':
             self.TextVariable.set(f'a = ')
             self.FastTextVariable.set('aX² + bX + c = 0')
 
@@ -421,6 +449,9 @@ class Calculator:
                 elif put == 'plus':
                     self.Input('+')
 
+                elif put == 'asciicircum':
+                    self.Input('^')
+
                 elif put == 'period':
                     self.Input('.')
 
@@ -447,6 +478,9 @@ class Calculator:
 
                 elif put == 'j':
                     self.Input('1j')
+
+                elif put == 'i':
+                    self.Input('i')
 
                 elif put == 'exclam':
                     self.Input('factorial(')
@@ -476,7 +510,7 @@ class Calculator:
                 self.TextVariable.set(self.expression)
                 self.FastTextVariable.set(eval(self.expression))
 
-            elif self.mode == 'Equation':
+            elif self.mode == 'Equation 2nd':
                 if not self.full and not self.half:
                     self.TextVariable.set(f'a = {self.expression}')
                     self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
@@ -501,6 +535,14 @@ class Calculator:
                 elif self.full:
                     self.TextVariable.set(f'f(x) = {self.expression}')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
+
+            elif self.mode == 'Equation':
+                if not self.full:
+                    self.TextVariable.set(self.expression)
+                    self.FastTextVariable.set(self.expression)
+                elif self.full:
+                    self.TextVariable.set(f'{self.q} = {self.expression}')
+                    self.FastTextVariable.set(f'{self.q} = {self.expression}')
 
         except ZeroDivisionError:
             self.FastTextVariable.set(inf)
@@ -532,7 +574,7 @@ class Calculator:
                     g = int(len(self.store_expression)) - 1
                     while True:
                         trs = str(self.store_expression[z])
-                        if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**':
+                        if trs == '+' or trs == '-' or trs == '*' or trs == '/' or trs == '**' or trs == '^':
                             while z <= g:
                                 self.expression += str(self.store_expression[z])
                                 z += 1
@@ -544,7 +586,7 @@ class Calculator:
                             break
                         z -= 1
 
-            elif self.mode == 'Equation':
+            elif self.mode == 'Equation 2nd':
                 if not self.full:
                     if not self.half:
                         self.a = float(eval(self.expression))
@@ -588,10 +630,12 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 ∆>0 : X = (-b ± √∆) / 2a
 
  X[1] = ({nb} + √{d}) / (2 x {self.a})
+       = ({nb} + √{d}) / ({2 * self.a})
        = ({nb} + {sqrt(d)}) / ({2 * self.a})
        = {(nb + sqrt(d)) / (2 * self.a)}
 
  X[2] = ({nb} - √{d}) / (2 x {self.a})
+       = ({nb} - √{d}) / ({2 * self.a})
        = ({nb} - {sqrt(d)}) / ({2 * self.a})
        = {(nb - sqrt(d)) / (2 * self.a)}''')
                         elif d <= 0:
@@ -600,17 +644,19 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 ∆<0 : X = (-b ± j√∆) / 2a
 
  X[1] = ({nb} + √({nd})j) / (2 x {self.a})
+       = ({nb} + √({nd})j) / ({2 * self.a})
        = {cx(nb + sqrt(nd) * 1j)} / ({2 * self.a})
        = {cx((nb + sqrt(nd) * 1j) / (2 * self.a))}
 
  X[2] = ({nb} - √({nd})j) / (2 x {self.a})
+       = ({nb} - √({nd})j) / ({2 * self.a})
        = {cx(nb - sqrt(nd) * 1j)} / ({2 * self.a})
        = {cx((nb - sqrt(nd) * 1j) / (2 * self.a))}
 
   z = a ± bj
 
    a = {nb / (2 * self.a)}
-   b = {sqrt(nd) / (2 * self.a)}''')
+   b = ±{sqrt(nd) / (2 * self.a)}''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
                             self.TextVariable.set(f"Empty Solution {{Ꞩ}}")
@@ -662,6 +708,24 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.full = False
                     self.half = False
 
+            elif self.mode == 'Equation':
+                if not self.full:
+                    self.q = str(eval(self.expression))
+                    self.expression = ""
+                    self.TextVariable.set(f'{self.q} = ')
+                    self.full = True
+
+                elif self.full:
+                    self.p = str(eval(self.expression))
+                    sol = solveset(Eq(eval(self.q), eval(self.p)), self.x)
+                    self.TextVariable.set(f'\n{self.q} = {self.p}')
+                    self.FullTextDisplay.insert(INSERT, f'\n{self.q} = {self.p}')
+                    self.FastTextVariable.set(sol)
+                    self.FullTextDisplay.insert(INSERT, f'\n{sol}')
+
+                    self.clear = True
+                    self.full = False
+
         except ZeroDivisionError:
             self.FastTextVariable.set(inf)
         except ValueError:
@@ -705,11 +769,9 @@ if __name__ == "__main__":
     menubare.add_cascade(label="File", menu=filemenu)
     # run calculator
     Calculator(win)
-    style = ttk.Style()
-    style.theme_use('alt')
     # Window configuration
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.2.3")
+    win.title("Scientific Calculator v3.3")
     win.mainloop()
