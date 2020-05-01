@@ -266,22 +266,31 @@ class Calculator:
         self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
-        filemenu.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
-        filemenu.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
-        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation'))
-        filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
-        filemenu.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm'))
-        filemenu.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D'))
-        filemenu.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL'))
-        filemenu.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS'))
-        filemenu.add_separator()
-        filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
-        filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
-        filemenu.add_separator()
-        filemenu.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
-        filemenu.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
-        filemenu.add_separator()
-        filemenu.add_command(label="Close         Alt+F4", command=Exit)
+        File.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
+        File.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
+        File.add_separator()
+        File.add_command(label='1st Page             V', command=lambda: self.SwitchButtons("1st"))
+        File.add_command(label='2nd Page           B', command=lambda: self.SwitchButtons("2nd"))
+        File.add_separator()
+        File.add_command(label="Close         Alt+F4", command=Exit)
+        Mode.add_command(label="Operation", command=lambda: self.SwitchFunction("Operation"))
+        Mode.add_command(label='Function', command=lambda: self.SwitchFunction('Function'))
+        Mode.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation'))
+        Mode.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
+        Mode.add_separator()
+        Mode.add_command(label='Plot', command=lambda: self.SwitchFunction('Plot'))
+        Mode.add_command(label='Plot Prm', command=lambda: self.SwitchFunction('Plot Prm'))
+        Mode.add_command(label='Plot3D', command=lambda: self.SwitchFunction('Plot3D'))
+        Mode.add_command(label='P3DPL', command=lambda: self.SwitchFunction('P3DPL'))
+        Mode.add_command(label='P3DPS', command=lambda: self.SwitchFunction('P3DPS'))
+        Switch.add_command(label='ENG', command=lambda: self.SwitchENG(int(16)))
+        Switch.add_command(label='ENG₍₁₅₎', command=lambda: self.SwitchENG(int(15)))
+        Switch.add_command(label='ENG₍₁₂₎', command=lambda: self.SwitchENG(int(12)))
+        Switch.add_command(label='ENG₍₉₎', command=lambda: self.SwitchENG(int(9)))
+        Switch.add_command(label='ENG₍₆₎', command=lambda: self.SwitchENG(int(6)))
+        Switch.add_command(label='ENG₍₃₎', command=lambda: self.SwitchENG(int(3)))
+        Switch.add_command(label='ENG₍₂₎', command=lambda: self.SwitchENG(int(2)))
+        Switch.add_command(label='ENG₍₁₎', command=lambda: self.SwitchENG(int(1)))
 
     def SwitchButtons(self, side):
         page = side
@@ -496,6 +505,7 @@ class Calculator:
     def SwitchENG(self, NBR):
         dot = NBR
         self.ENG = NBR
+
         if dot == int(16):
             self.btn_m[2].configure(text='ENG', command=lambda: self.SwitchENG(int(15)), fg='orange',
                                     activeforeground='indian red')
@@ -981,8 +991,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             elif self.mode == 'Solve':
                 if self.full is None:
                     self.q = str(eval(self.expression))
-                    self.expression = ""
                     self.TextVariable.set(f'{self.q} = ')
+                    self.expression = ""
                     self.full = True
 
                 elif self.full:
@@ -1029,7 +1039,6 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx1}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
-                    self.expression = ""
                     if not self.equal:
                         self.P3d = plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
                         self.expression = ""
@@ -1057,7 +1066,6 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.fctx2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'\nf(x)₂ = {self.fctx2}')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = {self.fctx2}')
-                    self.expression = ""
                     if not self.equal:
                         self.P3d = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
                         self.expression = ""
@@ -1104,7 +1112,6 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     self.fctxy2 = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy1}')
                     self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.fctxy2}')
-                    self.expression = ""
                     if not self.equal:
                         self.P3d = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
                                                              self.x - self.y)
@@ -1144,8 +1151,12 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 if __name__ == "__main__":
     win = Tk()
     menubare = Menu(win)
-    filemenu = Menu(menubare, tearoff=0)
-    menubare.add_cascade(label="File", menu=filemenu)
+    File = Menu(menubare, tearoff=0)
+    Mode = Menu(menubare, tearoff=0)
+    Switch = Menu(menubare, tearoff=0)
+    menubare.add_cascade(label="File", menu=File)
+    menubare.add_cascade(label="Mode", menu=Mode)
+    menubare.add_cascade(label="Float", menu=Switch)
     # run calculator
     Calculator(win)
     # Window configuration
