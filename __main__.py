@@ -6,8 +6,8 @@ from sympy import *
 from sympy.abc import x
 from sympy.solvers.solveset import solvify
 
-# version 4.1.2
-# Improve Control Numerical Evaluation in All Modes
+# version 4.1.3
+# Change Background of First Text Display
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -28,7 +28,7 @@ big_prm = {'padx': 8,
            'width': 7,
            'height': 1,
            'relief': 'raised',
-           'activebackground': 'slate gray',
+           'activebackground': '#80000B',
            'activeforeground': "white"}
 ent_prm = {'bd': 1,
            'fg': 'white',
@@ -36,16 +36,6 @@ ent_prm = {'bd': 1,
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = 3.141592653589793
-
-
-class EntryBox(Entry):
-    def __init__(self, master=None, cnf=None, **kw):
-        if cnf is None:
-            cnf = {}
-        kw = tk._cnfmerge((kw, cnf))
-        kw['justify'] = kw.get('justify', 'left')
-        kw['state'] = 'readonly'
-        super(EntryBox, self).__init__(master=master, **kw)
 
 
 def Exit():
@@ -162,9 +152,9 @@ class Calculator:
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        FirstTextDisplay = EntryBox(master, width=43, **ent_prm, textvariable=self.TextVariable)
+        FirstTextDisplay = Spinbox(master, width=40, **ent_prm, textvariable=self.TextVariable)
         FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 32))
+        FirstTextDisplay.configure(font=('Segoe UI Symbol', 34), state='readonly', readonlybackground='#4d4d4d')
         FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
         SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable)
@@ -254,10 +244,9 @@ class Calculator:
         self.btn[25].configure(bg='#292929', activebackground="#292929")
         # Equals #292929
         self.btn[26].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
-
         # run button switcher and display switcher mode=================================================================
-        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians'), self.SwitchENG(
-            int(16))
+        self.SwitchButtons('1st'), self.SwitchFunction('Operation'), self.SwitchDegRad('Radians')
+        self.SwitchENG(int(16))
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
@@ -560,7 +549,10 @@ class Calculator:
             self.btn_m[2].configure(text='ENG₍₆₎', command=lambda: self.SwitchENG(int(3)), fg='orange',
                                     activeforeground='indian red')
         elif dot == int(3):
-            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
+            self.btn_m[2].configure(text='ENG₍₃₎', command=lambda: self.SwitchENG(int(2)), fg='orange',
+                                    activeforeground='indian red')
+        elif dot == int(2):
+            self.btn_m[2].configure(text='ENG₍₂₎', command=lambda: self.SwitchENG(int(1)), fg='orange',
                                     activeforeground='indian red')
         elif dot == int(1):
             self.btn_m[2].configure(text='ENG₍₁₎', command=lambda: self.SwitchENG(int(16)), fg='orange',
@@ -789,10 +781,8 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                     if sol is None:
                         sol = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.R)
                     self.FastTextVariable.set(sol)
-                    m = 1
                     for l in range(len(sol)):
-                        self.FullTextDisplay.insert(INSERT, f'\nX[{m}] = {sol[l]}')
-                        m += 1
+                        self.FullTextDisplay.insert(INSERT, f'\nX[{int(l) + 1}] = {sol[l]}')
 
                     self.clear = True
                     self.full = None
@@ -852,5 +842,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v4.1.2")
+    win.title("PyMathon v4.1.3")
     win.mainloop()
