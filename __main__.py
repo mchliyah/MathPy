@@ -6,38 +6,36 @@ from sympy import *
 from sympy.abc import x
 from sympy.solvers.solveset import solvify
 
-# version 4.0
-# Support infinty
-# Reorganize Buttons
-btn_prm = {'padx': 16,
-           'pady': 1,
-           'bd': 4,
+# version 4.1.0
+# New Disigne, Resize & Optimize
+btn_prm = {'padx': 18,
+           'pady': 2,
+           'bd': 1,
            'fg': 'white',
            'bg': '#666666',
            'font': ('Segoe UI Symbol', 16),
            'width': 2,
            'height': 1,
-           'relief': 'flat',
+           'relief': 'raised',
            'activebackground': '#666666',
            'activeforeground': "white"}
-big_prm = {'padx': 16,
-           'pady': 1,
-           'bd': 4,
+big_prm = {'padx': 8,
+           'pady': 7,
+           'bd': 1,
            'fg': 'white',
            'bg': 'slate gray',
-           'font': ('Segoe UI Symbol', 16),
-           'width': 5,
+           'font': ('Segoe UI Symbol', 15),
+           'width': 7,
            'height': 1,
            'relief': 'raised',
-           'activebackground': 'dim gray',
+           'activebackground': 'slate gray',
            'activeforeground': "white"}
-ent_prm = {'bd': 4,
+ent_prm = {'bd': 1,
            'fg': 'white',
            'bg': 'gray94',
            'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 π = 3.141592653589793
-ne = 2.718281828459045
 
 
 class EntryBox(Entry):
@@ -106,10 +104,6 @@ def Sq(arg):
     return sqrt(arg)
 
 
-def iSq(arg):
-    return isqrt(arg)
-
-
 def Ln(arg):
     return log(arg)
 
@@ -168,16 +162,16 @@ class Calculator:
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        FirstTextDisplay = EntryBox(master, width=44, **ent_prm, textvariable=self.TextVariable)
+        FirstTextDisplay = EntryBox(master, width=43, **ent_prm, textvariable=self.TextVariable)
         FirstTextDisplay.grid(row=0, column=0, columnspan=2)
         FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 32))
         FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
-        SecondTextDisplay = Entry(master, width=33, **ent_prm, textvariable=self.FastTextVariable)
+        SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable)
         SecondTextDisplay.grid(row=1, column=1)
-        SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 25), justify='right')
+        SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 30), justify='right')
         # Full Text Display
-        self.FullTextDisplay = Text(master, width=54, height=15, **ent_prm)
+        self.FullTextDisplay = Text(master, width=54, height=14, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
@@ -203,7 +197,7 @@ class Calculator:
                                    command=lambda: self.SwitchFunction('Equation 2nd'))
         self.Equation_2nd.grid(row=0, column=4)
         # self.Equation_2nd['width'] = 2
-        self.Equation = Button(self.top_frame, **big_prm, text="Solve Set",
+        self.Equation = Button(self.top_frame, **big_prm, text="Solve",
                                command=lambda: self.SwitchFunction('Equation'))
         self.Equation.grid(row=0, column=6)
         # self.Equation['width'] = 2
@@ -227,7 +221,7 @@ class Calculator:
         # ROW 2
         # ========================Logarithm=============================================================================
         Logarithm_pad = ['Ln(', 'Log(', "Log2(", 'Exp(', 'sqrt(', "oo"]
-        Logarithm_txt = ['Ln', 'Log₁₀', "Log₂", 'Exp', '√n', "∞"]
+        Logarithm_txt = ['Ln', 'Log₍₁₀₎', "Log₍₂₎", 'Exp', '√n', "∞"]
         self.btn_d = []
         i = 0
         for k in range(6):
@@ -237,11 +231,11 @@ class Calculator:
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ['π', 'ne', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', 'e-', "4", "5", "6", "-", "**2", 'e', "1",
-               "2", "3", "*", "**", "Sq(", '0', ".", "=", "/", "Fact(", '/100']
+        btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', 'e-', "4", "5", "6", "-", "**2", 'e', "1",
+               "2", "3", "*", "**", "Sq(", '.', "0", "=", "/", "Fact(", '/100']
 
-        btn_txt = ['π', 'ne', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', 'nx10ˉˣ', "4", "5", "6", "-",
-                   u'n\u00B2', 'nx10ˣ', "1", "2", "3", "*", "nˣ", '√n', '0', ".", "=", "/", "!n", "n%"]
+        btn_txt = ['π', 'E', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', '10ˉˣ', "4", "5", "6", "-",
+                   u'n\u00B2', '10ˣ', "1", "2", "3", "*", "nˣ", '√n', '.', "0", "=", "/", "!n", "n%"]
         self.btn = []
         i = 0
         for j in range(5):
@@ -251,7 +245,14 @@ class Calculator:
                 self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d",
                                       command=lambda n=btn[i]: self.Input(n))
                 i += 1
-        # Equals
+        for l in range(6, 9):
+            self.btn[l].configure(bg='#292929', activebackground="#292929")
+        for l in range(12, 15):
+            self.btn[l].configure(bg='#292929', activebackground="#292929")
+        for l in range(18, 21):
+            self.btn[l].configure(bg='#292929', activebackground="#292929")
+        self.btn[25].configure(bg='#292929', activebackground="#292929")
+        # Equals #292929
         self.btn[26].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
 
         # run button switcher and display switcher mode=================================================================
@@ -260,7 +261,7 @@ class Calculator:
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
         filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('Equation 2nd'))
-        filemenu.add_command(label='Solve Set', command=lambda: self.SwitchFunction('Equation'))
+        filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Equation'))
         filemenu.add_separator()
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
@@ -316,9 +317,9 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.Operation['bg'] = 'indian red'
-            self.Equation_2nd['bg'] = 'slate gray'
-            self.Equation['bg'] = 'slate gray'
-            self.Function['bg'] = 'slate gray'
+            self.Equation_2nd['bg'] = '#4d4d4d'
+            self.Equation['bg'] = '#4d4d4d'
+            self.Function['bg'] = '#4d4d4d'
             self.btn[5]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
 
@@ -326,9 +327,9 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
             self.FastTextVariable.set('aX² + bX + c = 0')
             self.Equation_2nd['bg'] = 'indian red'
-            self.Equation['bg'] = 'slate gray'
-            self.Function['bg'] = 'slate gray'
-            self.Operation['bg'] = 'slate gray'
+            self.Equation['bg'] = '#4d4d4d'
+            self.Function['bg'] = '#4d4d4d'
+            self.Operation['bg'] = '#4d4d4d'
             self.btn[5].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
 
@@ -336,18 +337,18 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.Function['bg'] = 'indian red'
-            self.Equation_2nd['bg'] = 'slate gray'
-            self.Equation['bg'] = 'slate gray'
-            self.Operation['bg'] = 'slate gray'
+            self.Equation_2nd['bg'] = '#4d4d4d'
+            self.Equation['bg'] = '#4d4d4d'
+            self.Operation['bg'] = '#4d4d4d'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
 
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
-            self.Function['bg'] = 'slate gray'
-            self.Equation_2nd['bg'] = 'slate gray'
+            self.Function['bg'] = '#4d4d4d'
+            self.Equation_2nd['bg'] = '#4d4d4d'
             self.Equation['bg'] = 'indian red'
-            self.Operation['bg'] = 'slate gray'
+            self.Operation['bg'] = '#4d4d4d'
             self.btn[5].config(state=NORMAL)
             self.btn[2].config(state=DISABLED)
 
@@ -451,6 +452,12 @@ class Calculator:
                 elif keyword.keysym == 'Return' or put == 'equal':
                     self.InputEquals()
 
+                elif keyword.keysym == 'E':
+                    self.Input('E')
+
+                elif keyword.keysym == 'e':
+                    self.Input('e')
+
                 elif put == 'v':
                     self.SwitchButtons("1st")
 
@@ -526,7 +533,7 @@ class Calculator:
                 elif put == 'h':
                     self.Input('h(')
 
-                elif put == 'x' or put == 'e' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
+                elif put == 'x' or put == 'p' or put == '0' or put == '1' or put == '2' or put == '3' \
                         or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
                     self.Input(put)
 
@@ -586,6 +593,8 @@ class Calculator:
         except SyntaxError:
             pass
         except NameError:
+            pass
+        except IndexError:
             pass
         except TypeError:
             pass
@@ -810,5 +819,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v4.0")
+    win.title("PyMathon v4.1.0")
     win.mainloop()
