@@ -19,7 +19,8 @@ import __eci__ as eci
 # stop working switching Radians to Degree function and delete it
 # add LambertW
 # make writen more easy in logarithm & trigonometrical functions
-# new function *Control-Cursor to improve moving cursor 
+# optimize bind : *equal now are more perfection *optimize keys of logarithm & trigonometrical functions
+# new function *Control-Cursor to improve moving cursor with optimize click insert 
 """
 
 btn_prm = {'padx': 18,
@@ -527,9 +528,15 @@ class Calculator:
 
     def Info(self, event):
         self.FirstTextDisplay.icursor("@%d" % event.x)
-        self.IndexCursor = int(self.FirstTextDisplay.index("@%d" % event.x))
-        self.FirstTextDisplay.icursor(self.IndexCursor)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+        try:
+            end = len(str(self.expression))
+            if self.IndexCursor < end:
+                self.IndexCursor, n = ControlCursor(self.IndexCursor, self.store_order)
+        except Exception:
+            pass
         print('click cursor =', self.IndexCursor)
+        self.FirstTextDisplay.icursor(self.IndexCursor)
 
     def CHDR(self, key):
         if key == 'Right':
@@ -888,8 +895,9 @@ class Calculator:
             else:
                 if self.clear:
                     self.Delete()
-                if keyword.keysym == 'Return' or put == 'equal':
-                    self.ShowEqualText()
+                else:
+                    if keyword.keysym == 'Return' or put == 'equal':
+                        self.ShowEqualText()
 
             if keyword.keysym == 'BackSpace':
                 self.Remove()
@@ -901,7 +909,7 @@ class Calculator:
                 self.Input('E')
 
             elif keyword.keysym == 'e':
-                self.Input('exp(')
+                self.Input('exp('), self.Input(')'), self.CHDR('Left')
 
             elif put == 'v':
                 self.SwitchButtons("1st")
@@ -934,28 +942,28 @@ class Calculator:
                 self.Input(')')
 
             elif put == 'backslash' or put == 'bar':
-                self.Input('sqrt(')
+                self.Input('sqrt('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 's':
-                self.Input('sin(')
+                self.Input('sin('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 'c':
-                self.Input('cos(')
+                self.Input('cos('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 't':
-                self.Input('tan(')
+                self.Input('tan('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 'S':
-                self.Input('sinh(')
+                self.Input('sinh('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 'C':
-                self.Input('cosh(')
+                self.Input('cosh('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 'T':
-                self.Input('tanh(')
+                self.Input('tanh('), self.Input(')'), self.CHDR('Left')
 
             elif keyword.keysym == 'l':
-                self.Input('log(')
+                self.Input('log('), self.Input(')'), self.CHDR('Left')
 
             elif put == 'i':
                 self.Input('oo')
@@ -964,7 +972,7 @@ class Calculator:
                 self.Input('1j')
 
             elif put == 'exclam' or put == 'f':
-                self.Input('factorial(')
+                self.Input('factorial('), self.Input(')'), self.CHDR('Left')
 
             elif put == 'p':
                 self.Input('π')
@@ -980,7 +988,10 @@ class Calculator:
                 self.CHDR('Left')
 
             else:
-                self.ShowDirectText()
+                if keyword.keysym == 'Return' or put == 'equal':
+                    pass
+                else:
+                    self.ShowDirectText()
 
         except IndexError:
             self.SecondStrVar.set('IndexError')
