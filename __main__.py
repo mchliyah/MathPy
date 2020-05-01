@@ -2,8 +2,8 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 2.2.0
-# Equation and Function in Second Entry First Text Display
+# version 2.2.1
+# Improve Equation and Function in Second Entry First Text Display
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -18,12 +18,12 @@ big_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
            'fg': 'white',
-           'bg': '#666666',
+           'bg': 'dark slate gray',
            'font': ('Segoe UI Symbol', 16),
            'width': 5,
            'height': 1,
            'relief': 'flat',
-           'activebackground': "#666666"}
+           'activebackground': 'dim gray'}
 ent_prm = {'bd': 4,
            'fg': 'white',
            'bg': '#4d4d4d',
@@ -85,19 +85,15 @@ class Calculator:
         self.Operation = Button(top_frame, **big_prm, text="Operation",
                                 command=lambda: self.SwitchFunction("Operation"))
         self.Operation.grid(row=0, column=0, columnspan=2)
-        self.Operation.configure(bg='dark slate gray', activebackground='dark slate gray')
         # Equation
         self.Equation = Button(top_frame, **big_prm, text="Equation", command=lambda: self.SwitchFunction("Equation"))
         self.Equation.grid(row=0, column=2, columnspan=2)
-        self.Equation.configure(bg='dark slate gray', activebackground='dark slate gray')
         # Function
         self.Function = Button(top_frame, **big_prm, text="Function", command=lambda: self.SwitchFunction("Function"))
         self.Function.grid(row=0, column=4, columnspan=2)
-        self.Function.configure(bg='dark slate gray', activebackground='dark slate gray')
         # COMPLEX
         self.Complex = Button(top_frame, **big_prm, text='Complex', command=lambda: self.SwitchFunction("Complex"))
         self.Complex.grid(row=0, column=6, columnspan=2)
-        self.Complex.configure(bg='dark slate gray', activebackground='dark slate gray')
 
         # buttons that will be displayed on middle frame ROW 0==========================================================
         # left
@@ -293,7 +289,7 @@ class Calculator:
 
                 elif self.full:
                     self.TextInput.set(f'f(x) = {self.expression}')
-                    self.FastText.set(f'From : {self.v} --> To : {int(self.w)-1} | f(x) = {self.expression}')
+                    self.FastText.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
 
             elif self.mode == 'Complex':
                 self.TextInput.set(self.expression)
@@ -457,7 +453,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
 
 
 win = Tk()
-win.title("Scientific Calculator v2.1.1")
+win.title("Scientific Calculator v2.2.1")
 # win.configure(bg='#666666')
 win.configure(bg='#4d4d4d')
 win.resizable(False, False)
