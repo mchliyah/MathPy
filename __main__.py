@@ -1238,21 +1238,23 @@ class Calculator:
                                             f'  x = {neg(c)} / {b}',
                                             f'  x = {neg(c) / b}')
 
-    def ReBuild(self):
+    @staticmethod
+    def ReBuild(str_order):
+        global v, w
         try:
-            self.expression = ''
-            self.v = int(len(self.store_expression)) - 1
-            self.w = int(len(self.store_expression))
+            expression = ''
+            v = int(len(str_order)) - 1
+            w = int(len(str_order))
             while True:
-                operation = str(self.store_expression[self.v])
+                operation = str(str_order[v])
                 if operation == '**' or operation == '+' or operation == '-' or operation == '*' or operation == '/' \
                         or operation == '^':
-                    for y in range(self.v, self.w):
-                        self.expression += str(self.store_expression[y])
-                    break
-                self.v -= 1
+                    for y in range(v, w):
+                        expression += str(str_order[y])
+                    return expression
+                v -= 1
         except Exception:
-            self.SecondStrVar.set('error')
+            pass
 
     def ShowEqualText(self):
         self.callback_function.append(str(self.expression))
@@ -1269,7 +1271,7 @@ class Calculator:
                         self.equal = True
 
                     elif self.equal:
-                        self.ReBuild()
+                        self.expression = self.ReBuild(self.store_expression)
                         self.expression = str(self.callback[-1]) + str(self.expression)
                         self.answer = eval(self.expression)
                         self.FirstStrVar.set(f'{self.expression} = {self.answer}')
