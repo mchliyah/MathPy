@@ -2,8 +2,8 @@ from tkinter import *
 from math import *
 from operator import *
 
-# version 2.2.1
-# Improve Equation and Function in Second Entry First Text Display
+# version 2.3
+# fix Minor Bugs
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -55,17 +55,17 @@ class Calculator:
         self.clear = False
         self.full = False
         self.half = False
-        # create string for text input
-        self.TextInput = StringVar()
-        self.FastText = StringVar()
+        # string variable for text input
+        self.TextVariable = StringVar()
+        self.FastTextVariable = StringVar()
 
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        self.FirstTextDisplay = Entry(master, width=44, **ent_prm, textvariable=self.TextInput)
+        self.FirstTextDisplay = Entry(master, width=44, **ent_prm, textvariable=self.TextVariable)
         self.FirstTextDisplay.grid(row=0, column=0, columnspan=2)
         self.FirstTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 35))
         # Second Text Display
-        self.SecondTextDisplay = Entry(master, width=36, **ent_prm, textvariable=self.FastText)
+        self.SecondTextDisplay = Entry(master, width=36, **ent_prm, textvariable=self.FastTextVariable)
         self.SecondTextDisplay.grid(row=1, column=1)
         self.SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 26), justify='right')
         # Full Text Display
@@ -121,18 +121,17 @@ class Calculator:
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        number_pad = ["7", "8", "9", "+", self.ans, 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
-                      'e', '0', ".", "=", "/", "factorial(", 'pi']
-        number_txt = ["7", "8", "9", "+", 'Answer', 'x', "4", "5", "6", "-", "^", "j", "1", "2", "3", "*", "√",
-                      'e', '0', ".", "=", "/", "!", 'π']
+        btn = ["7", "8", "9", "+", self.ans, 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
+               'e', '0', ".", "=", "/", "factorial(", 'pi']
+        btn_txt = ["7", "8", "9", "+", 'Answer', 'x', "4", "5", "6", "-", "^", "j", "1", "2", "3", "*", "√",
+                   'e', '0', ".", "=", "/", "!", 'π']
         self.btn = []
         i = 0
         for j in range(4):
             for k in range(6):
-                self.btn.append(Button(bottom_frame, **btn_prm, text=number_txt[i]))
+                self.btn.append(Button(bottom_frame, **btn_prm, text=btn_txt[i]))
                 self.btn[i].grid(row=j, column=k)
-                self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d",
-                                      command=lambda n=number_pad[i]: self.Input(n))
+                self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d", command=lambda n=btn[i]: self.Input(n))
                 i += 1
         # Equals
         self.btn[20].configure(bg='#ff9980', activebackground='#ff9980', command=self.InputEquals)
@@ -183,6 +182,7 @@ class Calculator:
         self.FullTextDisplay.delete(1.0, END)
         if self.mode == 'Operation':
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
+            self.FastTextVariable.set('')
             self.Operation['bg'] = 'indian red'
             self.Equation['bg'] = 'dark slate gray'
             self.Function['bg'] = 'dark slate gray'
@@ -192,7 +192,7 @@ class Calculator:
 
         elif self.mode == 'Equation':
             self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
-            self.FastText.set('aX² + bX + c = 0')
+            self.FastTextVariable.set('aX² + bX + c = 0')
             self.Equation['bg'] = 'indian red'
             self.Function['bg'] = 'dark slate gray'
             self.Operation['bg'] = 'dark slate gray'
@@ -202,7 +202,7 @@ class Calculator:
 
         elif self.mode == 'Function':
             self.FullTextDisplay.insert(INSERT, 'Mode Function : f(x)')
-            self.FastText.set(f'From : A --> To : B | f(x) = Function')
+            self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.Function['bg'] = 'indian red'
             self.Equation['bg'] = 'dark slate gray'
             self.Operation['bg'] = 'dark slate gray'
@@ -212,6 +212,7 @@ class Calculator:
 
         elif self.mode == 'Complex':
             self.FullTextDisplay.insert(INSERT, 'Mode Complex :')
+            self.FastTextVariable.set('')
             self.Function['bg'] = 'dark slate gray'
             self.Equation['bg'] = 'dark slate gray'
             self.Operation['bg'] = 'dark slate gray'
@@ -224,13 +225,16 @@ class Calculator:
     def Clear(self):
         self.store = []
         self.expression = ''
-        self.TextInput.set('')
+        self.TextVariable.set('')
+        self.FastTextVariable.set('')
 
         if self.mode == 'Equation':
-            self.TextInput.set(f'a = ')
+            self.TextVariable.set(f'a = ')
+            self.FastTextVariable.set('aX² + bX + c = 0')
 
         elif self.mode == 'Function':
-            self.TextInput.set(f'From : ')
+            self.TextVariable.set(f'From : ')
+            self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
 
         self.clear = False
         self.full = False
@@ -245,7 +249,7 @@ class Calculator:
             self.store.remove(self.store[-1])
 
         except IndexError:
-            self.FullTextDisplay.insert(INSERT, f'\nIndexError')
+            self.FastTextVariable.set('IndexError')
 
         self.Click()
 
@@ -261,40 +265,40 @@ class Calculator:
     def Click(self):
         try:
             if self.mode == 'Operation':
-                self.TextInput.set(self.expression)
+                self.TextVariable.set(self.expression)
                 self.ans = eval(self.expression)
-                self.FastText.set(self.ans)
+                self.FastTextVariable.set(self.ans)
 
             elif self.mode == 'Equation':
                 if not self.full and not self.half:
-                    self.TextInput.set(f'a = {self.expression}')
-                    self.FastText.set(f'{self.expression}X² + bX + c = 0')
+                    self.TextVariable.set(f'a = {self.expression}')
+                    self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
 
                 elif not self.full and self.half:
-                    self.TextInput.set(f'b = {self.expression}')
-                    self.FastText.set(f'{self.a}X² + ({self.expression})X + c = 0')
+                    self.TextVariable.set(f'b = {self.expression}')
+                    self.FastTextVariable.set(f'{self.a}X² + ({self.expression})X + c = 0')
 
                 elif self.full:
-                    self.TextInput.set(f'c = {self.expression}')
-                    self.FastText.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
+                    self.TextVariable.set(f'c = {self.expression}')
+                    self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({self.expression}) = 0')
 
             elif self.mode == "Function":
                 if not self.full and not self.half:
-                    self.TextInput.set(f'From : {self.expression}')
-                    self.FastText.set(f'From : {self.expression} --> To : B | f(x) = Function')
+                    self.TextVariable.set(f'From : {self.expression}')
+                    self.FastTextVariable.set(f'From : {self.expression} --> To : B | f(x) = Function')
 
                 elif not self.full and self.half:
-                    self.TextInput.set(f'To : {self.expression}')
-                    self.FastText.set(f'From : {self.v} --> To : {self.expression} | f(x) = Function')
+                    self.TextVariable.set(f'To : {self.expression}')
+                    self.FastTextVariable.set(f'From : {self.v} --> To : {self.expression} | f(x) = Function')
 
                 elif self.full:
-                    self.TextInput.set(f'f(x) = {self.expression}')
-                    self.FastText.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
+                    self.TextVariable.set(f'f(x) = {self.expression}')
+                    self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
 
             elif self.mode == 'Complex':
-                self.TextInput.set(self.expression)
+                self.TextVariable.set(self.expression)
                 self.ans = eval(self.expression)
-                self.FastText.set(self.ans)
+                self.FastTextVariable.set(self.ans)
 
         except ZeroDivisionError:
             pass
@@ -312,8 +316,8 @@ class Calculator:
             if self.mode == 'Operation':
                 # self.expression = str(self.FirstTextDisplay.get()).lower()
                 self.ans = eval(self.expression)
-                self.FastText.set('')
-                self.TextInput.set(f'{self.expression} = {self.ans}')
+                self.FastTextVariable.set('')
+                self.TextVariable.set(f'{self.expression} = {self.ans}')
                 self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
                 self.clear = True
 
@@ -322,13 +326,13 @@ class Calculator:
                     if not self.half:
                         self.a = float(eval(self.expression))
                         self.expression = ""
-                        self.TextInput.set(f'b = ')
+                        self.TextVariable.set(f'b = ')
                         self.half = True
 
                     elif self.half:
                         self.b = float(eval(self.expression))
                         self.expression = ""
-                        self.TextInput.set(f'c = ')
+                        self.TextVariable.set(f'c = ')
                         self.full = True
 
                 elif self.full:
@@ -337,6 +341,8 @@ class Calculator:
                     nd = neg(d)
                     nb = neg(self.b)
                     cx = complex
+                    self.TextVariable.set(f'a = {self.a} | b = {self.b} | c = {c}')
+                    self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
                     if self.a > 0 or self.a < 0:
                         self.FullTextDisplay.insert(INSERT, f'''\n
 The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
@@ -384,10 +390,11 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
    b = {sqrt(nd) / (2 * self.a)}''')
                     elif self.a == 0:
                         if self.b == 0 and c == 0:
-                            self.FullTextDisplay.insert(INSERT, "\nEmpty Solution {Ꞩ}.")
+                            self.TextVariable.set(f"Empty Solution {{Ꞩ}}")
                         elif self.b == 0:
-                            self.FullTextDisplay.insert(INSERT, "\nEmpty Solution {Ꞩ}.")
+                            self.TextVariable.set(f"Empty Solution {{Ꞩ}}")
                         elif c == 0:
+                            self.FastTextVariable.set(f'{self.a}X² + ({self.b})X + ({c}) = 0')
                             self.FullTextDisplay.insert(INSERT, f'''\nThe Equation : {self.b}X + ({c}) = 0
 
  The Equation Have One Solution For X :
@@ -413,14 +420,14 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
                         self.v = int(self.expression)
                         self.FullTextDisplay.insert(INSERT, f'\nfrom : {self.expression}')
                         self.expression = ""
-                        self.TextInput.set(f'To : ')
+                        self.TextVariable.set(f'To : ')
                         self.half = True
 
                     elif self.half:
                         self.w = int(self.expression) + 1
                         self.FullTextDisplay.insert(INSERT, f'\nTo : {self.expression}')
                         self.expression = ""
-                        self.TextInput.set(f'f(x) = ')
+                        self.TextVariable.set(f'f(x) = ')
                         self.full = True
 
                 elif self.full:
@@ -435,25 +442,25 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             elif self.mode == 'Complex':
                 # self.expression = str(self.FirstTextDisplay.get()).lower()
                 self.ans = eval(self.expression)
-                self.FastText.set('')
-                self.TextInput.set(f'{self.expression} = {self.ans}')
+                self.FastTextVariable.set('')
+                self.TextVariable.set(f'{self.expression} = {self.ans}')
                 self.FullTextDisplay.insert(INSERT, f'\n{self.expression} = {self.ans}')
                 self.clear = True
 
         except ZeroDivisionError:
-            self.FullTextDisplay.insert(INSERT, f'\nZeroDivisionError')
+            self.FastTextVariable.set('ZeroDivisionError')
         except ValueError:
-            self.FullTextDisplay.insert(INSERT, f'\nValueError')
+            self.FastTextVariable.set('ValueError')
         except SyntaxError:
-            self.FullTextDisplay.insert(INSERT, f'\nSyntaxError')
+            self.FastTextVariable.set('SyntaxError')
         except NameError:
-            self.FullTextDisplay.insert(INSERT, f'\nNameError')
+            self.FastTextVariable.set('NameError')
         except TypeError:
-            self.FullTextDisplay.insert(INSERT, f'\nTypeError')
+            self.FastTextVariable.set('TypeError')
 
 
 win = Tk()
-win.title("Scientific Calculator v2.2.1")
+win.title("Scientific Calculator v2.3")
 # win.configure(bg='#666666')
 win.configure(bg='#4d4d4d')
 win.resizable(False, False)
