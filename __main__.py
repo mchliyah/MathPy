@@ -65,7 +65,6 @@ inverse_convert_constant = 1
 class Calculator(Canvas):
     def __init__(self, master):
         self.nb = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '⏨', '₍₎']
-
         self.ENG = 16
         self.btn_u = []
         self.btn_a = []
@@ -233,11 +232,11 @@ class Calculator(Canvas):
 
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', self.y, "4", "5", "6", "-", "**2", self.z,
-               "1", "2", "3", "*", "**", "e", '.', "0", "=", "/", "Fact(", '/100']
+        btn = ['π', 'E', "1j", "+", '(', ')', "7", "8", "9", "-", '/100', self.x, "4", "5", "6", "*", "**2", self.y,
+               "1", "2", "3", "/", "**", self.z, "0", '', '.', "=", "Fact(", 'e']
 
-        btn_txt = ['π', 'E', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', 'y', "4", "5", "6", "-",
-                   u'n\u00B2', 'z', "1", "2", "3", "*", "nˣ", '10ˣ', '.', "0", "=", "/", "!n", "n%"]
+        btn_txt = ['π', 'E', "j", "+", '(', ')', "7", "8", "9", "-", 'n%', 'x', "4", "5", "6", "*",
+                   u'n\u00B2', 'y', "1", "2", "3", "/", "nˣ", 'z', "0", '', '.', "=", "!n", "10ˣ"]
         self.btn = []
         i = 0
         for j in range(5):
@@ -246,25 +245,46 @@ class Calculator(Canvas):
                 self.btn[i].grid(row=j, column=k, sticky=NSEW, padx=1, pady=1)
                 self.btn[i].configure(command=lambda n=btn[i]: self.Input(n))
                 i += 1
+        # +
+        self.btn[3].configure(bg='#FF5E00', activebackground='#A74400')
+        self.btn[3].ActiveBack = '#CF4E00'
+        self.btn[3].DefaultBackGround = '#FF5E00'
+        # seven eight nine
         for l in range(6, 9):
             self.btn[l].configure(bg='#212121', activebackground="#111111")
             self.btn[l].ActiveBack = '#161616'
             self.btn[l].DefaultBackGround = '#212121'
+        # -
+        self.btn[9].configure(bg='#FF5E00', activebackground='#A74400')
+        self.btn[9].ActiveBack = '#CF4E00'
+        self.btn[9].DefaultBackGround = '#FF5E00'
+        # four five six
         for l in range(12, 15):
             self.btn[l].configure(bg='#212121', activebackground="#111111")
             self.btn[l].ActiveBack = '#161616'
             self.btn[l].DefaultBackGround = '#212121'
+        # *
+        self.btn[15].configure(bg='#FF5E00', activebackground='#A74400')
+        self.btn[15].ActiveBack = '#CF4E00'
+        self.btn[15].DefaultBackGround = '#FF5E00'
+        # one two three
         for l in range(18, 21):
             self.btn[l].configure(bg='#212121', activebackground="#111111")
             self.btn[l].ActiveBack = '#161616'
             self.btn[l].DefaultBackGround = '#212121'
-        self.btn[25].configure(bg='#212121', activebackground="#111111")
-        self.btn[25].ActiveBack = '#161616'
-        self.btn[25].DefaultBackGround = '#212121'
-        # Equals
-        self.btn[26].configure(bg='#FF5E00', activebackground='#A74400', command=self.InputEquals)
-        self.btn[26].ActiveBack = '#CF4E00'
-        self.btn[26].DefaultBackGround = '#FF5E00'
+        # /
+        self.btn[21].configure(bg='#FF5E00', activebackground='#A74400')
+        self.btn[21].ActiveBack = '#CF4E00'
+        self.btn[21].DefaultBackGround = '#FF5E00'
+        # zero
+        self.btn[24].configure(bg='#212121', activebackground="#111111")
+        self.btn[24].grid(columnspan=2)
+        self.btn[24].ActiveBack = '#161616'
+        self.btn[24].DefaultBackGround = '#212121'
+        # equals
+        self.btn[27].configure(bg='#FF5E00', activebackground='#A74400', command=self.InputEquals)
+        self.btn[27].ActiveBack = '#CF4E00'
+        self.btn[27].DefaultBackGround = '#FF5E00'
         # run button switcher and display switcher mode=================================================================
         self.SwitchButtons('1st'), self.SwitchFunction('Operation', True), self.SwitchDegRad('Radians')
         self.SwitchENG(int(16))
@@ -304,6 +324,7 @@ class Calculator(Canvas):
         Switch.add_command(label='ENG₉', command=lambda: self.SwitchENG(int(9)))
         Switch.add_command(label='ENG₁₂', command=lambda: self.SwitchENG(int(12)))
         Switch.add_command(label='ENG₁₅', command=lambda: self.SwitchENG(int(15)))
+        self.btn[25].destroy()
 
     def SwitchButtons(self, side):
         page = side
@@ -363,9 +384,9 @@ class Calculator(Canvas):
                     self.mode == 'P3DPS':
                 self.SwitchFunction(self.mode, False)
 
-    def SwitchFunction(self, passmode, doing):
+    def SwitchFunction(self, passmode, do_it):
         self.mode = passmode
-        self.switched = doing
+        self.switched = do_it
         if self.switched:
             self.FullTextDisplay.delete(0, END)
 
@@ -373,9 +394,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Operation :')
                 self.FastTextVariable.set('')
-                self.btn[5]['state'] = ['disabled']
                 self.btn[11]['state'] = ['disabled']
-                self.btn[17].config(state=DISABLED)
+                self.btn[17]['state'] = ['disabled']
+                self.btn[23].config(state=DISABLED)
                 self.btn[2].config(state=NORMAL)
                 self.btn_d[1].config(state=NORMAL)
                 self.btn_d[2].config(state=NORMAL)
@@ -390,10 +411,10 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Function : f(x)')
                 self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
-                self.btn[5]['state'] = ['normal']
+                self.btn[11]['state'] = ['normal']
                 self.btn[2]['state'] = ['disabled']
-                self.btn[11]['state'] = ['disabled']
-                self.btn[17].config(state=DISABLED)
+                self.btn[17]['state'] = ['disabled']
+                self.btn[23].config(state=DISABLED)
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
                 self.SwitchDegRad('Radians')
@@ -410,9 +431,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Simple Line Equation : ax² + bx + c = 0')
                 self.FastTextVariable.set('ax² + bx + c = 0')
-                self.btn[5].config(state=DISABLED)
                 self.btn[11].config(state=DISABLED)
                 self.btn[17].config(state=DISABLED)
+                self.btn[23].config(state=DISABLED)
                 self.btn[2].config(state=DISABLED)
                 self.btn_d[1].config(state=NORMAL)
                 self.btn_d[2].config(state=NORMAL)
@@ -430,9 +451,9 @@ class Calculator(Canvas):
         elif self.mode == 'Solve':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Line Equation Solver : One {eq} : [x] | Constants : (y,z)')
-                self.btn[5].config(state=NORMAL)
                 self.btn[11].config(state=NORMAL)
                 self.btn[17].config(state=NORMAL)
+                self.btn[23].config(state=NORMAL)
                 self.btn[2].config(state=DISABLED)
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -449,9 +470,9 @@ class Calculator(Canvas):
         elif self.mode == 'Matrix':
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode System Equation Solver :')
-                self.btn[5].config(state=NORMAL)
                 self.btn[11].config(state=NORMAL)
                 self.btn[17].config(state=NORMAL)
+                self.btn[23].config(state=NORMAL)
                 self.btn[2].config(state=DISABLED)
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -467,9 +488,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot : f(x)')
                 self.FastTextVariable.set(f'f(x)₁ = ')
-                self.btn[5]['state'] = ['normal']
-                self.btn[11]['state'] = ['disabled']
-                self.btn[17].config(state=DISABLED)
+                self.btn[11]['state'] = ['normal']
+                self.btn[17]['state'] = ['disabled']
+                self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -485,9 +506,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot Parametric : f(x)₁ | f(x)₂ ')
                 self.FastTextVariable.set(f'f(x)₁ = ')
-                self.btn[5]['state'] = ['normal']
-                self.btn[11]['state'] = ['disabled']
-                self.btn[17].config(state=DISABLED)
+                self.btn[11]['state'] = ['normal']
+                self.btn[17]['state'] = ['disabled']
+                self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -505,9 +526,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Line : f(x)₁ | f(x)₂ ')
                 self.FastTextVariable.set('f(x)₁ = ')
-                self.btn[5]['state'] = ['normal']
-                self.btn[11]['state'] = ['disabled']
-                self.btn[17].config(state=DISABLED)
+                self.btn[11]['state'] = ['normal']
+                self.btn[17]['state'] = ['disabled']
+                self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -526,9 +547,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot3D : f(x,y)')
                 self.FastTextVariable.set(f'f(x,y)')
-                self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['normal']
-                self.btn[17].config(state=DISABLED)
+                self.btn[17]['state'] = ['normal']
+                self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -546,9 +567,9 @@ class Calculator(Canvas):
             if self.switched:
                 self.FullTextDisplay.insert(END, 'Mode Plot3D Parametric Surface : f(x,y)₁ | f(x,y)₂ ')
                 self.FastTextVariable.set(f'f(x,y)₁ = ')
-                self.btn[5]['state'] = ['normal']
                 self.btn[11]['state'] = ['normal']
-                self.btn[17].config(state=DISABLED)
+                self.btn[17]['state'] = ['normal']
+                self.btn[23].config(state=DISABLED)
                 self.btn[2]['state'] = ['disabled']
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
