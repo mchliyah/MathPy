@@ -23,7 +23,7 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '7.0.0 beta 2.1'
+    __version__ = '7.0.0 beta 2.2'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
@@ -1042,9 +1042,9 @@ class Calculator:
                             except Exception:
                                 pass
                         try:
-                            self.FigureXY.DrawLaTex(f'> x = {DrawAfter(self.xexp)}')
-                            self.FigureXY.DrawLaTex(f'> y = {DrawAfter(self.yexp)}')
-                            self.FigureXY.DrawLaTex(f'> z = {DrawAfter(self.zexp)}')
+                            self.FigureXY.DrawLaTex(f'> x = {DrawAfter(self.xexp)} = {DrawAfterNum(self.xexp)}')
+                            self.FigureXY.DrawLaTex(f'> y = {DrawAfter(self.yexp)} = {DrawAfterNum(self.yexp)}')
+                            self.FigureXY.DrawLaTex(f'> z = {DrawAfter(self.zexp)} = {DrawAfterNum(self.zexp)}')
                         except Exception:
                             pass
 
@@ -1105,8 +1105,8 @@ class Calculator:
                             except Exception:
                                 pass
                         try:
-                            self.FigureXY.DrawLaTex(f'> x = {DrawAfter(self.xexp)}')
-                            self.FigureXY.DrawLaTex(f'> y = {DrawAfter(self.yexp)}')
+                            self.FigureXY.DrawLaTex(f'> x = {DrawAfter(self.xexp)} = {DrawAfterNum(self.xexp)}')
+                            self.FigureXY.DrawLaTex(f'> y = {DrawAfter(self.yexp)} = {DrawAfterNum(self.yexp)}')
                         except Exception:
                             pass
 
@@ -1125,7 +1125,13 @@ class Calculator:
                     much_sol = len(self.SolutionOS)
                     small_numbers = SmallNumbers(much_sol)
                     for sl in range(much_sol):
-                        self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {DrawAfter(self.SolutionOS[sl])}')
+                        result_expr = DrawAfter(self.SolutionOS[sl])
+                        result_num = DrawAfterNum(self.SolutionOS[sl])
+                        dot_zero = str(result_num).replace('.0', '')
+                        if dot_zero == result_expr or result_expr == result_num:
+                            self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {result_expr}')
+                        else:
+                            self.FigureXY.DrawLaTex(f'> x{small_numbers(sl + 1)} = {result_expr} = {result_num}')
 
             elif self.mode == 'Plot':
                 self.fctx = str(eval(self.TextDisplay.expression))
