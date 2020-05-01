@@ -10,7 +10,7 @@ from sympy.solvers.solveset import solvify
 
 
 # version 5.0.3
-# optimize plotting environment globaly and by call two fonctions with differents colors
+# optimize plotting environment globally and by call two functions with different colors
 # optimize text display by add scroll bar axe y
 # new button option, when the mouse hovers over the button, it changes color
 # fix bugs
@@ -22,13 +22,13 @@ class HoverButton(Button):
         self.DefaultBackGround = kw['background']
         self.ActiveBack = kw['activeback']
         super(HoverButton, self).__init__(master=master, **kw)
-        self.bind_class(self, "<Enter>", self.on_enter)
-        self.bind_class(self, "<Leave>", self.on_leave)
+        self.bind_class(self, "<Enter>", self.Enter)
+        self.bind_class(self, "<Leave>", self.Leave)
 
-    def on_enter(self, e):
+    def Enter(self, event):
         self['bg'] = self.ActiveBack
 
-    def on_leave(self, e):
+    def Leave(self, event):
         self['bg'] = self.DefaultBackGround
 
 
@@ -87,7 +87,7 @@ big2_prm = {'padx': 14,
 ent_prm = {'bd': 1,
            'fg': 'white',
            'bg': '#4d4d4d',
-           'font': ('Segoe UI Symbol', 16),
+           'font': ('Segoe UI Symbol', 15),
            'relief': 'flat'}
 π = pi
 convert_constant = 1
@@ -150,20 +150,21 @@ class Calculator:
         self.FastTextVariable = StringVar()
         # Master Display ROW 0==========================================================================================
         # First Text Display
-        FirstTextDisplay = Entry(master, width=43, **ent_prm, textvariable=self.TextVariable)
+        FirstTextDisplay = Entry(master, width=43, **ent_prm, textvariable=self.TextVariable, state='readonly')
         FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), state='readonly', readonlybackground='#4d4d4d')
+        FirstTextDisplay.configure(font=('Segoe UI Symbol', 32), readonlybackground='#4d4d4d')
         FirstTextDisplay.bind('<Key>', self.KeyboardInput)
+        FirstTextDisplay.focus_set()
         # Second Text Display
-        SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable)
+        SecondTextDisplay = Entry(master, width=27, **ent_prm, textvariable=self.FastTextVariable, state='readonly')
         SecondTextDisplay.grid(row=1, column=1)
-        SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', state='readonly',
-                                    readonlybackground='slate gray')
+        SecondTextDisplay.configure(font=('Segoe UI Symbol', 30), justify='right', readonlybackground='slate gray')
+        SecondTextDisplay.bind('<Key>', self.KeyboardInput)
         # Full Text Display
-        self.FullTextDisplay = ScrolledText(master, width=52, height=14, **ent_prm)
+        self.FullTextDisplay = ScrolledText(master, width=52, height=15, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
-        self.FullTextDisplay.config(undo=True, wrap='word')
-        self.FullTextDisplay.focus_set()
+        self.FullTextDisplay.config(undo=False, wrap='word')
+        self.FullTextDisplay.bind('<Key>', self.KeyboardInput)
         # ROW 1 set frame showing top buttons
         self.top_frame = Frame(master, relief='flat', bg='slate gray')
         self.top_frame.grid(row=1, column=0)
@@ -1270,7 +1271,7 @@ if __name__ == "__main__":
     # run calculator
     Calculator(win)
     # Window configuration
-    win.configure(menu=menubare, bg='#666666')
+    win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
     win.title("PyMathon v5.0.3")
     win.mainloop()
