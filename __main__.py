@@ -57,9 +57,11 @@ ent_prm = {'fg': 'white',
 n = 0
 convert_constant = 1
 inverse_convert_constant = 1
+permit = False
 
 
 def insert_str(string, str_to_insert, index, str_order):
+    global n, permit
     end = len(str(string))
     how = len(str_order)
     print(end, '=?', index)
@@ -70,13 +72,20 @@ def insert_str(string, str_to_insert, index, str_order):
         reel += str(str_order[n])
         print(n, '<', how)
         print(now, '=', reel)
+        inser = False
         if now == reel:
+            inser = True
             break
         n += 1
     if end == index:
+        inser = False
         return string[:index] + str_to_insert
     else:
-        return string[:n] + str_to_insert + string[n:]
+        if inser:
+            return string[:index] + str_to_insert + string[index:]
+        else:
+            inser = None
+            return string
 
 
 def remove_str(str_to_remove, index, order, str_order):
@@ -87,7 +96,11 @@ def remove_str(str_to_remove, index, order, str_order):
     n = 0
     while n < how:
         reel += str(str_order[n])
+        print(n, '<', how)
+        print(now, '=', reel)
+        inser = False
         if now == reel:
+            inser = True
             break
         n += 1
     print('tol =', reel)
@@ -98,17 +111,18 @@ def remove_str(str_to_remove, index, order, str_order):
         pass
     else:
         end = len(str(str_to_remove))
-        print('end = ind', end, index)
-        if end == index:
+        print('end =? ind', end, index)
+        if end == index and inser:
             print('p1 =', str_to_remove[:-order[n]])
             return str_to_remove[:-order[n]]
-        # elif now != reel:
-        #    return str_to_remove[:index - order[index]] + str_to_remove[index:]
-        elif pro == 0:
+        elif pro == 0 and inser:
             return str_to_remove[order[n]:]
         else:
-            print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
-            return str_to_remove[:pro] + str_to_remove[index:]
+            if inser:
+                print('p2 =', str_to_remove[:pro] + str_to_remove[index:])
+                return str_to_remove[:pro] + str_to_remove[index:]
+            else:
+                return str_to_remove
 
 
 class Calculator(Canvas):
@@ -728,6 +742,7 @@ class Calculator(Canvas):
         self.expression = ''
         self.TextVariable.set('')
         self.FastTextVariable.set('')
+        self.IndexCursor = int(self.FirstTextDisplay.index(0))
 
         if self.mode == 'Function':
             self.TextVariable.set(f'From : ')
@@ -767,6 +782,7 @@ class Calculator(Canvas):
         self.exist = None
 
     def Remove(self):
+        global n, permit
         if self.clear:
             self.Delete()
 
@@ -777,9 +793,12 @@ class Calculator(Canvas):
                 else:
                     self.expression = remove_str(self.expression, self.IndexCursor, self.store_order,
                                                  self.store_expression)
-                    self.IndexCursor -= self.store_order[n]
-                    self.store_order.remove(self.store_order[n])
-                    self.store_expression.remove(self.store_expression[n])
+                    if inser:
+                        self.IndexCursor -= self.store_order[n]
+                        self.store_order.remove(self.store_order[n])
+                        self.store_expression.remove(self.store_expression[n])
+                    else:
+                        pass
 
             else:
                 k = self.store_order[-1]
@@ -912,14 +931,22 @@ class Calculator(Canvas):
             self.FastTextVariable.set('IndexError')
 
     def Input(self, keyword):
+        global n, permit
         if self.clear:
             self.Delete()
 
         if self.mode == 'Operation':
             self.expression = insert_str(self.expression, keyword, self.IndexCursor, self.store_expression)
-            self.store_expression.append(str(keyword))
-            self.store_order.append(len(str(keyword)))
-            self.IndexCursor += int(len(str(keyword)))
+            if inser is None:
+                pass
+            elif not inser:
+                self.store_expression.append(str(keyword))
+                self.store_order.append(len(str(keyword)))
+                self.IndexCursor += int(len(str(keyword)))
+            elif inser:
+                self.store_expression.insert(n+1, str(keyword))
+                self.store_order.insert(n+1, len(str(keyword)))
+                self.IndexCursor += int(len(str(keyword)))
             print('cursor', self.IndexCursor)
 
         else:
