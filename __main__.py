@@ -8,6 +8,7 @@ from sympy.solvers.solveset import solvify
 
 # version 5.0.0
 # Add Plotting Environment
+# stable version as just plotting one or two functions
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -623,7 +624,7 @@ class Calculator:
 
                 elif self.full:
                     self.TextVariable.set(f'f(x,y)₂ = {self.expression}')
-                    self.FastTextVariable.set(f'f(x,y)₂ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x,y)₁ = {self.fctxy1} | f(x,y)₂ = {self.expression}')
 
             elif self.mode == 'SimEquation':
                 if self.full is None:
@@ -726,45 +727,64 @@ class Calculator:
 
                 elif self.full and not self.equal:
                     self.fctx1 = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₁ = {sympify(self.fctx1)}')
                     self.expression = ""
                     self.TextVariable.set(f'f(x)₂ = ')
                     self.FastTextVariable.set(f'f(x)₁ = {self.fctx1} | f(x)₂ = ')
                     self.equal = True
 
                 elif self.full and self.equal:
-                    self.fctx2 = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x)₂ = {sympify(self.fctx2)}')
+                    try:
+                        self.fctx2 = str(eval(self.expression))
 
-                    plot(sympify(self.fctx1), (self.x, self.v, self.w))
-                    plot3d(sympify(self.fctx1), (self.x, self.v, self.w))
+                        self.FullTextDisplay.insert(END, f'\nf(x)₁ = {sympify(self.fctx1)}')
+                        for x in range(self.v, self.w):
+                            if self.ENG == 16:
+                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {eval(self.fctx1)}')
+                            else:
+                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
 
-                    plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
-                    plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
-                    for x in range(self.v, self.w):
-                        if self.ENG == 16:
-                            self.FullTextDisplay.insert(END, f'\nf({x})₁ = {eval(self.fctx1)}')
-                        else:
-                            self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
-                    for x in range(self.v, self.w):
-                        if self.ENG == 16:
-                            self.FullTextDisplay.insert(END, f'\nf({x})₂ = {eval(self.fctx2)}')
-                        else:
-                            self.FullTextDisplay.insert(END, f'\nf({x})₂ = {N(eval(self.fctx2), self.ENG)}')
+                        self.FullTextDisplay.insert(END, f'\nf(x)₂ = {sympify(self.fctx2)}')
+                        for x in range(self.v, self.w):
+                            if self.ENG == 16:
+                                self.FullTextDisplay.insert(END, f'\nf({x})₂ = {eval(self.fctx2)}')
+                            else:
+                                self.FullTextDisplay.insert(END, f'\nf({x})₂ = {N(eval(self.fctx2), self.ENG)}')
+
+                        plot_parametric(sympify(self.fctx1), sympify(self.fctx2))
+                        plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x)
+
+                        plot(sympify(self.fctx1), sympify(self.fctx2), (self.x, self.v, self.w))
+                        plot3d(sympify(self.fctx1), sympify(self.fctx2), (self.x, self.v, self.w))
+
+                    except SyntaxError:
+                        self.FullTextDisplay.insert(END, f'\nf(x)₁ = {sympify(self.fctx1)}')
+                        for x in range(self.v, self.w):
+                            if self.ENG == 16:
+                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {eval(self.fctx1)}')
+                            else:
+                                self.FullTextDisplay.insert(END, f'\nf({x})₁ = {N(eval(self.fctx1), self.ENG)}')
+                        plot(sympify(self.fctx1), (self.x, self.v, self.w))
+                        plot3d(sympify(self.fctx1), (self.x, self.v, self.w))
+                        pass
 
             elif self.mode == 'Plotting':
-                if self.full is None:
-                    self.fctxy1 = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y)₁ = {self.fctxy1}')
-                    self.expression = ""
-                    self.TextVariable.set(f'f(x,y)₂ = ')
-                    self.full = True
+                try:
+                    if self.full is None:
+                        self.fctxy1 = str(eval(self.expression))
+                        self.FullTextDisplay.insert(END, f'\nf(x,y)₁ = {self.fctxy1}')
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x,y)₂ = ')
+                        self.full = True
 
-                elif self.full:
-                    self.fctxy2 = str(eval(self.expression))
-                    self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy2}')
-                    plot3d(sympify(self.fctxy1), sympify(self.fctxy2))
-                    plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
+                    elif self.full:
+                        self.fctxy2 = str(eval(self.expression))
+                        self.FullTextDisplay.insert(END, f'\nf(x,y)₂ = {self.fctxy2}')
+                        plot3d(sympify(self.fctxy1), sympify(self.fctxy2))
+                        plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
+
+                except SyntaxError:
+                    plot3d(sympify(self.fctxy1))
+                    plot3d_parametric_surface(sympify(self.fctxy1), self.x - self.y)
 
             elif self.mode == 'SimEquation':
                 if self.full is None:
