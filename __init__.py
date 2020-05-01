@@ -190,17 +190,17 @@ class HoverButton(Button):
         if cnf is None:
             cnf = {}
         kw = _cnfmerge((kwargs, cnf))
-        self.DefaultBackGround = kw['background']
-        self.ActiveBack = kw['activeback']
+        self.DBG = kw['background']
+        self.ABG = kw['activeback']
         super(HoverButton, self).__init__(master=master, *args, **kwargs)
         self.bind_class(self, "<Enter>", self.Enter)
         self.bind_class(self, "<Leave>", self.Leave)
 
     def Enter(self, event):
-        self['bg'] = self.ActiveBack
+        self['bg'] = self.ABG
 
     def Leave(self, event):
-        self['bg'] = self.DefaultBackGround
+        self['bg'] = self.DBG
 
 
 class ScrolledListbox(Listbox):
