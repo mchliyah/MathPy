@@ -3,13 +3,13 @@ from tkinter import _cnfmerge as cnfmerge
 
 
 class HoverButton(Button):
-    def __init__(self, master=None, cnf=None, **kw):
+    def __init__(self, master=None, cnf=None, *args, **kwargs):
         if cnf is None:
             cnf = {}
-        kw = cnfmerge((kw, cnf))
+        kw = cnfmerge((kwargs, cnf))
         self.DefaultBackGround = kw['background']
         self.ActiveBack = kw['activeback']
-        super(HoverButton, self).__init__(master=master, **kw)
+        super(HoverButton, self).__init__(master=master, *args, **kwargs)
         self.bind_class(self, "<Enter>", self.Enter)
         self.bind_class(self, "<Leave>", self.Leave)
 
@@ -21,23 +21,22 @@ class HoverButton(Button):
 
 
 class ScrolledListbox(Listbox):
-    def __init__(self, master=None, **kw):
+    def __init__(self, master, *args, **kwargs):
         self.canvas = Canvas(master)
-        self.canvas['bg'] = kw['bg']
-        Listbox.__init__(self, self.canvas, **kw)
+        self.canvas['bg'] = kwargs['bg']
 
-        self.vbar = Scrollbar(self.canvas, orient="vertical")
-        self.vbar.pack(side=RIGHT, fill=Y, expand=True)
+        Listbox.__init__(self, self.canvas, *args, **kwargs)
+        self.grid(row=0, column=0, sticky=NSEW)
 
-        self.hbar = Scrollbar(self.canvas, orient="horizontal")
-        self.hbar.pack(side=BOTTOM, fill=X, expand=True)
+        self.vbar = Scrollbar(self.canvas, orient=VERTICAL)
+        self.hbar = Scrollbar(self.canvas, orient=HORIZONTAL)
 
-        kw.update(
-            {'yscrollcommand': self.vbar.set, 'xscrollcommand': self.hbar.set, 'scrollregion': (0, 0, 1000, 1000)})
-        self.vbar['command'] = self.yview
-        self.hbar['command'] = self.xview
+        self.configure(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set)
 
-        self.pack(side=LEFT and TOP, fill=BOTH, expand=True)
+        self.vbar.grid(row=0, column=1, sticky=NS)
+        self.vbar.configure(command=self.yview)
+        self.hbar.grid(row=1, column=0, sticky=EW)
+        self.hbar.configure(command=self.xview)
 
         # Copy geometry methods of self.canvas without overriding Listbox
         # methods -- hack!
