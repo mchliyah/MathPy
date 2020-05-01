@@ -1,12 +1,14 @@
-from __init__ import HoverButton, ScrolledListbox
 from math import log2, log10
-from random import randint
 from operator import *
+from random import randint
 from tkinter import *
+
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface, PlotGrid
 from sympy.solvers.solveset import solvify
+
+from __bibi__ import HoverButton, ScrolledListbox
 
 # version 5.2.0  "need more optimization this is beta version"
 # make possibility to input and delete directly from First Text Display by making cursor everywhere, now just for Operation mode
@@ -821,7 +823,8 @@ class Calculator(Tk):
         self.expression = ''
         self.TextVariable.set('')
         self.FastTextVariable.set('')
-        self.IndexCursor = int(self.FirstTextDisplay.index(0))
+        self.FirstTextDisplay.icursor(0)
+        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
 
         if self.mode == 'Function':
             self.TextVariable.set(f'From : ')
@@ -1006,16 +1009,18 @@ class Calculator(Tk):
                 end = len(str(self.expression))
                 if self.IndexCursor < end:
                     self.IndexCursor += 1
+                    self.FirstTextDisplay.icursor(self.IndexCursor)
                 else:
                     pass
 
             elif keyword.keysym == 'Left':
                 if self.IndexCursor > 0:
                     self.IndexCursor -= 1
+                    self.FirstTextDisplay.icursor(self.IndexCursor)
                 else:
                     pass
 
-            if keyword.keysym == 'Return' or put == 'equal':
+            elif keyword.keysym == 'Return' or put == 'equal':
                 pass
 
             else:
@@ -1039,8 +1044,8 @@ class Calculator(Tk):
                 self.store_order.insert(0, len(str(keyword)))
                 self.IndexCursor += int(len(str(keyword)))
             else:
-                self.store_expression.insert(n+1, str(keyword))
-                self.store_order.insert(n+1, len(str(keyword)))
+                self.store_expression.insert(n + 1, str(keyword))
+                self.store_order.insert(n + 1, len(str(keyword)))
                 self.IndexCursor += int(len(str(keyword)))
             print('cursor', self.IndexCursor)
 
@@ -1195,7 +1200,7 @@ class Calculator(Tk):
                                 self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                                 break
                             self.v -= 1
-                except IndexError or SyntaxError:
+                except ValueError or IndexError or SyntaxError:
                     try:
                         self.expression = str(self.callback[-1])
                         if self.ENG == 16:
@@ -1205,8 +1210,8 @@ class Calculator(Tk):
                         self.FastTextVariable.set(self.answer)
                         self.TextVariable.set(f'{self.expression} = {self.answer}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
-                    except IndexError or SyntaxError:
-                        self.FastTextVariable.set('IndexError or SyntaxError')
+                    except ValueError or IndexError or SyntaxError:
+                        self.FastTextVariable.set('ValueError or IndexError or SyntaxError')
 
                 self.callback.append(str(self.answer))
 
