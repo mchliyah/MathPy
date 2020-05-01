@@ -3,9 +3,8 @@ from operator import *
 from tkinter import *
 from tkinter import _cnfmerge as cnfmerge
 
-# version 3.0.0
-# Fix IndexError And SyntaxError in mode Operation, And Delete mode Complex
-# Add Function Switch Between Degree And Radians in Button and Bare Menu
+# version 3.0.1
+# Fix Size Full Text Display With Other Display Fast And First, And Some Other Sizes
 btn_prm = {'padx': 16,
            'pady': 1,
            'bd': 4,
@@ -31,7 +30,7 @@ big_prm = {'padx': 16,
 ent_prm = {'bd': 4,
            'fg': 'white',
            'bg': 'gray94',
-           'font': ('Segoe UI Symbol', 18),
+           'font': ('Segoe UI Symbol', 16),
            'relief': 'flat'}
 
 
@@ -132,14 +131,14 @@ class Calculator:
         # First Text Display
         self.FirstTextDisplay = EntryBox(master, width=44, **ent_prm, textvariable=self.TextVariable)
         self.FirstTextDisplay.grid(row=0, column=0, columnspan=2)
-        self.FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 35))
+        self.FirstTextDisplay.configure(fg='black', font=('Segoe UI Symbol', 32))
         self.FirstTextDisplay.bind('<Key>', self.KeyboardInput)
         # Second Text Display
-        self.SecondTextDisplay = Entry(master, width=36, **ent_prm, textvariable=self.FastTextVariable)
+        self.SecondTextDisplay = Entry(master, width=33, **ent_prm, textvariable=self.FastTextVariable)
         self.SecondTextDisplay.grid(row=1, column=1)
-        self.SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 26), justify='right')
+        self.SecondTextDisplay.configure(bg='slate gray', font=('Segoe UI Symbol', 25), justify='right')
         # Full Text Display
-        self.FullTextDisplay = Text(master, width=52, height=13, **ent_prm)
+        self.FullTextDisplay = Text(master, width=54, height=13, **ent_prm)
         self.FullTextDisplay.grid(row=2, column=1, rowspan=2)
         self.FullTextDisplay.configure(bg='#4d4d4d')
         # ROW 1 set frame showing top buttons
@@ -197,17 +196,20 @@ class Calculator:
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ["7", "8", "9", "+", '**2', 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*", "sqrt(",
-               'e', '0', ".", "=", "/", "factorial(", 'pi']
-        btn_txt = ["7", "8", "9", "+", 'n²', 'x', "4", "5", "6", "-", "nˣ", "j", "1", "2", "3", "*", "√n",
-                   'e', '0', ".", "=", "/", "!n", 'π']
+        btn = ["7", "8", "9", "+", '**2', 'x', "4", "5", "6", "-", "**", "1j", "1", "2", "3", "*",
+               "sqrt(", 'e', '0',
+               ".", "=", "/", "factorial(", 'pi']
+        btn_txt = ["7", "8", "9", "+", u'n\u00B2', 'x', "4", "5", "6", "-", "nˣ", "j", "1", "2", "3",
+                   "*", "√n", 'e',
+                   '0', ".", "=", "/", "!n", 'π']
         self.btn = []
         i = 0
         for j in range(4):
             for k in range(6):
                 self.btn.append(Button(bottom_frame, **btn_prm, text=btn_txt[i]))
                 self.btn[i].grid(row=j, column=k)
-                self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d", command=lambda n=btn[i]: self.Input(n))
+                self.btn[i].configure(bg="#4d4d4d", activebackground="#4d4d4d",
+                                      command=lambda n=btn[i]: self.Input(n))
                 i += 1
         # Equals
         self.btn[20].configure(bg='#ff9950', activebackground='#ff9950', command=self.InputEquals)
@@ -536,7 +538,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
        = ({nb} - {sqrt(d)}) / ({2 * self.a})
        = {(nb - sqrt(d)) / (2 * self.a)}''')
                         elif d <= 0:
-                            self.FullTextDisplay.insert(INSERT, f'''\n          = {nd}j²
+                            self.FullTextDisplay.insert(INSERT, f'''\n       = {nd}j²
 
 ∆<0 : X = (-b ± j√∆) / 2a
 
@@ -645,8 +647,8 @@ if __name__ == "__main__":
     # run calculator
     Calculator(win)
     # Window configuration
-    # win.configure(menu=menubare, bg='#666666')
-    win.configure(menu=menubare, bg='#4d4d4d')
+    win.configure(menu=menubare, bg='#666666')
+    # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("Scientific Calculator v3.0.0")
+    win.title("Scientific Calculator v3.0.1")
     win.mainloop()
