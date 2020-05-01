@@ -15,6 +15,9 @@ from __jeep_v3__ import *
 ZeroDivisionError, and delete the exception of that error
 # resizing all
 # delete Second Text Display also Second String Variable
+# fix some errors
+# fix error on compensation of the variable x in mode function it was [xa,xb]
+# generalise definition Variable_EQl in all Show_Equal_Text and hiding reset expression in the way
 """
 
 btn_prm = {'padx': 18,
@@ -889,8 +892,8 @@ class Calculator:
         except Exception:
             pass
 
-    def VariableTXT(self, str_var):
-        self.LabelStrVar.set(str_var)
+    def VariableTXT(self, label_var):
+        self.LabelStrVar.set(label_var)
         self.FirstStrVar.set(self.expression)
 
     def ShowDirectText(self):
@@ -1007,39 +1010,41 @@ class Calculator:
                                    f'f(x,y)₁ = {self.StandardWrite(self.fctx1)} | f(x,y)₂ = '
                                    f'{self.StandardWrite(self.expression)}')
 
+            self.iCursor(self.IndexCursor)
+            self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
+
         except Exception:
             pass
-        self.iCursor(self.IndexCursor)
-        self.IndexCursor = int(self.FirstTextDisplay.index(INSERT))
 
     def ResetIndexCursor(self):
         if self.mode == 'Operation':
             pass
         else:
+            self.expression = ''
             self.store_expression = []
             self.store_order = []
             self.IndexCursor = 0
 
-    def VariableTXTEqual(self, label_var, first_var):
+    def VariableEQL(self, label_var, first_var):
         self.LabelStrVar.set(label_var)
         self.FirstStrVar.set(first_var)
 
     def ShowEqualText(self):
-        self.callback_function.append(str(self.expression))
         try:
+            self.callback_function.append(str(self.expression))
             if self.mode == 'Operation':
                 if not self.equal:
                     self.answer = sympify(eval(self.expression))
                     intro = len(str(self.answer))
                     if intro <= 16:
-                        self.VariableTXTEqual(f'op > {self.expression} =', f'{self.answer}')
+                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(self.Figure, self.CanvasFigure, f'op > {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
                         self.equal = True
                     else:
                         self.answer = sympify(str(self.answer)).evalf()
-                        self.VariableTXTEqual(f'op > {self.expression} =', f'{self.answer}')
+                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(self.Figure, self.CanvasFigure, f'op > {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                         self.clear = True
@@ -1050,12 +1055,12 @@ class Calculator:
                     self.answer = sympify(self.answer)
                     intro = len(str(self.answer))
                     if intro <= 16:
-                        self.VariableTXTEqual(f'op > {self.expression} =', f'{self.answer}')
+                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(self.Figure, self.CanvasFigure, f'op > {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                     else:
                         self.answer = sympify(str(self.answer)).evalf()
-                        self.VariableTXTEqual(f'op > {self.expression} =', f'{self.answer}')
+                        self.VariableEQL(f'op > {self.expression} =', f'{self.answer}')
                         self.DrawTexTk(self.Figure, self.CanvasFigure, f'op > {self.StandardWrite(self.answer)}')
                         self.FullTextDisplay.insert(END, f'{self.expression} = {self.answer}')
                 self.callback.append(str(self.answer))
@@ -1064,55 +1069,50 @@ class Calculator:
                 if self.full is None:
                     self.v = int(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'from : {self.expression}')
-                    self.expression = ""
-                    self.VariableTXT(f'To :')
+                    self.VariableEQL(f'To :', "")
                     self.full = False
 
                 elif not self.full:
                     self.w = int(eval(self.expression)) + 1
                     self.FullTextDisplay.insert(END, f'To : {self.expression}')
-                    self.expression = ""
-                    self.VariableTXT(f'f(x) =')
+                    self.VariableEQL(f'f(x) =', '')
                     self.full = True
 
                 elif self.full:
                     if not self.equal:
                         self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {sympify(self.fctx)}')
-                        for xa in range(self.v, self.w):
-                            self.FullTextDisplay.insert(END, f'f({xa}) = {N(eval(self.fctx), 3)}')
+                        for x in range(self.v, self.w):
+                            sup = sympify(eval(self.fctx)).evalf(3)
+                            self.FullTextDisplay.insert(END, f'f({x}) = {sup}')
                         self.PlotFirstFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1))
-                        self.expression = ""
-                        self.VariableTXT(f'f(x) =')
+                        self.VariableEQL(f'f(x) =', '')
                         self.equal = True
 
                     elif self.equal:
                         self.fctx = str(eval(self.expression))
                         self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
-                        for xb in range(self.v, self.w):
-                            self.FullTextDisplay.insert(END, f'f({xb}) = {N(eval(self.fctx), 3)}')
+                        for x in range(self.v, self.w):
+                            sup = sympify(eval(self.fctx)).evalf(3)
+                            self.FullTextDisplay.insert(END, f'f({x}) = {sup}')
                         self.PlotAddFunc = plot(sympify(self.fctx), (self.x, self.v, int(self.w) - 1), show=False)
                         TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
-                        self.expression = ""
-                        self.VariableTXT(f'f(x) =')
+                        self.VariableEQL(f'f(x) =', '')
 
             elif self.mode == 'Equation':
                 if self.full is None:
                     self.a = self.expression
-                    self.expression = ""
-                    self.VariableTXT(f'b =')
+                    self.VariableEQL(f'b =', '')
                     self.full = False
 
                 elif not self.full:
                     self.b = self.expression
-                    self.expression = ""
-                    self.VariableTXT(f'c =')
+                    self.VariableEQL(f'c =', '')
                     self.full = True
 
                 elif self.full:
                     self.c = self.expression
-                    self.expression = ''
-                    self.VariableTXT(f'a = {self.a} | b = {self.b} | c = {self.c}')
+                    self.VariableEQL(f'a = {self.a} | b = {self.b} | c = {self.c}', '')
                     self.DrawTexTk(self.Figure, self.CanvasFigure,
                                    f'{self.StandardWrite(self.a)}x² + ({self.StandardWrite(self.b)})x + ('
                                    f'{self.StandardWrite(self.c)}) = 0')
@@ -1126,15 +1126,13 @@ class Calculator:
             elif self.mode == 'Solve':
                 if self.full is None:
                     self.q = str(eval(self.expression))
-                    self.expression = ""
-                    self.VariableTXT(f'eq > {self.q} =')
+                    self.VariableEQL(f'eq > {self.q} =', '')
                     self.DrawTexTk(self.Figure, self.CanvasFigure, f'eq > {self.StandardWrite(self.q)} = ')
                     self.full = True
 
                 elif self.full:
                     self.p = str(eval(self.expression))
-                    self.expression = ''
-                    self.VariableTXT(f'eq > {self.q} = {self.p}')
+                    self.VariableEQL(f'eq > {self.q} = {self.p}', '')
                     self.FullTextDisplay.insert(END, f'eq > {self.q} = {self.p}')
                     try:
                         self.Solution = solvify(Eq(sympify(self.q), sympify(self.p)), self.x, self.C)
@@ -1155,14 +1153,12 @@ class Calculator:
             elif self.mode == 'Matrices':
                 if self.full is None:
                     self.q = str(sympify(self.expression))
-                    self.expression = ""
-                    self.VariableTXT(f'eq₁ > {self.q} =')
+                    self.VariableEQL(f'eq₁ > {self.q} =', '')
                     self.full = False
 
                 elif not self.full:
                     self.p = str(sympify(self.expression))
-                    self.expression = ""
-                    self.VariableTXT('eq₂ >')
+                    self.VariableEQL('eq₂ >', '')
                     self.DrawTexTk(self.Figure, self.CanvasFigure, 'eq₂ > ')
                     self.FullTextDisplay.insert(END, 'New System :', f' eq₁ | {self.q} = {self.p}')
                     self.full = True
@@ -1171,15 +1167,13 @@ class Calculator:
                 elif self.full:
                     if self.clear is None:
                         self.j = str(sympify(self.expression))
-                        self.expression = ""
-                        self.VariableTXT(f'eq₂ > {self.j} =')
+                        self.VariableEQL(f'eq₂ > {self.j} =', '')
                         self.equal = None
                         self.clear = False
 
                     elif not self.clear:
                         if self.equal is None:
                             self.k = str(sympify(self.expression))
-                            self.expression = ""
                             self.FullTextDisplay.insert(END, f' eq₂ | {self.j} = {self.k}')
                             try:
                                 self.lslv = linsolve(
@@ -1196,7 +1190,7 @@ class Calculator:
                             while self.v < self.w:
                                 self.exist = False
                                 if self.lslv[self.v] == 'z' or self.lslv == 'EmptySet':
-                                    self.VariableTXT('eq₃ >')
+                                    self.VariableEQL('eq₃ >', '')
                                     self.DrawTexTk(self.Figure, self.CanvasFigure, 'eq₃ > ')
                                     self.equal = False
                                     self.exist = True
@@ -1206,8 +1200,7 @@ class Calculator:
                             if not self.exist:
                                 self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
-                                self.DrawTexTk(self.Figure, self.CanvasFigure,
-                                               'System of Two Equations : {eq₁,eq₂}_[x,y]')
+                                self.FullTextDisplay.insert(END, 'System of Two Equations : {eq₁,eq₂}_[x,y]')
 
                                 self.w = int(len(self.lslv))
                                 self.v = 0
@@ -1220,15 +1213,14 @@ class Calculator:
                                             self.v += 1
 
                                 self.yexp = str(self.yexp).replace(', ', '')
-                                self.VariableTXT(f'x = {self.xexp} | y = {self.yexp}')
+                                self.VariableEQL(f'x = {self.xexp} | y = {self.yexp}', '')
                                 self.FullTextDisplay.insert(END, f'> x = {self.xexp}', f'> y = {self.yexp}')
                                 self.clear = True
                                 self.full = None
 
                         elif not self.equal:
                             self.m = str(sympify(self.expression))
-                            self.expression = ""
-                            self.VariableTXT(f'eq₃ > {self.m} =')
+                            self.VariableEQL(f'eq₃ > {self.m} =', '')
                             self.equal = True
 
                         elif self.equal:
@@ -1247,14 +1239,13 @@ class Calculator:
                             self.lslv = str(self.lslv)
 
                             if self.lslv == 'EmptySet':
-                                self.VariableTXT(self.lslv)
+                                self.VariableEQL(self.lslv, '')
                                 self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.lslv))
 
                             else:
                                 self.DrawTexTk(self.Figure, self.CanvasFigure, self.StandardWrite(self.lslv))
                                 self.lslv = str(self.lslv[11:-2])
-                                self.DrawTexTk(self.Figure, self.CanvasFigure,
-                                               'System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
+                                self.FullTextDisplay.insert(END, 'System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
 
                                 self.w = int(len(self.lslv))
                                 self.v = 0
@@ -1272,7 +1263,7 @@ class Calculator:
 
                                 self.yexp = str(self.yexp).replace(', ', '')
                                 self.zexp = str(self.zexp).replace(', ', '')
-                                self.VariableTXT(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}')
+                                self.VariableEQL(f'x = {self.xexp} | y = {self.yexp} | z = {self.zexp}', '')
                                 self.FullTextDisplay.insert(END, f'> x = {self.xexp}', f'> y = {self.yexp}',
                                                             f'> z = {self.zexp}')
                             self.clear = True
@@ -1283,8 +1274,7 @@ class Calculator:
                     self.fctx = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PlotFirstFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10))
-                    self.expression = ""
-                    self.VariableTXT(f'f(x) =')
+                    self.VariableEQL(f'f(x) =', '')
                     self.full = True
 
                 elif self.full:
@@ -1292,8 +1282,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x) = {self.fctx}')
                     self.PlotAddFunc = plot(sympify(self.fctx), ylim=(-10, 10), xlim=(-10, 10), show=False)
                     TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
-                    self.expression = ""
-                    self.VariableTXT(f'f(x) =')
+                    self.VariableEQL(f'f(x) =', '')
 
             elif self.mode == 'Plot Prm':
                 if self.full is None:
@@ -1301,8 +1290,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.DrawTexTk(self.Figure, self.CanvasFigure,
                                    f'f(x)₁ = {self.StandardWrite(self.fctx1)} | f(x)₂ =')
-                    self.expression = ""
-                    self.VariableTXT(f'f(x)₂ =')
+                    self.VariableEQL(f'f(x)₂ =', '')
                     self.full = True
 
                 elif self.full:
@@ -1314,8 +1302,7 @@ class Calculator:
                     if not self.equal:
                         self.PlotFirstFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                              xlim=(-10, 10))
-                        self.expression = ""
-                        self.VariableTXT(f'f(x)₁ =')
+                        self.VariableEQL(f'f(x)₁ =', '')
                         self.equal = True
                         self.full = None
 
@@ -1323,8 +1310,7 @@ class Calculator:
                         self.PlotAddFunc = plot_parametric(sympify(self.fctx1), sympify(self.fctx2), ylim=(-10, 10),
                                                            xlim=(-10, 10), show=False)
                         TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
-                        self.expression = ""
-                        self.VariableTXT(f'f(x)₁ =')
+                        self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
             elif self.mode == 'P3DPL':
@@ -1333,8 +1319,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x)₁ = {self.fctx1}')
                     self.DrawTexTk(self.Figure, self.CanvasFigure,
                                    f'f(x)₁ = {self.StandardWrite(self.fctx1)} | f(x)₂ = ')
-                    self.expression = ""
-                    self.VariableTXT(f'f(x)₂ =')
+                    self.VariableEQL(f'f(x)₂ =', '')
                     self.full = True
 
                 elif self.full:
@@ -1346,8 +1331,7 @@ class Calculator:
                     if not self.equal:
                         self.PlotFirstFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                                     ylim=(-10, 10), xlim=(-10, 10))
-                        self.expression = ""
-                        self.VariableTXT(f'f(x)₁ =')
+                        self.VariableEQL(f'f(x)₁ =', '')
                         self.equal = True
                         self.full = None
 
@@ -1355,8 +1339,7 @@ class Calculator:
                         self.PlotAddFunc = plot3d_parametric_line(sympify(self.fctx1), sympify(self.fctx2), self.x,
                                                                   ylim=(-10, 10), xlim=(-10, 10), show=False)
                         TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
-                        self.expression = ""
-                        self.VariableTXT(f'f(x)₁ =')
+                        self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
 
             elif self.mode == 'Plot3D':
@@ -1364,8 +1347,7 @@ class Calculator:
                     self.fctxy = str(eval(self.expression))
                     self.FullTextDisplay.insert(END, f'f(x,y) = {self.fctxy}')
                     self.PlotFirstFunc = plot3d(sympify(self.fctxy))
-                    self.expression = ""
-                    self.VariableTXT(f'f(x,y) =')
+                    self.VariableEQL(f'f(x,y) =', '')
                     self.full = True
 
                 elif self.full:
@@ -1374,8 +1356,7 @@ class Calculator:
                     self.PlotAddFunc = plot3d(sympify(self.fctxy), show=False)
 
                     TwoPlotColorOneFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
-                    self.expression = ""
-                    self.VariableTXT(f'f(x,y) =')
+                    self.VariableEQL(f'f(x,y) =', '')
 
             elif self.mode == 'P3DPS':
                 if self.full is None:
@@ -1383,8 +1364,7 @@ class Calculator:
                     self.FullTextDisplay.insert(END, f'f(x,y)₁ = {self.fctxy1}')
                     self.DrawTexTk(self.Figure, self.CanvasFigure,
                                    f'f(x,y)₁ = {self.StandardWrite(self.fctxy1)} | f(x,y)₂ = ')
-                    self.expression = ""
-                    self.VariableTXT(f'f(x,y)₂ = ')
+                    self.VariableEQL(f'f(x,y)₂ = ', '')
                     self.full = True
 
                 elif self.full:
@@ -1396,8 +1376,7 @@ class Calculator:
                     if not self.equal:
                         self.PlotFirstFunc = plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2),
                                                                        self.x - self.y)
-                        self.expression = ""
-                        self.VariableTXT(f'f(x)₁ =')
+                        self.VariableEQL(f'f(x)₁ =', '')
                         self.equal = True
                         self.full = None
 
@@ -1405,9 +1384,14 @@ class Calculator:
                         self.PlotAddFunc = plot3d_parametric_surface(sympify(self.fctx1), sympify(self.fctx2),
                                                                      self.x - self.y, show=False)
                         TwoPlotColorTwoFunc(self.PlotFirstFunc, self.PlotAddFunc, self.callback_function)
-                        self.expression = ""
-                        self.VariableTXT(f'f(x)₁ =')
+                        self.VariableEQL(f'f(x)₁ =', '')
                         self.full = None
+
+            self.iCursor(END)
+
+            self.ResetIndexCursor()
+
+            self.FullTextDisplay.see(END)
 
         except ValueError:
             self.DrawTexTk(self.Figure, self.CanvasFigure, 'ValueError')
@@ -1421,11 +1405,6 @@ class Calculator:
             self.DrawTexTk(self.Figure, self.CanvasFigure, 'OverflowMathRangeError')
         except IndexError:
             self.DrawTexTk(self.Figure, self.CanvasFigure, 'IndexError')
-        self.iCursor(END)
-
-        self.ResetIndexCursor()
-
-        self.FullTextDisplay.see(END)
 
     def Exit(self):
         return self.win.destroy()
