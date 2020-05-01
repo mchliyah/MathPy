@@ -11,6 +11,9 @@ from sympy.solvers.solveset import solvify
 # version 5.1.3
 # add possibility to show two plot in one page
 # optimize set solution of system equation
+# make anchor at last of full text display
+# optimize bind : * equal now are perfect * input keys after equal click are perfect * add more keys
+# more optimize for system equation : now support two equations and three equations at time
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -119,6 +122,7 @@ class Calculator(Canvas):
         self.clear = False
         self.full = False
         self.half = False
+        self.exist = None
         # string variable for text input
         self.TextVariable = StringVar()
         self.FastTextVariable = StringVar()
@@ -425,10 +429,10 @@ class Calculator(Canvas):
 
         elif self.mode == 'Solve':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode Line Equation Solver : eq')
+                self.FullTextDisplay.insert(END, 'Mode Line Equation Solver : One {eq} : [x] | Constants : (y,z)')
                 self.btn[5].config(state=NORMAL)
-                self.btn[11].config(state=DISABLED)
-                self.btn[17].config(state=DISABLED)
+                self.btn[11].config(state=NORMAL)
+                self.btn[17].config(state=NORMAL)
                 self.btn[2].config(state=DISABLED)
                 self.btn_d[1]['state'] = ['disabled']
                 self.btn_d[2]['state'] = ['disabled']
@@ -444,7 +448,7 @@ class Calculator(Canvas):
 
         elif self.mode == 'Matrix':
             if self.switched:
-                self.FullTextDisplay.insert(END, 'Mode System Equation Solver : eq₁ | eq₂ | eq₃')
+                self.FullTextDisplay.insert(END, 'Mode System Equation Solver :')
                 self.btn[5].config(state=NORMAL)
                 self.btn[11].config(state=NORMAL)
                 self.btn[17].config(state=NORMAL)
@@ -673,6 +677,7 @@ class Calculator(Canvas):
         self.equal = False
         self.clear = False
         self.full = None
+        self.exist = None
 
     def Remove(self):
         if self.clear:
@@ -695,118 +700,117 @@ class Calculator(Canvas):
     def KeyboardInput(self, keyword):
         put = keyword.keysym.lower()
         try:
+            if keyword.keysym == 'Return' or put == 'equal':
+                self.InputEquals()
+
             if self.clear:
                 if self.mode == 'Operation':
                     if keyword.keysym == 'Return' or put == 'equal':
-                        self.InputEquals()
-
+                        pass
                     else:
                         self.Delete()
-
                 else:
                     self.Delete()
 
+            if keyword.keysym == 'BackSpace':
+                self.Remove()
+
+            elif keyword.keysym == 'Delete':
+                self.Delete()
+
+            elif keyword.keysym == 'E':
+                self.Input('E')
+
+            elif keyword.keysym == 'e':
+                self.Input('Exp(')
+
+            elif put == 'v':
+                self.SwitchButtons("1st")
+
+            elif put == 'b':
+                self.SwitchButtons("2nd")
+
+            elif put == 'r':
+                self.SwitchDegRad('Radians')
+
+            elif put == 'd':
+                self.SwitchDegRad('Degree')
+
+            elif put == 'slash':
+                self.Input('/')
+
+            elif put == 'asterisk':
+                self.Input('*')
+
+            elif put == 'minus':
+                self.Input('-')
+
+            elif put == 'plus':
+                self.Input('+')
+
+            elif put == 'asciicircum':
+                self.Input('^')
+
+            elif put == 'period':
+                self.Input('.')
+
+            elif put == 'parenleft':
+                self.Input('(')
+
+            elif put == 'parenright':
+                self.Input(')')
+
+            elif put == 'bar':
+                self.Input('Sq(')
+
+            elif put == 'backslash':
+                self.Input('sqrt(')
+
+            elif keyword.keysym == 's':
+                self.Input('Sin(')
+
+            elif keyword.keysym == 'c':
+                self.Input('Cos(')
+
+            elif keyword.keysym == 't':
+                self.Input('Tan(')
+
+            elif keyword.keysym == 'S':
+                self.Input('Sinh(')
+
+            elif keyword.keysym == 'C':
+                self.Input('Cosh(')
+
+            elif keyword.keysym == 'T':
+                self.Input('Tanh(')
+
+            elif keyword.keysym == 'l':
+                self.Input('Ln(')
+
+            elif put == 'i':
+                self.Input('oo')
+
+            elif put == 'j':
+                self.Input('1j')
+
+            elif put == 'exclam' or put == 'f':
+                self.Input('factorial(')
+
+            elif keyword.keysym == 'L':
+                self.Input('Log')
+
+            elif put == 'p':
+                self.Input('π')
+
+            elif put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or put == '3' \
+                    or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
+                self.Input(put)
             else:
-                if keyword.keysym == 'BackSpace':
-                    self.Remove()
+                pass
 
-                elif keyword.keysym == 'Delete':
-                    self.Delete()
-
-                elif keyword.keysym == 'Return' or put == 'equal':
-                    self.InputEquals()
-
-                elif keyword.keysym == 'E':
-                    self.Input('E')
-
-                elif keyword.keysym == 'e':
-                    self.Input('Exp(')
-
-                elif put == 'v':
-                    self.SwitchButtons("1st")
-
-                elif put == 'b':
-                    self.SwitchButtons("2nd")
-
-                elif put == 'r':
-                    self.SwitchDegRad('Radians')
-
-                elif put == 'd':
-                    self.SwitchDegRad('Degree')
-
-                elif put == 'slash':
-                    self.Input('/')
-
-                elif put == 'asterisk':
-                    self.Input('*')
-
-                elif put == 'minus':
-                    self.Input('-')
-
-                elif put == 'plus':
-                    self.Input('+')
-
-                elif put == 'asciicircum':
-                    self.Input('^')
-
-                elif put == 'period':
-                    self.Input('.')
-
-                elif put == 'parenleft':
-                    self.Input('(')
-
-                elif put == 'parenright':
-                    self.Input(')')
-
-                elif put == 'bar':
-                    self.Input('Sq(')
-
-                elif put == 'backslash':
-                    self.Input('sqrt(')
-
-                elif keyword.keysym == 's':
-                    self.Input('Sin(')
-
-                elif keyword.keysym == 'c':
-                    self.Input('Cos(')
-
-                elif keyword.keysym == 't':
-                    self.Input('Tan(')
-
-                elif keyword.keysym == 'S':
-                    self.Input('Sinh(')
-
-                elif keyword.keysym == 'C':
-                    self.Input('Cosh(')
-
-                elif keyword.keysym == 'T':
-                    self.Input('Tanh(')
-
-                elif keyword.keysym == 'l':
-                    self.Input('Ln(')
-
-                elif put == 'i':
-                    self.Input('oo')
-
-                elif put == 'j':
-                    self.Input('1j')
-
-                elif put == 'exclam' or put == 'f':
-                    self.Input('factorial(')
-
-                elif keyword.keysym == 'L':
-                    self.Input('Log')
-
-                elif put == 'p':
-                    self.Input('π')
-
-                elif put == 'x' or put == 'y' or put == 'z' or put == '0' or put == '1' or put == '2' or put == '3' \
-                        or put == '4' or put == '5' or put == '6' or put == '7' or put == '8' or put == '9':
-                    self.Input(put)
-
-                else:
-                    pass
-
+            if keyword.keysym == 'Return' or put == 'equal':
+                pass
+            else:
                 self.Click()
 
         except IndexError:
@@ -1142,11 +1146,50 @@ class Calculator(Canvas):
                     elif not self.clear:
                         if self.equal is None:
                             self.k = str(sympify(self.expression))
-                            self.TextVariable.set('eq₃ > ')
-                            self.FastTextVariable.set('eq₃ > ')
                             self.FullTextDisplay.insert(END, f' eq₂ | {self.j} = {self.k}')
-                            self.expression = ""
-                            self.equal = False
+                            try:
+                                self.lslv = linsolve(
+                                    [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
+                                    [self.x, self.y])
+                            except ValueError or TypeError:
+                                self.lslv = nonlinsolve(
+                                    [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k))],
+                                    [self.x, self.y])
+
+                            self.lslv = str(self.lslv)
+                            self.w = int(len(self.lslv))
+                            self.v = 0
+                            while self.v < self.w:
+                                self.exist = False
+                                if self.lslv[self.v] == 'z' or self.lslv == 'EmptySet':
+                                    self.TextVariable.set('eq₃ > ')
+                                    self.FastTextVariable.set('eq₃ > ')
+                                    self.expression = ""
+                                    self.equal = False
+                                    self.exist = True
+                                    break
+                                self.v += 1
+
+                            if not self.exist:
+                                self.lslv = str(self.lslv[11:-2])
+                                self.FastTextVariable.set('System of Two Equations : {eq₁,eq₂}_[x,y]')
+
+                                self.w = int(len(self.lslv))
+                                self.v = 0
+                                while self.v < self.w:
+                                    self.xexp = str(self.xexp) + str(self.lslv[self.v])
+                                    self.v += 1
+                                    if self.lslv[self.v] == ',':
+                                        while self.v < self.w:
+                                            self.yexp = str(self.yexp) + str(self.lslv[self.v])
+                                            self.v += 1
+
+                                self.yexp = str(self.yexp).replace(', ', '')
+                                self.TextVariable.set(f'{self.sb[0]} = {self.xexp} | {self.sb[1]} = {self.yexp}')
+                                self.FullTextDisplay.insert(END, f'> {self.sb[0]} = {self.xexp}',
+                                                            f'> {self.sb[1]} = {self.yexp}')
+                                self.clear = True
+                                self.full = None
 
                         elif not self.equal:
                             self.m = str(sympify(self.expression))
@@ -1166,7 +1209,7 @@ class Calculator(Canvas):
                                     [Eq(sympify(self.q), sympify(self.p)), Eq(sympify(self.j), sympify(self.k)),
                                      Eq(sympify(self.m), sympify(self.n))], [self.x, self.y, self.z])
 
-                                self.lslv = str(self.lslv)
+                            self.lslv = str(self.lslv)
 
                             if self.lslv == 'EmptySet':
                                 self.TextVariable.set(self.lslv)
@@ -1174,7 +1217,7 @@ class Calculator(Canvas):
 
                             else:
                                 self.lslv = str(self.lslv[11:-2])
-                                self.FastTextVariable.set(self.lslv)
+                                self.FastTextVariable.set('System of Three Equations : {eq₁,eq₂,eq₃}_[x,y,z]')
 
                                 self.w = int(len(self.lslv))
                                 self.v = 0
@@ -1369,6 +1412,8 @@ class Calculator(Canvas):
             self.FastTextVariable.set('OverflowMathRangeError')
         except IndexError:
             self.FastTextVariable.set('IndexError')
+
+        self.FullTextDisplay.see(END)
 
 
 def Exit():
