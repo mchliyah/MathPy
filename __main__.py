@@ -2,7 +2,7 @@ import matplotlib
 
 # matplotlib.use('TkAgg')  # MUST BE CALLED BEFORE IMPORTING plot
 matplotlib.use('Qt5Agg')  # MUST BE CALLED BEFORE IMPORTING plot
-from __jeep_v9__ import *
+from __jeep_v9_1__ import *
 from tkinter import *
 from matplotlib.figure import Figure
 from sympy import *
@@ -24,7 +24,7 @@ class of calculator
 
 class Calculator:
     __author__ = 'Achraf Najmi'
-    __version__ = '6.3.0_b2'
+    __version__ = '6.3.0_b2.1'
     __name__ = 'MathPy'
     btn_prm = {'padx': 18,
                'pady': 1,
