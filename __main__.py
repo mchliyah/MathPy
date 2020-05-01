@@ -3,11 +3,12 @@ from math import log2, log10
 from operator import *
 from tkinter import *
 from sympy import *
-from sympy.abc import x
+from sympy.abc import x, y
+from sympy.plotting import plot, plot_parametric, plot3d, plot3d_parametric_line, plot3d_parametric_surface
 from sympy.solvers.solveset import solvify
 
-# version 4.1.3
-# Change Background of First Text Display
+# version 5.0.0
+# Add Plotting Environment
 btn_prm = {'padx': 18,
            'pady': 2,
            'bd': 1,
@@ -19,13 +20,13 @@ btn_prm = {'padx': 18,
            'relief': 'raised',
            'activebackground': '#666666',
            'activeforeground': "white"}
-big_prm = {'padx': 8,
-           'pady': 7,
+big_prm = {'padx': 14,
+           'pady': 13,
            'bd': 1,
            'fg': 'white',
            'bg': 'slate gray',
-           'font': ('Segoe UI Symbol', 15),
-           'width': 7,
+           'font': ('Segoe UI Symbol', 12),
+           'width': 5,
            'height': 1,
            'relief': 'raised',
            'activebackground': '#80000B',
@@ -134,6 +135,7 @@ class Calculator:
         self.q = ''
         self.p = ''
         self.x = x
+        self.y = y
         self.R = S.Reals
         self.C = S.Complexes
         # int range numbers of function
@@ -174,11 +176,11 @@ class Calculator:
         bottom_frame = Frame(master, relief='flat', bg='#666666')
         bottom_frame.grid(row=3, column=0)
         # buttons that will be displayed on top frame ROW 0=============================================================
-        big_txt = ['Operation', 'Function', "Equation", 'Solve']
-        big_pad = ['Operation', 'Function', "LinEqua", 'Solve']
+        big_txt = ['Operation', 'f(x)', 'f(x,y)',"Equation", 'Solve']
+        big_pad = ['Operation', 'Function','Ploting', "SimEquation", 'Solve']
         self.btn_b = []
         i = 0
-        for k in range(0, 8, 2):
+        for k in range(5):
             self.btn_b.append(Button(self.top_frame, **big_prm, text=big_txt[i]))
             self.btn_b[i].grid(row=0, column=k)
             self.btn_b[i]["command"] = lambda n=big_pad[i]: self.SwitchFunction(n)
@@ -213,10 +215,10 @@ class Calculator:
             i += 1
         # buttons that will be displayed on bottom frame ROW 0==========================================================
         # ========================Numbers===============================================================================
-        btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', 'e-', "4", "5", "6", "-", "**2", 'e', "1",
+        btn = ['π', 'E', "1j", '(', ')', self.x, "7", "8", "9", "+", '**3', self.y, "4", "5", "6", "-", "**2", 'e', "1",
                "2", "3", "*", "**", "Sq(", '.', "0", "=", "/", "Fact(", '/100']
 
-        btn_txt = ['π', 'E', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', '10ˉˣ', "4", "5", "6", "-",
+        btn_txt = ['π', 'E', "j", '(', ')', 'x', "7", "8", "9", "+", u'n\u00B3', 'y', "4", "5", "6", "-",
                    u'n\u00B2', '10ˣ', "1", "2", "3", "*", "nˣ", '√n', '.', "0", "=", "/", "!n", "n%"]
         self.btn = []
         i = 0
@@ -242,8 +244,8 @@ class Calculator:
         # Switch Menu In Bare Display===================================================================================
         filemenu.add_command(label="Operation          O", command=lambda: self.SwitchFunction("Operation"))
         filemenu.add_command(label='Function            F', command=lambda: self.SwitchFunction('Function'))
-        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('LinEqua'))
-        filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Equation'))
+        filemenu.add_command(label="Equation", command=lambda: self.SwitchFunction('SimEquation'))
+        filemenu.add_command(label='Solve', command=lambda: self.SwitchFunction('Solve'))
         filemenu.add_separator()
         filemenu.add_command(label='Radians              R', command=lambda: self.SwitchDegRad('Radians'))
         filemenu.add_command(label='Degree               D', command=lambda: self.SwitchDegRad('Degree'))
@@ -297,9 +299,10 @@ class Calculator:
             self.FullTextDisplay.insert(INSERT, 'Mode Operation :')
             self.FastTextVariable.set('')
             self.btn_b[0]['bg'] = 'indian red'
-            for i in range(1, 4):
+            for i in range(1, 5):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['disabled']
+            self.btn[11]['state'] = ['disabled']
             self.btn[2].config(state=NORMAL)
 
         elif self.mode == 'Function':
@@ -307,28 +310,47 @@ class Calculator:
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             self.btn_b[0]['bg'] = '#292929'
             self.btn_b[1]['bg'] = 'indian red'
-            for i in range(2, 4):
+            for i in range(2, 5):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn[5]['state'] = ['normal']
             self.btn[2]['state'] = ['disabled']
+            self.btn[11]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
 
-        elif self.mode == 'LinEqua':
-            self.FullTextDisplay.insert(INSERT, 'Mode Equation : aX² + bX + c = 0')
-            self.FastTextVariable.set('aX² + bX + c = 0')
+        elif self.mode == 'Ploting':
+            self.FullTextDisplay.insert(INSERT, 'Mode Ploting : f(x,y)')
+            self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
             for i in range(2):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn_b[2]['bg'] = 'indian red'
-            self.btn_b[3]['bg'] = '#292929'
-            self.btn[5].config(state=DISABLED)
-            self.btn[2].config(state=DISABLED)
+            for i in range(3, 5):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn[5]['state'] = ['normal']
+            self.btn[11]['state'] = ['normal']
+            self.btn[2]['state'] = ['disabled']
+            self.SwitchDegRad('Radians')
 
-        elif self.mode == 'Solve':
-            self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
+        elif self.mode == 'SimEquation':
+            self.FullTextDisplay.insert(INSERT, 'Mode Simple Equation : aX² + bX + c = 0')
+            self.FastTextVariable.set('aX² + bX + c = 0')
             for i in range(3):
                 self.btn_b[i]['bg'] = '#292929'
             self.btn_b[3]['bg'] = 'indian red'
-            self.btn[5].config(state=NORMAL)
+            self.btn_b[4]['bg'] = '#292929'
+            self.btn[5].config(state=DISABLED)
+            self.btn[11].config(state=DISABLED)
             self.btn[2].config(state=DISABLED)
+            self.SwitchDegRad('Radians')
+
+        elif self.mode == 'Solve':
+            self.FullTextDisplay.insert(INSERT, 'Mode Equation :')
+            for i in range(4):
+                self.btn_b[i]['bg'] = '#292929'
+            self.btn_b[4]['bg'] = 'indian red'
+            self.btn[5].config(state=NORMAL)
+            self.btn[11].config(state=DISABLED)
+            self.btn[2].config(state=DISABLED)
+            self.SwitchDegRad('Radians')
 
         self.Clear()
 
@@ -357,6 +379,9 @@ class Calculator:
         self.c = ''
         self.q = ''
         self.p = ''
+        self.fct = ''
+        self.fctxy1 = ''
+        self.fctxy2 =''
         self.store_expression = []
         self.store_order = []
         self.expression = ''
@@ -367,7 +392,11 @@ class Calculator:
             self.TextVariable.set(f'From : ')
             self.FastTextVariable.set(f'From : A --> To : B | f(x) = Function')
 
-        elif self.mode == 'LinEqua':
+        elif self.mode == 'Ploting':
+            self.TextVariable.set(f'f(x,y)₁ = ')
+            self.FastTextVariable.set(f'f(x,y)₁ = ')
+
+        elif self.mode == 'SimEquation':
             self.TextVariable.set(f'a = ')
             self.FastTextVariable.set('aX² + bX + c = 0')
 
@@ -515,10 +544,10 @@ class Calculator:
                 else:
                     pass
 
+                self.Click()
+
         except IndexError:
             self.FastTextVariable.set('IndexError')
-
-        self.Click()
 
     def SwitchENG(self, NBR):
         dot = NBR
@@ -559,7 +588,7 @@ class Calculator:
 
                 else:
                     self.FastTextVariable.set(N(eval(self.expression), self.ENG))
-                    
+
             elif self.mode == "Function":
                 if self.full is None:
                     self.TextVariable.set(f'From : {self.expression}')
@@ -572,8 +601,17 @@ class Calculator:
                 elif self.full:
                     self.TextVariable.set(f'f(x) = {self.expression}')
                     self.FastTextVariable.set(f'From : {self.v} --> To : {int(self.w) - 1} | f(x) = {self.expression}')
-                    
-            elif self.mode == 'LinEqua':
+
+            elif self.mode == "Ploting":
+                if self.full is None:
+                    self.TextVariable.set(f'f(x,y)₁ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x,y)₁ = {self.expression}')
+
+                elif self.full:
+                    self.TextVariable.set(f'f(x,y)₂ = {self.expression}')
+                    self.FastTextVariable.set(f'f(x,y)₂ = {self.expression}')
+
+            elif self.mode == 'SimEquation':
                 if self.full is None:
                     self.TextVariable.set(f'a = {self.expression}')
                     self.FastTextVariable.set(f'{self.expression}X² + bX + c = 0')
@@ -660,13 +698,36 @@ class Calculator:
 
                 elif self.full:
                     self.FullTextDisplay.insert(INSERT, f'\nf(x) = {sympify(self.expression)}')
+                    self.fct = str(eval(self.expression))
+                    plot(sympify(self.fct), (self.x, self.v, self.w))
+                    plot3d(sympify(self.fct), (self.x, self.v, self.w))
                     for x in range(self.v, self.w):
-                        self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
+                        if self.ENG == 16:
+                            self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {eval(self.expression)}')
+                        else:
+                            self.FullTextDisplay.insert(INSERT, f'\nf({x}) = {N(eval(self.expression), self.ENG)}')
 
-                    self.clear = True
-                    self.full = None
+            elif self.mode == 'Ploting':
+                try:
+                    if self.full is None:
+                        self.fctxy1 = str(eval(self.expression))
+                        self.FullTextDisplay.insert(INSERT, f'\nf(x,y)₁ = {self.fctxy1}')
+                        self.expression = ""
+                        self.TextVariable.set(f'f(x,y)₂ = ')
+                        self.full = True
 
-            elif self.mode == 'LinEqua':
+                    elif self.full:
+                        self.fctxy2 = str(eval(self.expression))
+                        self.FullTextDisplay.insert(INSERT, f'\nf(x,y)₂ = {self.fctxy2}')
+                        plot3d(sympify(self.fctxy1), sympify(self.fctxy2))
+                        plot3d_parametric_line(sympify(self.fctxy1), sympify(self.fctxy2), self.x)
+                        plot_parametric(sympify(self.fctxy1), sympify(self.fctxy2))
+                        plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
+                except TypeError:
+                    plot3d_parametric_surface(sympify(self.fctxy1), sympify(self.fctxy2), self.x - self.y)
+
+
+            elif self.mode == 'SimEquation':
                 if self.full is None:
                     self.a = N(eval(self.expression), 3)
                     self.expression = ""
@@ -801,6 +862,7 @@ The Equation : {self.a}X² + ({self.b})X + ({c}) = 0
             self.FastTextVariable.set('NameError')
         except TypeError:
             self.FastTextVariable.set('TypeError')
+            pass
         except OverflowError:
             self.FastTextVariable.set('OverflowMathRangeError')
         except IndexError:
@@ -832,5 +894,5 @@ if __name__ == "__main__":
     win.configure(menu=menubare, bg='#666666')
     # win.configure(menu=menubare, bg='#4d4d4d')
     win.resizable(False, False)
-    win.title("PyMathon v4.1.3")
+    win.title("PyMathon v5.0.0")
     win.mainloop()
