@@ -4,25 +4,22 @@ from random import randint
 from sympy import *
 from sympy.abc import x, y, z
 from sympy.parsing.sympy_parser import parse_expr
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from matplotlib.figure import Figure
-from matplotlib.colors import to_hex
 import matplotlib
 
 matplotlib.use('TkAgg')
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
+from matplotlib.colors import to_hex
+# from mpl_toolkits.mplot3d import Axes3D
 from sympy.plotting import PlotGrid, plot_backends
 
 delf = ()
 
 
-def fctrl(nbr):
-    return factorial(nbr).evalf()
-
-
 def DrawAfter(character):
     try:
-      simplify = sympify(character, rational=True, evaluate=True)
-      return LaTex(simplify)
+        simplify = sympify(character, rational=True, evaluate=True)
+        return LaTex(simplify)
     except Exception:
         return character
 
@@ -50,7 +47,7 @@ def DrawBefore(character):
 
 
 def LaTex(Math_Expression):
-    TEX = str('$') + latex(Math_Expression) + str('$')
+    TEX = '$' + latex(Math_Expression) + '$'
     # TEX = r"$%s$" % latex(Math_Expression)
     # TEX = f'${latex(Math_Expression)}$'
     return TEX
@@ -145,8 +142,8 @@ class ManagedEntry(tk.Entry):
         elif keyword.keysym == 'Left':
             self.DirectionCursor('Left')
 
-    def StringVariable(self, text):
-        self.TextVariable.set(text)
+    def StringVariable(self):
+        self.TextVariable.set(self.expression)
         self.icursor(self.index_cursor)
 
     def ClickCursor(self, event):
@@ -231,7 +228,7 @@ class ManagedEntry(tk.Entry):
                     self.store_order.pop(int(self.n))
                 else:
                     pass
-        self.StringVariable(self.expression)
+        self.StringVariable()
         return self.expression
 
     def InsertIntoString(self, str_to_insert):
@@ -251,7 +248,7 @@ class ManagedEntry(tk.Entry):
             self.expression = self.expression
 
         self.AdditionalInsertionTools(str_to_insert)
-        self.StringVariable(self.expression)
+        self.StringVariable()
         return self.expression
 
     def AdditionalInsertionTools(self, string):
@@ -305,7 +302,7 @@ class ManagedEntry(tk.Entry):
         self.store_order = []
         self.index_cursor = int(self.index(tk.INSERT))
         self.index_cursor = 0
-        self.StringVariable('')
+        self.StringVariable()
 
 
 class ScrollableTkAggX(tk.Canvas):
@@ -514,6 +511,8 @@ class TkFigurePlot(tk.Frame):
         self.ToolBar.update()
 
     def Draw(self):
+        self.ToolBar.update()
+
         self.TkAgg.draw()
 
 
@@ -542,7 +541,6 @@ class BackEndPlot(tk.Canvas):
         self.TkAgg.destroy()
         self.TkAgg = TkFigurePlot(figure=self.Figure, master=self)
         self.TkAgg.grid(row=0, column=0, sticky=tk.NSEW)
-        self.TkAgg.Draw()
 
     def Clear(self):
         self.TkAgg.destroy()
@@ -552,10 +550,28 @@ class BackEndPlot(tk.Canvas):
 
 
 class SmallNumbers:
-    def __init__(self, how_much_numbers):
-        self.how_much_numbers = int(how_much_numbers)
-        self.work_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
-        self.generated_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+    def __init__(self, how_much_numbers, place_of_script):
+        """
+
+        :param how_much_numbers: input integer or string numbers
+                                 to get list of string numbers
+        :param place_of_script: sub or super
+        """
+        try:
+            self.how_much_numbers = int(eval(how_much_numbers))
+        except TypeError:
+            self.how_much_numbers = int(how_much_numbers)
+
+        self.place_of_script = str(place_of_script).lower()
+
+        if self.place_of_script == 'sub':
+            self.work_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+            self.generated_list = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉']
+
+        elif self.place_of_script == 'super':
+            self.work_list = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
+            self.generated_list = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
+
         if self.how_much_numbers >= 10:
             start = 10
             end = 100
@@ -605,8 +621,12 @@ class SystemSolverEntry(tk.Canvas):
 
         self.canvas = tk.Canvas(master=self, height=self.height)
         self.entry = []
-        self.widget = 0
+        self.widget = ManagedEntry(self.canvas)
+        self.hbar = tk.Scrollbar(self.canvas)
         self.u = int(line)
+        self.frame = []
+        self.label0 = []
+        self.canvas_frame = []
 
         self.button3 = HoverButton(master=self, text='3⨯3 {x,y,z}', **self.btnb_prm)
         self.button3.grid(row=1, column=2, sticky=tk.NSEW)
@@ -627,43 +647,46 @@ class SystemSolverEntry(tk.Canvas):
 
     def CreateGrid(self, line, **kwargs):
         self.u = int(line)
+        bg = kwargs['bg']
         self.canvas.destroy()
-        self.canvas = tk.Canvas(master=self, height=self.height)
+        self.canvas = tk.Canvas(master=self, height=self.height - 40, background=bg)
         self.canvas.grid(row=0, column=0, columnspan=3, sticky=tk.NSEW)
-        if self.u == 1:
-            self.canvas.rowconfigure(0, weight=1)
-            self.canvas.columnconfigure(0, weight=1)
-            self.canvas.columnconfigure(2, weight=1)
-        elif self.u == 2:
-            self.canvas.rowconfigure(0, weight=1)
-            self.canvas.rowconfigure(1, weight=1)
-            self.canvas.columnconfigure(0, weight=1)
-            self.canvas.columnconfigure(2, weight=1)
-        elif self.u == 3:
-            self.canvas.rowconfigure(0, weight=1)
-            self.canvas.rowconfigure(1, weight=1)
-            self.canvas.rowconfigure(2, weight=1)
-            self.canvas.columnconfigure(0, weight=1)
-            self.canvas.columnconfigure(2, weight=1)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.columnconfigure(0, weight=1)
+
+        self.hbar.destroy()
+        self.hbar = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.canvas.xview)
+        self.hbar.grid(row=2, column=0, columnspan=3, sticky=tk.EW)
+
+        self.frame = []
+        self.label0 = []
+        label1 = []
+        for cste in range(self.u):
+            self.frame.append(tk.Frame(self.canvas, background=bg))
+
+            self.label0.append(tk.Label(self.frame[cste], **kwargs))
+            self.label0[cste].grid(row=cste, column=0, sticky=tk.NSEW)
+            self.label0[cste].configure(justify=tk.CENTER)
+
+            label1.append(tk.Label(self.frame[cste], text='=', **kwargs))
+            label1[cste].grid(row=cste, column=2, sticky=tk.NSEW)
+            label1[cste].configure(justify=tk.CENTER)
 
         self.entry = []
         k = 0
         for i in range(self.u):
-            for j in range(0, 3, 2):
-                self.entry.append(ManagedEntry(self.canvas, **kwargs))
+            for j in range(1, 4, 2):
+                self.entry.append(ManagedEntry(self.frame[i], **kwargs))
                 self.entry[k].grid(row=i, column=j, sticky=tk.NSEW)
+                self.entry[k].config(width=2)
                 self.entry[k].bind('<Button-1>', self.Press, add="+")
                 k += 1
 
-        label = []
-        for l0 in range(self.u):
-            label.append(tk.Label(self.canvas, text='=', **kwargs))
-            label[l0].grid(row=l0, column=1, sticky=tk.NSEW)
-            label[l0].configure(justify=tk.CENTER)
-
+        # Configuration of buttons bottom and grid =====================================================================
         if self.u == 3:
-            for m in range(1, 6, 2):
-                self.entry[m].configure(width=2)
+            self.frame[0].rowconfigure(0, weight=1)
+            self.frame[1].rowconfigure(1, weight=1)
+            self.frame[2].rowconfigure(2, weight=1)
 
             self.button3.config(fg="white", bg='#80000B', relief='sunken')
             self.button3.DBG = '#80000B'
@@ -673,8 +696,8 @@ class SystemSolverEntry(tk.Canvas):
             self.button1.DBG = '#F0F0F0'
 
         elif self.u == 2:
-            for m in range(1, 4, 2):
-                self.entry[m].configure(width=2)
+            self.frame[0].rowconfigure(0, weight=1)
+            self.frame[1].rowconfigure(1, weight=1)
 
             self.button3.config(fg="black", bg='#F0F0F0', relief='flat')
             self.button3.DBG = '#F0F0F0'
@@ -684,7 +707,7 @@ class SystemSolverEntry(tk.Canvas):
             self.button1.DBG = '#F0F0F0'
 
         elif self.u == 1:
-            self.entry[1].configure(width=2)
+            self.frame[0].rowconfigure(0, weight=1)
 
             self.button3.config(fg="black", bg='#F0F0F0', relief='flat')
             self.button3.DBG = '#F0F0F0'
@@ -693,7 +716,24 @@ class SystemSolverEntry(tk.Canvas):
             self.button1.config(fg="white", bg='#80000B', relief='sunken')
             self.button1.DBG = '#80000B'
 
+        self.canvas_frame = []
+        for i in range(self.u):
+            self.canvas_frame.append(
+                self.canvas.create_window((0, i * (self.height - 20) / self.u), window=self.frame[i], anchor="nw",
+                                          height=(self.height - 20) / self.u))
+
+        self.canvas.configure(xscrollcommand=self.hbar.set, scrollregion=self.canvas.bbox(tk.ALL))
         self.widget = self.entry[0]
+        self.on_configure_x()
+
+    def on_configure_x(self):
+        self.widget.configure(width=len(self.widget.expression) + 2)
+        for u in range(self.u):
+            bb = self.frame[u].bbox()
+            self.canvas.itemconfigure(self.canvas_frame[u], width=int(bb[2]))
+
+        self.canvas.configure(scrollregion=self.canvas.bbox(tk.ALL))
+        self.canvas.xview_moveto(1)
 
     def Clear(self):
         if self.u == 3:
@@ -710,38 +750,74 @@ class SystemSolverEntry(tk.Canvas):
 class FunctionEntry(tk.Canvas):
     def __init__(self, master, height, **kwargs):
         self.height = height
-        super(FunctionEntry, self).__init__(master, height=self.height, **kwargs)
+        super(FunctionEntry, self).__init__(master, height=self.height - 20, **kwargs)
         self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=1)
-        self.columnconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.hbar = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)
         self.entry = []
-        self.widget = []
         self.label = []
+        self.widget = []
+        self.canvas_frame = []
+        self.frame = []
+        self.v = int
 
     def __call__(self, *args, **kwargs):
         return self.widget
 
-    def CreateGrid(self, **kwargs):
-        self.entry = []
-        for p in range(2):
-            self.entry.append(ManagedEntry(self, width=16, **kwargs))
-            self.entry[p].grid(row=p, column=1, sticky=tk.NSEW)
-            self.entry[p].bind('<Button-1>', self.Press, add="+")
-
-        self.widget = self.entry[0]
-
-        self.label = []
-        for q in range(2):
-            self.label.append(tk.Label(self, **kwargs))
-            self.label[q].grid(row=q, column=0, sticky=tk.NSEW)
-
-        self.Clear()
-
     def Press(self, event):
         self.widget = event.widget
 
+    def CreateGrid(self, line, **kwargs):
+        self.v = int(line)
+        bg = kwargs['bg']
+
+        self.frame = []
+        self.label = []
+        for q in range(self.v):
+            self.frame.append(tk.Frame(self, background=bg))
+            self.label.append(tk.Label(self.frame[q], **kwargs))
+            self.label[q].grid(row=q, column=0, sticky=tk.NSEW)
+
+        self.entry = []
+        for p in range(self.v):
+            self.entry.append(ManagedEntry(self.frame[p], **kwargs))
+            self.entry[p].grid(row=p, column=1, sticky=tk.NSEW)
+            self.entry[p].config(width=2)
+            self.entry[p].bind('<Button-1>', self.Press, add="+")
+
+        if self.v == 2:
+            self.frame[0].rowconfigure(0, weight=1)
+            self.frame[1].rowconfigure(1, weight=1)
+            self.hbar.grid(row=2, column=0, columnspan=2, sticky=tk.EW)
+        elif self.v == 3:
+            self.frame[0].rowconfigure(0, weight=1)
+            self.frame[1].rowconfigure(1, weight=1)
+            self.frame[2].rowconfigure(2, weight=1)
+            self.hbar.grid(row=3, column=0, columnspan=2, sticky=tk.EW)
+
+        self.widget = self.entry[0]
+
+        self.canvas_frame = []
+        for i in range(self.v):
+            self.canvas_frame.append(
+                self.create_window((0, i * (self.height - 20) / self.v), window=self.frame[i], anchor="nw",
+                                          height=(self.height - 20) / self.v))
+
+        self.configure(xscrollcommand=self.hbar.set, scrollregion=self.bbox(tk.ALL))
+        self.widget = self.entry[0]
+        self.Clear()
+
+    def on_configure_x(self):
+        self.widget.configure(width=len(self.widget.expression) + 2)
+        for v in range(self.v):
+            bb = self.frame[v].bbox()
+            self.itemconfigure(self.canvas_frame[v], width=int(bb[2]))
+
+        self.configure(scrollregion=self.bbox(tk.ALL))
+        self.xview_moveto(1)
+
     def Clear(self):
-        for s in range(2):
+        for s in range(self.v):
             self.entry[s].Clear()
 
 
@@ -751,18 +827,12 @@ class DrawLaTeX:
         self.last_good_After = []
         self.last_good_AfterNum = []
 
-    def LaTex(self, Math_Expression):
-        TEX = str('$') + latex(Math_Expression) + str('$')
-        # TEX = r"$%s$" % latex(Math_Expression)
-        # TEX = f'${latex(Math_Expression)}$'
-        return TEX
-
     def Before(self, character):
         try:
             pik = str(character).replace('integrate', 'Integral').replace('diff', 'Derivative')
             # expression = sympify(pik, rational=True, evaluate=False)
             expression = parse_expr(pik, evaluate=False)
-            TEX = self.LaTex(expression)
+            TEX = LaTex(expression)
             self.last_good_Before.append(TEX)
             return TEX
         except Exception:
@@ -774,7 +844,7 @@ class DrawLaTeX:
     def After(self, character):
         try:
             simplify = sympify(character, rational=True, evaluate=True)
-            TEX = self.LaTex(simplify)
+            TEX = LaTex(simplify)
             self.last_good_After.append(TEX)
             return TEX
         except Exception:
@@ -786,7 +856,7 @@ class DrawLaTeX:
     def AfterNum(self, character):
         try:
             simplify = sympify(character, rational=True, evaluate=True).evalf()
-            TEX = self.LaTex(simplify)
+            TEX = LaTex(simplify)
             self.last_good_AfterNum.append(TEX)
             return TEX
         except Exception:
