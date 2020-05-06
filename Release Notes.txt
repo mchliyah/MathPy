@@ -258,3 +258,9 @@ Parametric Line, optimizing and adapting and creating space for this class in sc
 # fix the setting zero in Equation Solver, and add float answer
 # remove 'π' noinspection NonAsciiCharacters and use just 'pi'
 # add to the empty canvas logo, name and version of app, and name of author
+
+# version 7.0.1
+# make switching button x to u and functions (f(x)₁ , f(x)₂) to (x , y) in mode Plot Parametric 2D_3D Line
+# make switching buttons (x , y) to (u , v) and functions (f(x,y)₁ , f(x,y)₂) to (x , y , z) in mode Plot 3D Parametric
+Surface
+# build scrollbar for SystemSolverEntry and for FunctionEntry
